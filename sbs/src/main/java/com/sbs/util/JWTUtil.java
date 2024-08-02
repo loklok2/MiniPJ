@@ -6,7 +6,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 
 public class JWTUtil {
-    private static final long ACCESS_TOKEN_MSEC = 10 * (60 * 1000); // 10분 유지
+    private static final long ACCESS_TOKEN_MSEC = 10 * (60 * 10); // 10분 유지
     private static final String JWT_KEY = "edu.pnu.jwtkey";
     private static final String CLAIM_NAME = "username";
     private static final String PREFIX = "Bearer ";

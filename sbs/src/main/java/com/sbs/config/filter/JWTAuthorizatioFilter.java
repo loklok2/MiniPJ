@@ -10,10 +10,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.sbs.domain.Member;
 import com.sbs.persistence.MemberRepository;
+import com.sbs.util.JWTUtil;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -37,9 +36,8 @@ public class JWTAuthorizatioFilter extends OncePerRequestFilter { //httpservlet�
 			filterChain.doFilter(request, response);				//필터를 그냥 통과
 			return;			
 		}
-		String jwtToken = srcToken.replace("Bearer ", "");			//필터에서 "Bearer " 제거
 		
-		String username = JWT.require(Algorithm.HMAC256("edu.pnu.jwt")).build().verify(jwtToken).getClaim("username").asString();
+		String username = JWTUtil.getClaim(srcToken);
 		
 		
 		Optional<Member> opt = memberRepository.findByUsername(username); // 토큰에서 얻은 username으로 DB검색해서 사용자를 검색

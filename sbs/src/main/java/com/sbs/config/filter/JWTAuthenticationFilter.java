@@ -16,6 +16,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sbs.domain.Member;
+import com.sbs.util.JWTUtil;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -57,11 +58,11 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 		User user = (User)authResult.getPrincipal();
 		
-		String token = JWT.create()
-						.withExpiresAt(new Date(System.currentTimeMillis()+1000*60*10000))
-						.withClaim("username", user.getUsername())
-						.sign(Algorithm.HMAC256("edu.pnu.jwt"));
-		response.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+//		String token = JWT.create()
+//						.withExpiresAt(new Date(System.currentTimeMillis()+1000*60*10))
+//						.withClaim("username", user.getUsername())
+//						.sign(Algorithm.HMAC256("edu.pnu.jwt"));
+		response.addHeader(HttpHeaders.AUTHORIZATION, JWTUtil.getJWT(user.getUsername()));
 		response.setStatus(HttpStatus.OK.value());
 	
 	}

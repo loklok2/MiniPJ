@@ -48,7 +48,7 @@ export default function Map() {
 
     return (
         <div className='w-full h-full bg-slate-100
-                        flex justify-content-center items-center'>
+                        flex justify-center items-center'>
             <div
                 id="map"
                 style={{ width: '70%', height: '300px' }}>

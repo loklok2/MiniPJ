@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { RecoilRoot } from 'recoil';
-import 'bootstrap/dist/css/bootstrap.min.css'; // Bootstrap CSS import
 import Navbar from './pages/Navbar';
 import Sidebar from './pages/Sidebar';
 import Footer from './pages/Footer';
@@ -13,20 +12,16 @@ export default function App() {
     return (
         <BrowserRouter>
             <RecoilRoot>
-                <div className="d-flex flex-column min-vh-100">
+                <div className="flex flex-col min-h-screen">
                     <Navbar />
-                    <div className="d-flex flex-grow-1">
-                        <Sidebar />
-                        <main className="flex-grow-1 p-4 mt-5 ms-auto" 
-                              style={{ marginLeft: '16rem' }}>
-                            <div className="">
-                                <Routes>
-                                    <Route path="/" element={<Main />} />
-                                    <Route path="/map" element={<Map />} />
-                                    <Route path="/login" element={<Login />} />
-                                    {/* 추가적인 경로들 추가 */}
-                                </Routes>
-                            </div>
+                    <div className="flex flex-grow">
+                        <main className="flex-grow flex flex-col justify-center items-center">
+                            <Routes>
+                                <Route path="/" element={<Main />} />
+                                <Route path="/map" element={<Map />} />
+                                <Route path="/login" element={<Login />} />
+                                {/* 추가적인 경로들 추가 */}
+                            </Routes>
                         </main>
                     </div>
                     <Footer />

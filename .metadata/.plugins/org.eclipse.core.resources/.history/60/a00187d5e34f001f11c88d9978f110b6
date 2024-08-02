@@ -1,5 +1,0 @@
-package com.sbs.config;
-
-public class CorsConfig {
-
-}

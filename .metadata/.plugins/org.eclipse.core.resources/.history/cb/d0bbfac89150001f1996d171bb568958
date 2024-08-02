@@ -1,5 +1,0 @@
-package com.sbs.domain;
-
-public class SignupRequest {
-
-}
