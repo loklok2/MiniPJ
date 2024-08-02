@@ -1,0 +1,18 @@
+package com.sbs.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sbs.persistence.BoardRepository;
+
+@Service
+public class BoardService {
+	
+	@Autowired
+	private BoardRepository boardRepo;
+	
+	public List<Board> getAllBoards(){
+		return boardRepo.findAll();
+	}
+
+}

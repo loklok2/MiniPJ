@@ -1,0 +1,23 @@
+package com.sbs.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.sbs.domain.Member;
+import com.sbs.persistence.MemberRepository;
+
+@Service
+public class MemberService {
+	
+	@Autowired
+	private MemberRepository memberRepo;
+	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	
+	
+	public void save(Member member) {
+		memberRepo.save(member);
+	}
+}

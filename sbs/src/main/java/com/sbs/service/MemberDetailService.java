@@ -19,7 +19,7 @@ public class MemberDetailService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Member member = memRepo.findById(username).orElseThrow(()->new UsernameNotFoundException("Not Found"));
+		Member member = memRepo.findByUsername(username).orElseThrow(()->new UsernameNotFoundException("Not Found"));
 		System.out.println(member);
 		
 		return new User(member.getUsername(), member.getPassword(), 

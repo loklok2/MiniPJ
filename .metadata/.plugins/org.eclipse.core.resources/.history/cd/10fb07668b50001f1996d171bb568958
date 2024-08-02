@@ -1,0 +1,28 @@
+package com.sbs.service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sbs.domain.Board;
+import com.sbs.persistence.BoardRepository;
+
+@Service
+public class BoardService {
+	
+	@Autowired
+	private BoardRepository boardRepo;
+	
+	public List<Board> getAllBoards(){
+		return boardRepo.findAll();
+	}
+	
+	public Board createBoard(Board board) {
+		board.setCreateDate(LocalDateTime.now());
+		board.setCreateDate(LocalDateTime.now());
+		return boardRepo.save(board);
+	}
+
+}

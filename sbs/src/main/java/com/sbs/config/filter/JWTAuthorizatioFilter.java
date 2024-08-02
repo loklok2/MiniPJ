@@ -42,7 +42,7 @@ public class JWTAuthorizatioFilter extends OncePerRequestFilter { //httpservlet�
 		String username = JWT.require(Algorithm.HMAC256("edu.pnu.jwt")).build().verify(jwtToken).getClaim("username").asString();
 		
 		
-		Optional<Member> opt = memberRepository.findById(username); // 토큰에서 얻은 username으로 DB검색해서 사용자를 검색
+		Optional<Member> opt = memberRepository.findByUsername(username); // 토큰에서 얻은 username으로 DB검색해서 사용자를 검색
 		if(!opt.isPresent()) {										// 사용자가 존재하지 않는다면
 			filterChain.doFilter(request, response);				// 필터를 그냥 통과
 			return;

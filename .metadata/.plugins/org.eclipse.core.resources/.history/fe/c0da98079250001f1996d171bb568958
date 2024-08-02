@@ -1,0 +1,5 @@
+package com.sbs.persistence;
+
+public interface UserRepository {
+
+}
