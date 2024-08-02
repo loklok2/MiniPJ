@@ -47,6 +47,5 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .build());
         String jwtToken = JWTUtil.getJWT(username);
         response.addHeader(HttpHeaders.AUTHORIZATION, jwtToken); 
-        response.sendRedirect("/loginSuccess"); 
     }
 }

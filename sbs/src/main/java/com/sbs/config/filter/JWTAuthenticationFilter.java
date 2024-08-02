@@ -58,7 +58,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		User user = (User)authResult.getPrincipal();
 		
 		String token = JWT.create()
-						.withExpiresAt(new Date(System.currentTimeMillis()+1000*60*10000))
+						.withExpiresAt(new Date(System.currentTimeMillis()+1000*60*100))
 						.withClaim("username", user.getUsername())
 						.sign(Algorithm.HMAC256("edu.pnu.jwt"));
 		response.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
