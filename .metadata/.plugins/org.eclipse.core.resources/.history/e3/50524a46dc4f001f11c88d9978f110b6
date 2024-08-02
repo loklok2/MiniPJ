@@ -1,0 +1,31 @@
+package com.sbs.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+import com.sbs.domain.Member;
+import com.sbs.persistence.MemberRepository;
+
+@Service
+public class MemberDetailService implements UserDetailsService {
+	
+	@Autowired
+	private MemberRepository memRepo;
+
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		Member member = memRepo.findByUsername(username);
+        if (member == null) {
+            throw new UsernameNotFoundException("User not found with username: " + username);
+        }
+        // UserDetails를 확장하여 더 많은 정보를 추가할 수 있음
+        return User.withUsername(member.getUsername())
+                   .password(member.getPassword())
+                   .roles(member.getRoles().split(",")) // 역할 문자열을 배열로 변환
+                   .build();
+    }
+}

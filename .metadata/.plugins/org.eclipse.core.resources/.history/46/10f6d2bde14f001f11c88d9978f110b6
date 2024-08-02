@@ -1,0 +1,6 @@
+package com.sbs.domain;
+
+public class AuthResponse {
+	private String token;
+
+}

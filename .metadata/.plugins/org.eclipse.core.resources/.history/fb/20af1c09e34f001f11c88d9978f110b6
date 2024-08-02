@@ -1,0 +1,55 @@
+package com.sbs.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.header.HttpHeadersConfigurer;
+
+import com.sbs.util.OAuth2SuccessHandler;
+
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    private final OAuth2SuccessHandler successHandler;
+
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf().disable();
+
+        http.authorizeHttpRequests(authorizeRequests -> authorizeRequests
+            .requestMatchers("/member/**").authenticated()
+            .requestMatchers("/manager/**").hasAnyRole("MANAGER", "ADMIN")
+            .requestMatchers("/admin/**").hasRole("ADMIN")
+            .anyRequest().permitAll()
+        );
+
+        http.formLogin(form -> form
+            .loginPage("/login")
+            .defaultSuccessUrl("/loginSuccess", true)
+        );
+
+        http.logout(logout -> logout
+            .invalidateHttpSession(true)
+            .deleteCookies("JSESSIONID")
+            .logoutSuccessUrl("/login")
+        );
+
+        http.oauth2Login(oauth2 -> oauth2
+            .loginPage("/login")
+            .successHandler(successHandler)
+        );
+
+        // 프레임 옵션 설정
+        http.headers(headers -> headers
+            .frameOptions().sameOrigin() // 설정할 값: `sameOrigin`, `deny`, `allowFrom`, 등
+        );
+
+        return http.build();
+    }
+}
