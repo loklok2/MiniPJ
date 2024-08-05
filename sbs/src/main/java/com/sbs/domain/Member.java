@@ -26,4 +26,9 @@ public class Member {
 	private String password;
 	@Enumerated(EnumType.STRING)
 	private Role roles;
+	
+	
+	private String nickname; // 8/5 닉네임추가
+	private String verificationToken; // 이메일 인증 토큰
+	private boolean enabled; //이메일 인증여부
 }

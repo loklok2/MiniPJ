@@ -29,7 +29,6 @@ public class BoardService {
 	//게시글 작성
 	public Board createBoard(Board board) {
 		board.setCreateDate(LocalDateTime.now());
-		board.setCreateDate(LocalDateTime.now());
 		return boardRepo.save(board);
 	}
 	
