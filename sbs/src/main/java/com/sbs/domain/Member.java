@@ -1,5 +1,7 @@
 package com.sbs.domain;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -33,4 +35,8 @@ public class Member {
 	private String nickname;  // 회원의 닉네임 (8/5 닉네임 추가)
 	private String verificationToken;  // 이메일 인증을 위한 토큰
 	private boolean enabled;  // 이메일 인증 여부를 나타내는 플래그
+	
+	
+	private String resetPasswordToken;
+	private LocalDateTime resetPasswordTokenExpiry;
 }
