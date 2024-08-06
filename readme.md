@@ -1,108 +1,130 @@
-# 프로젝트 개요
+# SBS 스프링 부트 애플리케이션
 
-이 프로젝트는 Spring Boot를 기반으로 한 웹 애플리케이션입니다. 주요 기능으로는 회원가입, 로그인, 비밀번호 찾기 및 OAuth2 소셜 로그인 기능을 제공합니다.
+이 스프링 부트 애플리케이션은 사용자 등록, 로그인, 아이디 찾기, 비밀번호 재설정과 같은 기능을 구현한 기본 웹 애플리케이션입니다. 아래는 각 클래스의 기능과 구현된 주요 기능, 그리고 사용된 의존성에 대한 설명입니다.
 
-## 주요 기능
+## 프로젝트 구조
 
-1. **회원가입**
-2. **로그인**
-3. **비밀번호 찾기**
-4. **OAuth2 소셜 로그인**
+### 설정 클래스
 
----
+1. **`CorsConfig`**
+   - CORS(Cross-Origin Resource Sharing)를 설정하여 `http://localhost:3000` 도메인에서 오는 요청을 허용합니다.
+   - GET, POST, PUT, DELETE와 같은 HTTP 메서드를 허용합니다.
 
-## 프로젝트 설정
+2. **`CustomConfig`**
+   - 비밀번호 암호화를 위한 `BCryptPasswordEncoder` 빈을 정의합니다.
 
-### 요구사항
+3. **`SecurityConfig`**
+   - 스프링 시큐리티 설정을 담당하며, 인증, 인가 및 CSRF 보호를 구성합니다.
+   - ADMIN, MANAGER, MEMBER와 같은 역할에 따라 접근 권한을 설정합니다.
+   - 폼 기반 로그인, 로그아웃 및 OAuth2 로그인 기능을 통합합니다.
 
-- Java 17 이상
-- Spring Boot 3.3.0
-- MySQL
-- Maven
+### 실행 및 유틸리티 클래스
 
-## 기능 설명 및 동작 원리
+1. **`AdminRunner`**
+   - 애플리케이션 시작 시 기본 관리자 계정을 생성합니다.
+   - `CommandLineRunner`를 구현하여 애플리케이션이 시작될 때 실행됩니다.
+
+2. **`JWTUtil`**
+   - JWT 토큰을 생성하고 검증하는 유틸리티 클래스입니다.
+   - JWT 토큰의 만료 여부 확인 및 사용자 이름 클레임 추출 기능을 제공합니다.
+
+3. **`CustomMyUtil`**
+   - OAuth2 사용자 정보로부터 사용자명을 생성하는 유틸리티 클래스입니다.
+
+### 인증 및 인가 필터
+
+1. **`JWTAuthenticationFilter`**
+   - 사용자가 로그인할 때 인증을 처리하는 필터입니다.
+   - 인증 성공 시 JWT 토큰을 생성하여 응답 헤더에 추가합니다.
+
+2. **`JWTAuthorizationFilter`**
+   - 각 요청에 대해 JWT 토큰을 검증하고 사용자 정보를 설정하는 필터입니다.
+
+### 도메인 클래스
+
+1. **`Member`**
+   - 회원 정보를 담고 있는 엔티티 클래스입니다.
+   - 사용자명, 비밀번호, 권한, 이메일 인증 토큰 등을 포함합니다.
+
+2. **`Board`**
+   - 게시판 글 정보를 담고 있는 엔티티 클래스입니다.
+   - 제목, 내용, 작성자 닉네임, 생성 및 수정 날짜를 포함합니다.
+
+3. **`SignupRequest`, `LoginRequest`, `AuthResponse`, `ResetPasswordRequest`, `FindUsernameRequest`**
+   - 회원가입, 로그인, 인증 응답, 비밀번호 재설정 요청, 아이디 찾기 요청에 사용되는 데이터 전송 객체(DTO)들입니다.
+
+### 리포지토리 클래스
+
+1. **`MemberRepository`**
+   - `Member` 엔티티에 대한 데이터베이스 작업을 처리하는 JPA 리포지토리입니다.
+   - 사용자명, 이메일 인증 토큰, 비밀번호 재설정 토큰으로 회원을 조회하는 메서드를 제공합니다.
+
+2. **`BoardRepository`**
+   - `Board` 엔티티에 대한 데이터베이스 작업을 처리하는 JPA 리포지토리입니다.
+
+### 서비스 클래스
+
+1. **`MemberService`**
+   - 회원가입, 이메일 인증, 아이디 찾기, 비밀번호 재설정 기능을 처리합니다.
+   - 이메일 인증과 비밀번호 재설정을 위한 이메일 전송 기능도 포함됩니다.
+
+2. **`BoardService`**
+   - 게시판 글의 생성, 조회, 수정, 삭제 기능을 제공합니다.
+
+3. **`EmailService`**
+   - 이메일 인증 및 비밀번호 재설정을 위한 이메일을 발송하는 서비스 클래스입니다.
+
+4. **`MemberDetailService`**
+   - Spring Security의 `UserDetailsService`를 구현하여 사용자 인증 정보를 로드합니다.
+
+### 컨트롤러 클래스
+
+1. **`AuthController`**
+   - 회원가입, 이메일 인증, 아이디 찾기, 비밀번호 재설정과 관련된 REST API를 제공합니다.
+
+2. **`BoardController`**
+   - 게시판 글과 관련된 CRUD(생성, 조회, 수정, 삭제) REST API를 제공합니다.
+
+3. **`LoginController`**
+   - 로그인 요청을 처리하고 JWT 토큰을 발급하는 REST API를 제공합니다.
+
+## 사용된 의존성
+
+이 프로젝트는 다양한 스프링 부트 스타터와 기타 라이브러리를 사용하여 구성되었습니다.
+
+### 주요 의존성
+
+- **`spring-boot-starter-data-jpa`**: JPA(Java Persistence API)를 사용하여 데이터베이스 작업을 처리합니다.
+- **`spring-boot-starter-security`**: Spring Security를 사용하여 인증 및 인가를 처리합니다.
+- **`spring-boot-starter-web`**: RESTful 웹 애플리케이션을 구축하기 위해 Spring MVC와 내장된 톰캣 서버를 제공합니다.
+- **`spring-boot-starter-oauth2-client`**: OAuth2 로그인을 위한 클라이언트 지원을 제공합니다.
+- **`spring-boot-starter-mail`**: 이메일 전송을 위한 기능을 제공합니다.
+- **`mysql-connector-j`**: MySQL 데이터베이스와의 연결을 지원하는 드라이버입니다.
+- **`lombok`**: 보일러플레이트 코드를 줄이기 위해 사용되는 라이브러리로, getter, setter, toString, 생성자 등을 자동 생성합니다.
+- **`java-jwt`**: JWT(JSON Web Token)를 생성하고 검증하기 위한 라이브러리입니다.
+
+### 개발 및 테스트 의존성
+
+- **`spring-boot-devtools`**: 개발 중 애플리케이션의 빠른 재시작 및 자동 구성 기능을 제공합니다.
+- **`spring-boot-starter-test`**: 테스트를 위한 기본 프레임워크로, JUnit, Hamcrest, Mockito 등을 포함합니다.
+- **`spring-security-test`**: 스프링 시큐리티와 관련된 테스트를 지원합니다.
+
+## 구현된 기능
 
 ### 1. 회원가입
-
-#### 동작 순서
-
-1. **사용자 입력**: 사용자가 회원가입 양식을 통해 이메일, 비밀번호, 닉네임 등을 입력합니다.
-2. **컨트롤러 처리**: `AuthController` 클래스의 `/signup` 엔드포인트가 요청을 처리합니다.
-3. **서비스 호출**: `MemberService`의 `registerUser()` 메서드가 호출되어 새로운 사용자를 등록합니다.
-4. **이메일 인증**: 회원가입 후, 사용자에게 이메일 인증 링크가 전송됩니다. 사용자는 이메일을 확인하고 인증을 완료해야 계정이 활성화됩니다.
-
-#### 관련 클래스 및 메서드
-
-- `AuthController`
-    - `signup(SignupRequest signupRequest)`
-- `MemberService`
-    - `registerUser(SignupRequest signupRequest)`
-- `EmailService`
-    - `sendVerificationEmail(String toEmail, String verificationLink)`
+- **사용 클래스**: `AuthController`, `MemberService`, `MemberRepository`, `EmailService`
+- 사용자가 회원가입을 요청하면, 사용자 정보를 데이터베이스에 저장하고 이메일 인증을 위한 토큰을 포함한 이메일을 발송합니다.
 
 ### 2. 로그인
+- **사용 클래스**: `LoginController`, `JWTAuthenticationFilter`, `JWTUtil`, `MemberDetailService`
+- 사용자가 로그인하면 인증 필터가 JWT 토큰을 생성하여 응답에 포함시킵니다.
 
-#### 동작 순서
+### 3. 아이디 찾기
+- **사용 클래스**: `AuthController`, `MemberService`, `MemberRepository`
+- 사용자가 이메일과 닉네임을 입력하여 자신의 아이디를 찾을 수 있습니다.
 
-1. **사용자 입력**: 사용자가 로그인 양식을 통해 이메일과 비밀번호를 입력합니다.
-2. **컨트롤러 처리**: `LoginController` 클래스의 `/api/login` 엔드포인트가 요청을 처리합니다.
-3. **인증 처리**: `MemberDetailService`가 사용자의 인증 정보를 데이터베이스에서 로드하고, 인증이 성공하면 JWT 토큰이 발급됩니다.
-4. **토큰 반환**: 발급된 JWT 토큰이 응답으로 반환되며, 클라이언트는 이 토큰을 사용해 이후 요청에서 인증을 유지합니다.
+### 4. 비밀번호 재설정
+- **사용 클래스**: `AuthController`, `MemberService`, `MemberRepository`, `EmailService`
+- 사용자가 비밀번호 재설정을 요청하면, 비밀번호 재설정 링크를 이메일로 발송하고, 링크를 통해 비밀번호를 재설정할 수 있습니다.
 
-#### 관련 클래스 및 메서드
-
-- `LoginController`
-    - `login(LoginRequest loginRequest)`
-- `MemberDetailService`
-    - `loadUserByUsername(String username)`
-- `JWTUtil`
-    - `getJWT(String username)`
-
-### 3. 비밀번호 찾기
-
-#### 동작 순서
-
-1. **사용자 요청**: 사용자가 비밀번호 재설정 요청을 보냅니다.
-2. **컨트롤러 처리**: `PasswordResetController`의 `/api/auth/reset-password` 엔드포인트가 요청을 처리합니다.
-3. **토큰 생성 및 이메일 전송**: `PasswordResetService`에서 재설정 토큰을 생성하고, 이메일을 통해 사용자에게 전송합니다.
-4. **비밀번호 재설정**: 사용자가 이메일 링크를 클릭하면, 새로운 비밀번호를 입력할 수 있는 폼이 제공되며, 입력된 비밀번호는 암호화되어 저장됩니다.
-
-#### 관련 클래스 및 메서드
-
-- `PasswordResetController`
-    - `sendPasswordResetLink(String email)`
-    - `resetPassword(String token, String newPassword)`
-- `PasswordResetService`
-    - `sendPasswordResetLink(String email)`
-    - `resetPassword(String token, String newPassword)`
-- `EmailService`
-    - `sendPasswordResetEmail(String toEmail, String resetLink)`
-
-### 4. OAuth2 소셜 로그인
-
-#### 동작 순서
-
-1. **소셜 로그인 요청**: 사용자가 소셜 로그인 버튼을 클릭하여 OAuth2 인증을 요청합니다.
-2. **OAuth2 인증 처리**: 인증 성공 시, `OAuth2SuccessHandler`가 호출되어 사용자의 정보를 처리하고, 새로운 사용자로 등록하거나 JWT 토큰을 발급합니다.
-3. **토큰 반환**: 발급된 JWT 토큰이 응답으로 반환되며, 클라이언트는 이 토큰을 사용해 인증된 요청을 보낼 수 있습니다.
-
-#### 관련 클래스 및 메서드
-
-- `OAuth2SuccessHandler`
-    - `onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)`
-- `CustomMyUtil`
-    - `getUsernameFromOAuth2User(OAuth2User user)`
-- `JWTUtil`
-    - `getJWT(String username)`
-
----
-
-
-## 보안 고려사항
-
-- **비밀번호 암호화**: 모든 비밀번호는 데이터베이스에 저장되기 전에 `PasswordEncoder`를 사용해 암호화됩니다.
-- **JWT 토큰**: JWT 토큰은 HMAC256 알고리즘으로 서명되어 있으며, 만료 시간과 함께 관리됩니다.
-- **이메일 인증**: 모든 신규 회원은 계정 활성화를 위해 이메일 인증을 완료해야 합니다.
-
----
-
+이 애플리케이션은 위와 같은 기능들을 제공하며, Spring Boot와 Spring Security, JWT, OAuth2를 활용하여 구현되었습니다.
