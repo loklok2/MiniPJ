@@ -8,7 +8,6 @@ import lombok.ToString;
 @Setter
 @ToString
 public class LoginRequest {
-	private String username;
-	private String password;
-
+    private String username;  // 사용자가 입력한 사용자명 (로그인 ID)
+    private String password;  // 사용자가 입력한 비밀번호
 }
