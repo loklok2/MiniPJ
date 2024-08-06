@@ -16,29 +16,9 @@
 ### 요구사항
 
 - Java 17 이상
-- Spring Boot 3.x
-- MySQL 또는 H2 데이터베이스
-- Maven 또는 Gradle
-
-### 설치 및 실행
-
-1. 프로젝트를 클론합니다.
-
-    ```bash
-    git clone https://github.com/your-repo/your-project.git
-    cd your-project
-    ```
-
-2. `application.properties` 또는 `application.yml` 파일에서 데이터베이스 설정 및 기타 설정을 구성합니다.
-
-3. 프로젝트를 빌드하고 실행합니다.
-
-    ```bash
-    mvn clean install
-    mvn spring-boot:run
-    ```
-
----
+- Spring Boot 3.3.0
+- MySQL
+- Maven
 
 ## 기능 설명 및 동작 원리
 
@@ -126,14 +106,3 @@
 
 ---
 
-## 개발자 가이드
-
-- **코드 구조**: 각 기능별로 서비스, 컨트롤러, 유틸리티 클래스로 역할이 분리되어 있으며, 유지보수와 확장이 용이합니다.
-- **테스트 작성**: 주요 기능에 대한 단위 테스트와 통합 테스트를 작성하여 코드의 신뢰성을 높이도록 합니다.
-- **의존성 관리**: `Maven` 또는 `Gradle`을 통해 프로젝트의 의존성을 관리하며, 필요시 추가 패키지를 설치합니다.
-
----
-
-## 문의
-
-프로젝트에 대한 질문이나 협업 요청은 [your-email@example.com](mailto:your-email@example.com)으로 연락해 주세요.
