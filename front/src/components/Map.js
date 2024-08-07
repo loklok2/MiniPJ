@@ -30,7 +30,7 @@ export default function Map() {
                 zoom: 10
             });
 
-            fetch('/api/locations')
+            fetch('/api/map/locations')
                 .then(response => response.json())
                 .then(locations => {
                     locations.forEach(location => {

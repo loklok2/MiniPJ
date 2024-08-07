@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export default function SignUpForm({ onSignUp }) {
   const emailRef = useRef();
@@ -50,7 +51,7 @@ export default function SignUpForm({ onSignUp }) {
         return response.json();
       })
       .then(() => {
-        setSuccess('회원가입에 성공했습니다. 이메일을 확인하여 인증을 완료해 주세요.');
+        setSuccess('이메일을 확인하여 인증을 완료해 주세요.');
         onSignUp(email); // 회원가입 성공 시 부모 컴포넌트로 사용자 정보를 전달
       })
       .catch(err => {
@@ -104,6 +105,13 @@ export default function SignUpForm({ onSignUp }) {
             회원가입
           </button>
         </form>
+        <Link to="/login">
+          <button
+            className='w-full py-2 px-4 mt-4 bg-blue-500 text-white rounded-md
+                         hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50'>
+            로그인 페이지
+          </button>
+        </Link>
       </div>
     </div>
   );

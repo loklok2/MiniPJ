@@ -39,7 +39,7 @@ export default function LoginForm({ onLogin }) {
                 if (data.token) {
                     // 로그인 성공
                     localStorage.setItem('token', data.token); // token 저장
-                    onLogin(email); // 로그인 성공 시 부모 컴포넌트로 사용자 정보를 전달
+                    onLogin({ username: email, token: data.token}); // 로그인 콜백, 로그인 성공 시 부모 컴포넌트로 사용자 정보를 전달
                 } else {
                     // 서버에서 받은 오류메시지 처리
                     setError('이메일 인증 절차를 진행하십시오.');

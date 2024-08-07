@@ -1,5 +1,6 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { RecoilRoot } from 'recoil';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Bootstrap CSS import
 import Home from './pages/Home';
@@ -8,9 +9,21 @@ import Footer from './pages/Footer';
 import Login from './pages/Login';
 import SignUp from './pages/SingUp';
 import Map from './pages/Map';
+import MyPage from './components/MyPage';
 
 
 export default function App() {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    const handleLogin = (email) => {
+      setIsLoggedIn(true);
+    };
+  
+    const handleSignUp = (email) => {
+      setIsLoggedIn(true);
+    };
+
+
     return (
         <BrowserRouter>
             <RecoilRoot>
@@ -20,8 +33,9 @@ export default function App() {
                         <Routes>
                             <Route path="/" element={<Home />} />
                             <Route path="/map" element={<Map />} />
-                            <Route path="/login" element={<Login />} />
-                            <Route path="/signup" element={<SignUp />} /> 
+                            <Route path="/login" element={<Login onLogin={handleLogin} />} />
+                            <Route path="/signup" element={<SignUp onSignUp={handleSignUp} />} />
+                            <Route path="/mypage" element={isLoggedIn ? <MyPage /> : <Navigate to="/login" />}/>
                             {/* 추가적인 경로들 추가 */}
                         </Routes>
                     </main>
