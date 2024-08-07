@@ -1,12 +1,14 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import PasswordReset from './PasswordReset';
+import { useRecoilState } from 'recoil';
+import { authState } from '../atoms/authAtom';
+import PasswordReset from '../components/PasswordReset';
 
 
 export default function MyPage() {
     const [userInfo, setUserInfo] = useState({});
     const [posts, setPosts] = useState([]);
-    const [isAuthenticated, setIsAuthenticated] = useState(true);      // 로그인 상태
+    const isAuthenticated = useRecoilState(authState);      // 로그인 상태
 
     useEffect(() => {
         // 사용자 정보 및 게시글 목록을 가져오는 API 호출
@@ -73,7 +75,8 @@ export default function MyPage() {
                 ) : (
                     <ul>
                         {posts.map(post => (
-                            <li>
+                            <li key={post.id}>
+                                <p >{post.id}</p>
                                 <h3 className='text-lg font-bold'>{post.title}</h3>
                                 <p>{post.content}</p>
                             </li>

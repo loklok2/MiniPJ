@@ -1,12 +1,17 @@
-import { useState, useRef } from "react";
+import { useRef, useState } from 'react';
+import { useRecoilState } from 'recoil';
+import { authState } from '../atoms/authAtom';
+import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
 export default function LoginForm({ onLogin }) {
+    const [auth, setAuth] = useRecoilState(authState); // Recoil 상태 사용
     const emailRef = useRef();
     const passwordRef = useRef();
     const [error, setError] = useState('');
+    const navigate = useNavigate();
 
-    const handleSignIn = (e) => {
+    const handleSignIn = async (e) => {
         e.preventDefault();
 
         // Clear previous errors
@@ -27,28 +32,33 @@ export default function LoginForm({ onLogin }) {
             return;
         }
 
-        fetch('http://localhost:8080/api/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username: email, password: password }),
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.token) {
-                    // 로그인 성공
-                    localStorage.setItem('token', data.token); // token 저장
-                    onLogin({ username: email, token: data.token}); // 로그인 콜백, 로그인 성공 시 부모 컴포넌트로 사용자 정보를 전달
-                } else {
-                    // 서버에서 받은 오류메시지 처리
-                    setError('이메일 인증 절차를 진행하십시오.');
-                }
-            })
-            .catch(err => {
-                setError('로그인 실패. 이메일 아이디와 비밀번호를 확인하십시오.');
+        try {
+            const response = await fetch('http://localhost:8080/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username: email, password }),
             });
-    };
+
+            const data = await response.json();
+
+            if (data.token) {
+                // 로그인 성공
+                localStorage.setItem('token', data.token); // JWT 저장
+                setAuth({
+                    isLoggedIn: true,
+                    token: data.token,
+                    user: { username: email },
+                });
+                navigate('/'); // 홈 페이지로 리디렉션
+            } else {
+                setError('로그인 실패. 이메일과 비밀번호를 확인하세요.');
+            }
+        } catch (err) {
+            setError('서버 오류. 다시 시도해 주세요.');
+        }
+    }
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-gray-100">
