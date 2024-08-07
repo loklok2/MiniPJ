@@ -21,20 +21,6 @@ import lombok.ToString;
 @NoArgsConstructor  // 매개변수가 없는 기본 생성자를 자동으로 생성합니다.
 @Entity  // 이 클래스가 JPA 엔티티임을 나타내며, 데이터베이스 테이블과 매핑됩니다.
 public class Member {
-<<<<<<< HEAD
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	private String username;
-	private String password;
-	@Enumerated(EnumType.STRING)
-	private Role roles;
-	
-	
-	private String nickname; // 8/5 닉네임추가
-	private String verificationToken; // 이메일 인증 토큰
-	private boolean enabled; //이메일 인증여부
-=======
 	
 	@Id  // 이 필드가 엔티티의 기본 키임을 나타냅니다.
 	@GeneratedValue(strategy = GenerationType.IDENTITY)  // 기본 키 값을 데이터베이스에서 자동 생성합니다.
@@ -53,5 +39,4 @@ public class Member {
 	
 	private String resetPasswordToken;
 	private LocalDateTime resetPasswordTokenExpiry;
->>>>>>> 39f029607ac6fbf2f2b70ef3312d7de8be263b46
 }

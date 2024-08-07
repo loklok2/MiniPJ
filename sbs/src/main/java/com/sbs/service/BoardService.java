@@ -32,10 +32,7 @@ public class BoardService {
 	public Board createBoard(Board board) {
 		// 현재 시간을 게시글의 생성 시간으로 설정합니다.
 		board.setCreateDate(LocalDateTime.now());
-<<<<<<< HEAD
-=======
 		// 게시글을 데이터베이스에 저장하고 저장된 객체를 반환합니다.
->>>>>>> 39f029607ac6fbf2f2b70ef3312d7de8be263b46
 		return boardRepo.save(board);
 	}
 	

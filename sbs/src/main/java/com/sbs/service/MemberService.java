@@ -1,10 +1,7 @@
 package com.sbs.service;
 
-<<<<<<< HEAD
-=======
 import java.time.LocalDateTime;
 import java.util.Optional;
->>>>>>> 39f029607ac6fbf2f2b70ef3312d7de8be263b46
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +25,7 @@ public class MemberService {
     @Autowired
     private EmailService emailService;
 
-<<<<<<< HEAD
-    // 회원 가입 처리
-=======
     // 회원 가입 처리 메서드
->>>>>>> 39f029607ac6fbf2f2b70ef3312d7de8be263b46
     public Member registerUser(SignupRequest signupRequest) {
         // 사용자 이름(이메일)이 이미 존재하는지 확인
         if (memberRepository.existsByUsername(signupRequest.getUsername())) {
@@ -43,20 +36,6 @@ public class MemberService {
         Member member = new Member();
         member.setUsername(signupRequest.getUsername());
         member.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
-<<<<<<< HEAD
-        member.setNickname(signupRequest.getNickname()); // 닉네임 저장
-        member.setRoles(Role.ROLE_MEMBER);
-        member.setEnabled(false); // 이메일 인증 완료 전까지 비활성화
-
-        // 이메일 인증 토큰 생성 및 설정
-        String token = UUID.randomUUID().toString();
-        member.setVerificationToken(token);
-        
-        // 사용자 저장
-        memberRepository.save(member);
-        
-        // 이메일 인증 링크 생성 및 발송
-=======
         member.setNickname(signupRequest.getNickname());
         member.setRoles(Role.ROLE_MEMBER);
         member.setEnabled(false);
@@ -66,26 +45,12 @@ public class MemberService {
         
         memberRepository.save(member);
         
->>>>>>> 39f029607ac6fbf2f2b70ef3312d7de8be263b46
         String verificationLink = "http://localhost:8080/api/auth/verify?token=" + token;
         emailService.sendVerificationEmail(member.getUsername(), verificationLink);
         
         return member;
-<<<<<<< HEAD
-=======
     }
     
-    // 이메일 인증 처리 메서드
-    public boolean verifyEmail(String token) {
-        Member member = memberRepository.findByVerificationToken(token)
-                .orElseThrow(() -> new RuntimeException("Invalid verification token"));
-
-        member.setEnabled(true);
-        member.setVerificationToken(null);
-        memberRepository.save(member);
-        
-        return true;
-    }
 
     // 이메일과 닉네임을 기반으로 아이디 찾기 메서드
     public String findUsernameByEmailAndNickname(String email, String nickname) {
@@ -123,7 +88,6 @@ public class MemberService {
             return true;
         }
         return false;
->>>>>>> 39f029607ac6fbf2f2b70ef3312d7de8be263b46
     }
     
     // 이메일 인증 처리
@@ -150,4 +114,16 @@ public class MemberService {
     	return member.isEnabled(); // enabled 가 true 면 인증됨
     }
     
+    // 마이페이지 사용자 이름으로 조회
+    public Member findByUsername(String username) {
+    	return memberRepository.findByUsername(username)
+    			.orElseThrow(() -> new RuntimeException("Member not found"));
+    }
+    
+    //회원정보 수정
+    public Member updateMemberInfo(String username, UpdateMemberRequest updateRequest) {
+    	Member member = findByUsername(username);
+    	
+    	member.setNickname(username);
+    }
 }

@@ -66,13 +66,9 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		
 		// JWT 토큰을 생성합니다.
 		String token = JWT.create()
-<<<<<<< HEAD
-						.withExpiresAt(new Date(System.currentTimeMillis()+1000*60*100))
-=======
 						// 토큰의 만료 시간을 설정합니다.
 						.withExpiresAt(new Date(System.currentTimeMillis()+1000*60*100))
 						// 토큰에 사용자 이름을 클레임으로 추가합니다.
->>>>>>> 39f029607ac6fbf2f2b70ef3312d7de8be263b46
 						.withClaim("username", user.getUsername())
 						// HMAC 알고리즘을 사용하여 토큰을 서명합니다.
 						.sign(Algorithm.HMAC256("edu.pnu.jwt"));

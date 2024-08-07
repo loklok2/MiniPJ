@@ -8,17 +8,8 @@ import com.sbs.domain.Member;
 import java.util.List;
 
 
-<<<<<<< HEAD
-	Optional<Member> findByUsername(String username);
-	
-	// 추가 메서드: 이메일 인증 토큰으로 사용자를 찾음
-    Optional<Member> findByVerificationToken(String verificationToken);
-	
-	boolean existsByUsername(String username);
-=======
 // Member 엔티티에 대한 데이터베이스 작업을 처리하는 JPA 리포지토리 인터페이스입니다.
 public interface MemberRepository extends JpaRepository<Member, Long> {
->>>>>>> 39f029607ac6fbf2f2b70ef3312d7de8be263b46
 
     // 주어진 사용자 이름(로그인 ID)으로 회원을 검색하는 메서드입니다.
     Optional<Member> findByUsername(String username);

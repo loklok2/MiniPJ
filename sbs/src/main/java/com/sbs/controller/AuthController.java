@@ -21,30 +21,6 @@ import com.sbs.service.MemberService;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-<<<<<<< HEAD
-	@Autowired
-	private MemberService memberService;
-
-	@PostMapping("/signup")
-	public ResponseEntity<Member> signup(@RequestBody SignupRequest signupRequest){
-		Member member = memberService.registerUser(signupRequest);
-		return new ResponseEntity<>(member, HttpStatus.CREATED);
-	}
-
-	@GetMapping("/verify")
-	public ResponseEntity<String> veifyEmail(@RequestParam("token") String token){
-		boolean isVerified = memberService.verifyEmail(token);
-
-		if(isVerified) {
-			return new ResponseEntity<>("Email verified successfuly", HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>("Invalid or expired verification token", HttpStatus.BAD_REQUEST);
-
-		}
-	}
-
-}
-=======
     @Autowired
     private MemberService memberService;
 
@@ -108,4 +84,3 @@ public class AuthController {
    
 }
 
->>>>>>> 39f029607ac6fbf2f2b70ef3312d7de8be263b46

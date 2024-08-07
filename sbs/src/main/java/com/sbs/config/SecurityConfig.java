@@ -12,18 +12,15 @@ import com.sbs.util.OAuth2SuccessHandler;
 
 import lombok.RequiredArgsConstructor;
 
-// @RequiredArgsConstructor는 Lombok 애너테이션으로, final로 선언된 필드를 인수로 받는 생성자를 자동으로 생성합니다.
-// @Configuration은 이 클래스가 스프링의 설정 클래스임을 나타내고,
-// @EnableWebSecurity는 스프링 시큐리티 설정을 활성화합니다.
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-	// OAuth2 성공 핸들러를 주입받는 final 필드입니다.
+	// OAuth2 성공 핸들러를 주입
 	private final OAuth2SuccessHandler successHandler;	
 
-	// 스프링 시큐리티의 필터 체인을 구성하는 Bean을 정의합니다.
+	
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.authorizeHttpRequests(authorize -> authorize
@@ -61,7 +58,6 @@ public class SecurityConfig {
 		return http.build();
 	}
 
-	// AuthenticationManager Bean을 정의합니다.
 	@Bean
 	AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
 		// AuthenticationManager를 반환하는 메서드로, 인증 설정을 관리합니다.
