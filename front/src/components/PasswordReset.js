@@ -1,60 +1,56 @@
 import React from 'react'
-import { useState, useEffect } from 'react';
+import { useRecoilState } from 'recoil';
+import { resetPasswordState } from '../atoms/authAtom';
+import { useNavigate } from 'react-router-dom';
 
 export default function PasswordReset() {
-    const [newPassword, setNewPassword] = useState('');
-    const [passwordResetSuccess, setPasswordResetSuccess] = useState('');
-    const [passwordResetError, setPasswordResetError] = useState('');
+    const [resetPassword, setResetPassword] = useRecoilState(resetPasswordState);
+    const navigate = useNavigate();
 
-    const handlePasswordReset = async () => {
-        // 비밀번호 재설정 요청 API 호출 예시
-        const response = await fetch('http://localhost:8080/api/auth/reset-password-form', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            },
-            body: JSON.stringify({ newPassword: newPassword, token: '<token>' }),
-        });
+    // 비밀번호 재설정 요청 API 호출
+    const handleResetPassword = async () => {
+        try {
+            const response = await fetch('http://localhost:8080/api/auth/reset-password-form', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                },
+                body: JSON.stringify({
+                    token: resetPassword.token,
+                    newPassword: resetPassword.newPassword
+                }),
+            });
 
-        if (response.ok) {
-            setPasswordResetSuccess('비밀번호가 성공적으로 변경되었습니다.');
-            setPasswordResetError('');
-            setNewPassword('');
-        } else {
-            setPasswordResetSuccess('');
-            setPasswordResetError('비밀번호 변경에 실패했습니다.');
+            if (response.ok) {
+                setResetPassword({ ...resetPassword, status: 'success' });
+                setTimeout(() => navigate('/login'), 2000); // 2초 후 로그인 
+            } else {
+                setResetPassword({ ...resetPassword, status: 'error' });
+            }
+        } catch (error) {
+            console.error('서버 오류. 다시 시도해 주세요.');
         }
-    };
+    }
 
     return (
-        <div className='bg-white p-4 rounded-lg shadow-md'>
-            <h2 className='text-xl font-semibold mb-4'>비밀번호 변경</h2>
-            <div className='mb-4'>
-                <label className='block text-sm font-medium text-gray-700'>새 비밀번호</label>
-                <input
-                    type='password'
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className='w-full mt-1 block border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50'
-                />
-            </div>
-            <button
-                onClick={handlePasswordReset}
-                className='py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50'
-            >
-                비밀번호 변경
-            </button>
-            {passwordResetSuccess && (
-                <div className='mt-4 p-2 bg-green-100 text-green-700 rounded'>
-                    {passwordResetSuccess}
-                </div>
-            )}
-            {passwordResetError && (
-                <div className='mt-4 p-2 bg-red-100 text-red-700 rounded'>
-                    {passwordResetError}
-                </div>
-            )}
+        <div className='password-reset'>
+            <h2>비밀번호 변경</h2>
+            <input
+                type='text'
+                placeholder='비밀번호 재설정 토큰'
+                value={resetPassword.token}
+                onChange={(e) => setResetPassword({ ...resetPassword, token: e.target.value })}
+            />
+            <input
+                type='password'
+                placeholder='새 비밀번호'
+                value={resetPassword.newPassword}
+                onChange={(e) => setResetPassword({ ...resetPassword, newPassword: e.target.value })}
+            />
+            <button onClick={handleResetPassword}>비밀번호 변경</button>
+            {resetPassword.status === 'success' && <p>비밀번호가 성공적으로 변경되었습니다.</p>}
+            {resetPassword.status === 'error' && <p>비밀번호 변경에 실패했습니다.</p>}
         </div>
     )
 }

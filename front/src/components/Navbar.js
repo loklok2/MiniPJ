@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 
@@ -59,14 +59,16 @@ export default function Navbar() {
                                 </Link>
                                 <button
                                     onClick={handleLogout}
-                                    className='ml-4 px-4 py-2 rounded-md text-white bg-blue-500'>
+                                    className='ml-4 px-4 py-2 rounded-md text-white'>
                                     로그아웃
                                 </button>
                             </>
                         ) : (
-                            <Link className='px-4 py-2 text-white' to='/login'>
-                                로그인
-                            </Link>
+                            <>
+                                <Link className='px-4 py-2 text-white' to='/login'>
+                                    로그인
+                                </Link>
+                            </>
                         )}
                     </div>
                 </div>

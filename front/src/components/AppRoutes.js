@@ -8,6 +8,8 @@ import Map from './Map'
 import Login from './Login'
 import MyPage from '../pages/MyPage'
 import SignUp from './SignUp'
+import PasswordFind from './PasswordFind'
+import PasswordReset from './PasswordReset'
 
 
 // 애플리케이션의 모든 라우트를 정의
@@ -22,6 +24,8 @@ export default function AppRoutes() {
             <Route path="/login" element={auth.isLoggedIn ? <Navigate to="/mypage" /> : <Login />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/mypage" element={auth.isLoggedIn ? <MyPage /> : <Navigate to="/login" />} />
+            <Route path="/passwordfind" element={<PasswordFind />} />
+            <Route path="/reset-password/:token" element={<PasswordReset />} />
             {/* 추가적인 경로들 추가 */}
         </Routes>
     )

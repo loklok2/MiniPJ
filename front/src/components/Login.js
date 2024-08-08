@@ -19,22 +19,22 @@ export default function Login({ onLogin }) {
   const handleSignUp = (userIn) => {
     localStorage.setItem('user', JSON.stringify(userIn));
     setUser(userIn);
-    setIsLoggedIn(true);
+    setIsLoggedIn({ isLoggedIn: true, token: '', user: userIn });
     setIsSignUp(false); // 회원가입 후 로그인 폼으로 돌아가기
   }
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      setIsLoggedIn(true);
+      setIsLoggedIn({ isLoggedIn: true, token });
     } else {
-      setIsLoggedIn(false);
+      setIsLoggedIn({ isLoggedIn: false });
     }
   }, [setIsLoggedIn])
 
   return (
     <div className="w-full h-full flex flex-col justify-center items-center">
-      {isLoggedIn ? (
+      {isLoggedIn.isLoggedIn ? (
         <MyPage />
       ) : isSignUp ? (
         <SignUpForm onSignUp={handleSignUp} />

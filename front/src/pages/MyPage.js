@@ -64,11 +64,11 @@ export default function MyPage() {
                 <h2 className='text-xl font-semibold mb-4'>회원정보</h2>
                 <p><strong>이메일:</strong> {userInfo.email}</p>
                 <p><strong>닉네임:</strong> {userInfo.nickname}</p>
+                <PasswordReset />
             </div>
 
-            <PasswordReset />
 
-            <div className='bg-white p-4 rounded-lg shadow-md'>
+            <div className='bg-white p-4 rounded-lg shadow-md mt-4'>
                 <h2 className='text-xl font-semibold mb-4'>내 게시글</h2>
                 {posts.length === 0 ? (
                     <p>작성한 게시글이 없습니다.</p>

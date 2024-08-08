@@ -8,14 +8,14 @@ export default function LoginForm({ onLogin }) {
     const [auth, setAuth] = useRecoilState(authState); // Recoil 상태 사용
     const emailRef = useRef();
     const passwordRef = useRef();
-    const [error, setError] = useState('');
+    const [error, setError] = useState();
     const navigate = useNavigate();
 
     const handleSignIn = async (e) => {
         e.preventDefault();
 
         // Clear previous errors
-        setError('');
+        setError();
 
         const email = emailRef.current.value;
         const password = passwordRef.current.value;
@@ -95,13 +95,22 @@ export default function LoginForm({ onLogin }) {
                         로그인
                     </button>
                 </form>
-                <Link to="/signup">
-                    <button
-                        className="w-full py-2 px-4 mt-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-                    >
-                        회원가입
-                    </button>
-                </Link>
+                <div className='flex justify-start mt-4 space-x-2'>
+                    <Link to="/signup">
+                        <button
+                            className="w-full py-2 px-4 mt-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                        >
+                            회원가입
+                        </button>
+                    </Link>
+                    <Link to="/passwordfind">
+                        <button
+                            className="w-full py-2 px-4 mt-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                        >
+                            비밀번호찾기
+                        </button>
+                    </Link>
+                </div>
 
                 <div className="flex items-center my-4">
                     <hr className="flex-grow border-gray-300" />
