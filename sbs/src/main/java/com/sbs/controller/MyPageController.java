@@ -19,7 +19,7 @@ public class MyPageController {
     private MemberService memberService;
 
     // 로그인한 사용자의 정보를 가져오는 엔드포인트
-    @GetMapping
+    @GetMapping("/info")
     public ResponseEntity<UserInfo> getMyInfo(Authentication authentication) {
         String username = authentication.getName();
         UserInfo userInfo = memberService.getUserInfo(username);

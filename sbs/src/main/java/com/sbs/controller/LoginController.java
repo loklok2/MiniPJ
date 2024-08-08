@@ -28,7 +28,6 @@ public class LoginController {
         this.memberService = memberService;
     }
     
-    // CORS 설정: 특정 도메인에서만 이 엔드포인트를 호출할 수 있도록 허용합니다.
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/login")  // HTTP POST 요청을 처리하며, 경로는 "/api/login"입니다.
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
