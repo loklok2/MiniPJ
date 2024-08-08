@@ -1,2 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<qualifiedTypeNameHistroy/>
+<qualifiedTypeNameHistroy>
+    <fullyQualifiedTypeName name="com.sbs.domain.Role"/>
+    <fullyQualifiedTypeName name="java.util.Optional"/>
+    <fullyQualifiedTypeName name="com.sbs.domain.UserInfo"/>
+    <fullyQualifiedTypeName name="com.sbs.domain.Member"/>
+    <fullyQualifiedTypeName name="org.springframework.security.core.userdetails.User"/>
+</qualifiedTypeNameHistroy>

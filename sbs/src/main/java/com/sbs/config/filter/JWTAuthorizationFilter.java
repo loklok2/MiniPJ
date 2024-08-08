@@ -45,7 +45,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter { //httpservlet
 		String jwtToken = srcToken.replace("Bearer ", ""); 
 		
 		// JWT 토큰에서 username 클레임을 추출합니다.
-		String username = JWT.require(Algorithm.HMAC256("edu.pnu.jwt")).build().verify(jwtToken).getClaim("username").asString();
+		String username = JWT.require(Algorithm.HMAC256("edu.pnu.jwtkey")).build().verify(jwtToken).getClaim("username").asString();
 		
 		// 추출한 username으로 DB에서 사용자 정보를 검색합니다.
 		Optional<Member> opt = memberRepository.findByUsername(username); 

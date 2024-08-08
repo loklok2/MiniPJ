@@ -54,7 +54,7 @@ public class MemberService {
     }
     
 
-    //닉네임을 기반으로 아이디 찾기 메서드 // 8/7수정완료
+    //닉네임을 기반으로 아이디 찾기 메서드
     public String findUsernameByNickname(String nickname) {
         Optional<Member> member = memberRepository.findByNickname(nickname);
         return member.map(Member::getUsername).orElse(null);
@@ -86,6 +86,7 @@ public class MemberService {
             member.get().setPassword(passwordEncoder.encode(newPassword));
             member.get().setResetPasswordToken(null); // 토큰 제거
             member.get().setResetPasswordTokenExpiry(null); // 만료 시간 제거
+            member.get().setTemporaryPassword(false); // 임시 비밀번호 플래그 해제
             memberRepository.save(member.get());
             return true;
         }
@@ -116,7 +117,7 @@ public class MemberService {
     	return member.isEnabled(); // enabled 가 true 면 인증됨
     }
     
-    //마이페이지 회원정보 이메일, 닉네임 메서드
+    // 마이페이지 회원정보 이메일, 닉네임 메서드
     public UserInfo getUserInfo(String username) {
         Member member = memberRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
@@ -124,39 +125,38 @@ public class MemberService {
         return new UserInfo(member.getUsername(), member.getNickname());
     }
     
-    
- // 임시 비밀번호를 생성하여 사용자의 이메일로 전송하는 메서드, @param email 사용자 이메일, @return 임시 비밀번호 전송 성공 여부
- 	public boolean sendTemporaryPassword(String email) {
- 		Optional<Member> memberOptional = memberRepository.findByUsername(email);
- 		
- 		if (memberOptional.isPresent()) {
- 			Member member = memberOptional.get();
- 			String tempPassword = generateTemporaryPassword();
- 			
- 			// 임시 비밀번호를 암호화하여 저장
- 			member.setPassword(passwordEncoder.encode(tempPassword));	// 비밀번호 암호화
- 			memberRepository.save(member);								// 암호화된 임시비밀번호 저장
- 			
- 			// 임시 비밀번호를 이메일로 전송
-             emailService.sendTemporaryPasswordEmail(email, tempPassword);
- 			return true;
- 		} else {
- 			return false;			
- 		}
- 	}
+    // 임시 비밀번호를 생성하여 사용자의 이메일로 전송하는 메서드
+    public boolean sendTemporaryPassword(String email) {
+        Optional<Member> memberOptional = memberRepository.findByUsername(email);
 
-     // 8자리의 임시 비밀번호를 생성하는 메서드, @return 임시 비밀번호
-     private String generateTemporaryPassword() {
-     	Random random = new Random();
-     	int length = 8;
-     	StringBuilder sb = new StringBuilder(length);
-     	String str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-     	
-     	for (int i = 0; i < length; i++) {
-     		sb.append(str.charAt(random.nextInt(str.length())));
-     	}
-     	
- 		return sb.toString();
- 	}
-     
+        if (memberOptional.isPresent()) {
+            Member member = memberOptional.get();
+            String tempPassword = generateTemporaryPassword();
+
+            // 임시 비밀번호를 암호화하여 저장
+            member.setPassword(passwordEncoder.encode(tempPassword)); // 비밀번호 암호화
+            member.setTemporaryPassword(true); // 임시 비밀번호 플래그 설정
+            memberRepository.save(member); // 암호화된 임시비밀번호 저장
+
+            // 임시 비밀번호를 이메일로 전송
+            emailService.sendTemporaryPasswordEmail(email, tempPassword);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // 8자리의 임시 비밀번호를 생성하는 메서드
+    private String generateTemporaryPassword() {
+        Random random = new Random();
+        int length = 8;
+        StringBuilder sb = new StringBuilder(length);
+        String str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        for (int i = 0; i < length; i++) {
+            sb.append(str.charAt(random.nextInt(str.length())));
+        }
+
+        return sb.toString();
+    }
 }

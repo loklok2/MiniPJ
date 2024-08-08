@@ -28,7 +28,7 @@ public class LoginController {
         this.memberService = memberService;
     }
     
-    @CrossOrigin(origins = "http://localhost:3000")
+   
     @PostMapping("/api/login")  // HTTP POST 요청을 처리하며, 경로는 "/api/login"입니다.
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
