@@ -30,6 +30,8 @@ public class SecurityConfig {
 				.requestMatchers("/manager/**").hasAnyRole("MANAGER", "ADMIN")
 				// "/admin/**" 경로는 "ADMIN" 역할을 가진 사용자만 접근할 수 있도록 설정합니다.
 				.requestMatchers("/admin/**").hasRole("ADMIN")
+				//mypage 경로 접근 설정
+				.requestMatchers("/api/mypage/**").authenticated()
 				// 그 외의 모든 요청은 인증 없이 접근을 허용합니다.
 				.anyRequest().permitAll())
 		// CSRF 보호 기능을 비활성화합니다.

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.sbs.domain.Member;
 import com.sbs.domain.Role;
 import com.sbs.domain.SignupRequest;
+import com.sbs.domain.UpdateMemberRequest;
 import com.sbs.persistence.MemberRepository;
 
 @Service
@@ -120,10 +121,18 @@ public class MemberService {
     			.orElseThrow(() -> new RuntimeException("Member not found"));
     }
     
-    //회원정보 수정
+ // 회원정보 수정 메서드
     public Member updateMemberInfo(String username, UpdateMemberRequest updateRequest) {
-    	Member member = findByUsername(username);
-    	
-    	member.setNickname(username);
+        Member member = findByUsername(username);
+
+        // 닉네임 업데이트
+        member.setNickname(updateRequest.getNickname());
+
+        // 비밀번호 업데이트 (선택적)
+        if (updateRequest.getPassword() != null && !updateRequest.getPassword().isEmpty()) {
+            member.setPassword(passwordEncoder.encode(updateRequest.getPassword()));
+        }
+
+        return memberRepository.save(member);
     }
 }
