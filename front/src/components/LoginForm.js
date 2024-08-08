@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { authState } from '../atoms/authAtom';
-import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
 export default function LoginForm({ onLogin }) {
@@ -9,7 +8,6 @@ export default function LoginForm({ onLogin }) {
     const emailRef = useRef();
     const passwordRef = useRef();
     const [error, setError] = useState();
-    const navigate = useNavigate();
 
     const handleSignIn = async (e) => {
         e.preventDefault();
@@ -49,9 +47,8 @@ export default function LoginForm({ onLogin }) {
                 setAuth({
                     isLoggedIn: true,
                     token: data.token,
-                    user: { username: email },
+                    user: { username: email, password: password },
                 });
-                navigate('/'); // 홈 페이지로 리디렉션
             } else {
                 setError('로그인 실패. 이메일과 비밀번호를 확인하세요.');
             }

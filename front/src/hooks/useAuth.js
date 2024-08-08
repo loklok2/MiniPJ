@@ -9,18 +9,21 @@ export const useAuth = () => {
     const navigate = useNavigate()
 
     const login = (user) => {
-        setIsLoggedIn(true);
+        setIsLoggedIn({ isLoggedIn: true, token: user.token, user });
         localStorage.setItem('isLoggedIn', JSON.stringify(true));
+        localStorage.setItem('token', user.token)
         localStorage.setItem('user', JSON.stringify(user));
     }
 
-    const logout  = () => {
-        setIsLoggedIn(false);
+    const logout = () => {
+
+        setIsLoggedIn({ isLoggedIn: false, token: null, user: null });
         localStorage.setItem('isLoggedIn', JSON.stringify(false));
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         navigate('/login'); // 로그인 페이지로 리디렉션
+
     }
 
-    return { isLoggedIn, login, logout  }
+    return { isLoggedIn, login, logout }
 }

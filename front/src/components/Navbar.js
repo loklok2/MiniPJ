@@ -1,20 +1,22 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
+// src/components/Navbar.js
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { authState } from '../atoms/authAtom';
+import { useRecoilValue } from 'recoil';
 
 export default function Navbar() {
-    const [isOpen, setIsOpen] = useState(false)
-    const { isLoggedIn, logout } = useAuth() // useAuth 훅을 사용
-    const navigate = useNavigate()
+    const [isOpen, setIsOpen] = useState(false);
+    const { logout } = useAuth(); // useAuth 훅을 사용
+    const isLoggedIn = useRecoilValue(authState).isLoggedIn;
 
     const toggleMenu = () => {
         setIsOpen(!isOpen); // 현재 상태를 반전시켜 메뉴 열림/닫힘 상태를 변경
-    }
+    };
 
     const handleLogout = () => {
         logout();
-        navigate('/login'); // 로그인 페이지로 리디렉션
-    }
+    };
 
     return (
         <header className='w-full fixed top-0 left-0 z-50 bg-gray-800 text-white'>
@@ -35,10 +37,10 @@ export default function Navbar() {
                 <div
                     id='navbarCollapse'
                     className={`fixed top-0 left-0 w-64 h-full 
-                            bg-gray-800 lg:static lg:flex lg:flex-row lg:items-center lg:w-auto lg:h-auto lg:bg-transparent ${isOpen ? 'block' : 'hidden'} lg:block`} // 모바일에서 사이드바, 웹에서는 일반 메뉴
+              bg-gray-800 lg:static lg:flex lg:flex-row lg:items-center lg:w-auto lg:h-auto lg:bg-transparent ${isOpen ? 'block' : 'hidden'} lg:block`} // 모바일에서 사이드바, 웹에서는 일반 메뉴
                 >
                     <div className='flex flex-col 
-                                    lg:flex-row lg:items-center lg:justify-between lg:flex-1'>
+              lg:flex-row lg:items-center lg:justify-between lg:flex-1'>
                         <Link className='px-4 py-2 text-white' to='/'>
                             Home
                         </Link>
@@ -59,16 +61,15 @@ export default function Navbar() {
                                 </Link>
                                 <button
                                     onClick={handleLogout}
-                                    className='ml-4 px-4 py-2 rounded-md text-white'>
+                                    className='ml-4 px-4 py-2 rounded-md text-white'
+                                >
                                     로그아웃
                                 </button>
                             </>
                         ) : (
-                            <>
-                                <Link className='px-4 py-2 text-white' to='/login'>
-                                    로그인
-                                </Link>
-                            </>
+                            <Link className='px-4 py-2 text-white' to='/login'>
+                                로그인
+                            </Link>
                         )}
                     </div>
                 </div>
