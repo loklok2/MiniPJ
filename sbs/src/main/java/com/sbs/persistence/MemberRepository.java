@@ -20,8 +20,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     // 주어진 사용자 이름(로그인 ID)이 이미 존재하는지 확인하는 메서드입니다.
     boolean existsByUsername(String username);
     
-    //이메일(username)과 닉네임으로 일치하는 사용자 찾기(아이디찾기때 사용하는 메소드)
-    Optional<Member> findByUsernameAndNickname(String username, String nickname);
+    //닉네임으로 일치하는 사용자 찾기(아이디찾기때 사용하는 메소드)
+    Optional<Member> findByNickname(String nickname);
     
     //비밀번호 재설정 토큰으로 사용자 찾기
 	Optional<Member> findByResetPasswordToken(String token);

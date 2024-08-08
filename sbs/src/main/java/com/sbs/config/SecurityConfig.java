@@ -37,23 +37,9 @@ public class SecurityConfig {
 		// CSRF 보호 기능을 비활성화합니다.
 		.csrf(csrf -> csrf.disable())
 		// 폼 로그인 설정을 구성합니다.
-		.formLogin(form -> form
-				// 커스텀 로그인 페이지 경로를 설정합니다.
-				.loginPage("/login")
-				// 로그인 성공 시 리다이렉트할 기본 URL을 설정합니다.
-				.defaultSuccessUrl("/loginSuccess", true))
-		// 로그아웃 설정을 구성합니다.
-		.logout(logout -> logout
-				// 세션을 무효화하고 JSESSIONID 쿠키를 삭제합니다.
-				.invalidateHttpSession(true)
-				.deleteCookies("JSESSIONID")
-				// 로그아웃 성공 시 리다이렉트할 URL을 설정합니다.
-				.logoutSuccessUrl("/login"))
+		.formLogin(form -> form.disable())
 		// OAuth2 로그인 설정을 구성합니다.
 		.oauth2Login(oauth2 -> oauth2
-				// OAuth2 로그인 페이지 경로를 설정합니다.
-				.loginPage("/login")
-				// OAuth2 로그인 성공 시 커스텀 핸들러를 사용합니다.
 				.successHandler(successHandler));
 
 		// 설정된 SecurityFilterChain을 반환합니다.

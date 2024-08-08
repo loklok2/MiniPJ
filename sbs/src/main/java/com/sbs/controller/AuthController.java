@@ -1,5 +1,7 @@
 package com.sbs.controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,13 +45,12 @@ public class AuthController {
         }
     }
     
- // 이메일과 닉네임을 기반으로 아이디 찾기
-    @PostMapping("/find-username")
+ // 닉네임 기반으로 아이디 찾기
+    @PostMapping("/find-usernickname")
     public ResponseEntity<String> findUsername(@RequestBody FindUsernameRequest request) {
-        String email = request.getEmail();
         String nickname = request.getNickname();
     	
-    	String username = memberService.findUsernameByEmailAndNickname(email, nickname);
+    	String username = memberService.findUsernameByNickname(nickname);
 
         if (username != null) {
             return new ResponseEntity<>(username, HttpStatus.OK);
@@ -82,5 +83,17 @@ public class AuthController {
         }
     }
    
+    // 이메일을 기반으로 비밀번호 찾기
+    @PostMapping("/find-password")
+    public ResponseEntity<String> findPassword(@RequestBody Map<String, String> request) {
+    	String email = request.get("username");
+    	boolean isEmailSent = memberService.sendTemporaryPassword(email);
+    	
+    	if (isEmailSent) {
+    		return new ResponseEntity<>("임시 비밀번호가 이메일로 전송되었습니다.", HttpStatus.OK);
+    	} else {
+    		return new ResponseEntity<>("이메일 정보 오류", HttpStatus.BAD_REQUEST);
+    	}
+    }
 }
 
