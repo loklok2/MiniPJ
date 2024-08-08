@@ -60,55 +60,55 @@ export default function SignUpForm({ onSignUp }) {
   };
 
   return (
-    <div className='flex justify-center items-center min-h-screen bg-gray-100'>
-      <div className='w-full max-w-lg p-8 bg-white rounded-lg shadow-lg'>
-        <h1 className='text-2xl font-bold text-center mb-6'>회원가입</h1>
-        {error && <div className='p-3 mb-4 rounded bg-red-100 text-red-700 border border-red-300'>{error}</div>}
-        {success && <div className='p-3 mb-4 rounded bg-green-100 text-green-700 border border-green-300'>{success}</div>}
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <div className="w-full max-w-lg p-8 bg-white rounded-lg shadow-lg">
+        <h1 className="text-2xl font-bold text-center mb-6">회원가입</h1>
+        {error && <div className="p-3 mb-4 rounded bg-red-100 text-red-700 border border-red-300">{error}</div>}
+        {success && <div className="p-3 mb-4 rounded bg-green-100 text-green-700 border border-green-300">{success}</div>}
         <form onSubmit={handleSignUp}>
-          <div className='mb-4'>
-            <label htmlFor='email' className='block text-sm font-medium text-gray-700'>이메일</label>
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">이메일</label>
             <input
-              id='email'
-              type='text'
+              id="email"
+              type="text"
               ref={emailRef}
-              placeholder='email@domain.com'
+              placeholder="email@domain.com"
               required
-              className='w-full mt-1 block border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50'
+              className="w-full mt-1 block border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
             />
           </div>
-          <div className='mb-4'>
-            <label htmlFor='password' className='block text-sm font-medium text-gray-700'>비밀번호</label>
+          <div className="mb-4">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">비밀번호</label>
             <input
-              id='password'
-              type='password'
+              id="password"
+              type="password"
               ref={passwordRef}
-              placeholder='••••••••'
+              placeholder="••••••••"
               required
-              className='w-full mt-1 block border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50'
+              className="w-full mt-1 block border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
             />
           </div>
-          <div className='mb-4'>
-            <label htmlFor='nickname' className='block text-sm font-medium text-gray-700'>닉네임</label>
+          <div className="mb-4">
+            <label htmlFor="nickname" className="block text-sm font-medium text-gray-700">닉네임</label>
             <input
-              id='nickname'
-              type='text'
+              id="nickname"
+              type="text"
               ref={nicknameRef}
-              placeholder='nickname'
+              placeholder="nickname"
               required
-              className='w-full mt-1 block border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50'
+              className="w-full mt-1 block border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
             />
           </div>
 
-          <button type='submit'
-            className='w-full py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50'>
+          <button type="submit"
+            className="w-full py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
             회원가입
           </button>
         </form>
         <Link to="/login">
           <button
-            className='w-full py-2 px-4 mt-4 bg-blue-500 text-white rounded-md
-                         hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50'>
+            className="w-full py-2 px-4 mt-4 bg-blue-500 text-white rounded-md
+                         hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
             로그인 페이지
           </button>
         </Link>

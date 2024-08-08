@@ -26,6 +26,7 @@ export default function AppRoutes() {
             <Route path="/mypage" element={auth.isLoggedIn ? <MyPage /> : <Navigate to="/login" />} />
             <Route path="/passwordfind" element={<PasswordFind />} />
             <Route path="/reset-password/:token" element={<PasswordReset />} />
+            <Route path="/password-reset" element={<PasswordReset />} />
             {/* 추가적인 경로들 추가 */}
         </Routes>
     )

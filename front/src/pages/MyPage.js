@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRecoilState } from 'recoil';
 import { authState } from '../atoms/authAtom';
-import PasswordReset from '../components/PasswordReset';
 
 export default function MyPage() {
     const [userInfo, setUserInfo] = useState({});
@@ -11,7 +10,7 @@ export default function MyPage() {
     useEffect(() => {
         const fetchUserInfo = async () => {
             try {
-                const response = await fetch('http://localhost:8080/api/mypage', {
+                const response = await fetch('http://localhost:8080/api/mypag/info', {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
                     },
@@ -44,7 +43,6 @@ export default function MyPage() {
                 <h2 className='text-xl font-semibold mb-4'>회원정보</h2>
                 <p><strong>이메일:</strong> {userInfo.username}</p>
                 <p><strong>닉네임:</strong> {userInfo.nickname}</p>
-                <PasswordReset />
             </div>
         </div>
     );
