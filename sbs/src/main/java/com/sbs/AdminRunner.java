@@ -4,9 +4,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import com.sbs.domain.Member;
-import com.sbs.domain.Role;
-import com.sbs.persistence.MemberRepository;
+import com.sbs.auth.domain.Member;
+import com.sbs.auth.domain.Role;
+import com.sbs.auth.repository.MemberRepository;
 
 @Component
 public class AdminRunner implements CommandLineRunner {
