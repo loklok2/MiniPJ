@@ -1,6 +1,7 @@
 package com.sbs.auth.security;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
@@ -10,7 +11,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import com.sbs.auth.domain.Member;
-import com.sbs.auth.domain.Role;
+import com.sbs.auth.domain.UserRole;
 import com.sbs.auth.repository.MemberRepository;
 import com.sbs.util.CustomMyUtil;
 import com.sbs.util.JWTUtil;
@@ -21,13 +22,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j  // Lombok 애너테이션으로, 로깅을 위한 Logger 객체를 자동으로 생성합니다.
-@RequiredArgsConstructor  // Lombok 애너테이션으로, final 필드에 대한 생성자를 자동으로 생성합니다.
-@Component  // 이 클래스가 Spring의 빈으로 등록됨을 나타냅니다.
+@Slf4j  
+@RequiredArgsConstructor 
+@Component  
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private final MemberRepository memberRepo;  // MemberRepository를 주입받아 사용합니다.
-    private final PasswordEncoder encoder;  // PasswordEncoder를 주입받아 사용합니다.
+    private final MemberRepository memberRepo;  
+    private final PasswordEncoder encoder;  
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, 
@@ -49,13 +50,30 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         }
         log.info("onAuthenticationSuccess:" + username);  // 생성된 사용자명을 로그로 출력
 
-        // 새로운 회원을 생성하여 저장합니다. 비밀번호는 임의로 설정하고, 역할은 MEMBER로 설정합니다.
-        memberRepo.save(Member.builder()
-                .username(username)
-                .password(encoder.encode("1a2s3d4f"))  // 비밀번호는 임의의 문자열로 설정
-                .roles(Role.ROLE_MEMBER)
-                .build());
-        
+        // 8/9 수정: 기존 사용자 확인 로직 추가
+        Optional<Member> existingMember = memberRepo.findByUsername(username);
+
+        if (existingMember.isPresent()) {
+            log.info("onAuthenticationSuccess: Existing user found with username: " + username);
+        } else {
+            log.info("onAuthenticationSuccess: New user created with username: " + username);
+            
+            // 새로운 회원을 생성하여 저장합니다.
+            Member newMember = Member.builder()
+                    .username(username)
+                    .password(encoder.encode("1a2s3d4f"))  // 비밀번호는 임의의 문자열로 설정
+                    .enabled(true) // 8/9 수정: OAuth2 인증 시 사용자를 기본 활성화 상태로 설정
+                    .build();
+            
+            // 새로운 역할 설정
+            UserRole memberRole = new UserRole();
+            memberRole.setRoleName("ROLE_MEMBER");
+            memberRole.setMember(newMember);
+            newMember.getRoles().add(memberRole);
+            
+            memberRepo.save(newMember);
+        }
+
         // 사용자명을 기반으로 JWT 토큰을 생성합니다.
         String jwtToken = JWTUtil.getJWT(username);
         

@@ -6,4 +6,6 @@
     <fullyQualifiedTypeName name="com.sbs.domain.Member"/>
     <fullyQualifiedTypeName name="org.springframework.security.core.userdetails.User"/>
     <fullyQualifiedTypeName name="com.sbs.util.JWTUtil"/>
+    <fullyQualifiedTypeName name="java.util.Set"/>
+    <fullyQualifiedTypeName name="com.sbs.auth.domain.Member"/>
 </qualifiedTypeNameHistroy>

@@ -13,8 +13,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.sbs.auth.domain.Member;
+import com.sbs.auth.domain.UserRole;
 import com.sbs.auth.exception.TemporaryPasswordException;
 import com.sbs.auth.repository.MemberRepository;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
@@ -33,10 +37,15 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         Member member = memberRepository.findByUsername(username)
                 .orElseThrow(() -> new BadCredentialsException("Invalid username or password"));
 
+        // 8/9 수정: Set<UserRole>에서 역할 이름을 추출하여 권한 리스트로 변환
+        Set<String> roles = member.getRoles().stream()
+                .map(UserRole::getRoleName)
+                .collect(Collectors.toSet());
+
         UserDetails userDetails = new User(
                 member.getUsername(),
                 member.getPassword(),
-                AuthorityUtils.createAuthorityList(member.getRoles().name())
+                AuthorityUtils.createAuthorityList(roles.toArray(new String[0]))
         );
 
         if (passwordEncoder.matches(password, userDetails.getPassword())) {

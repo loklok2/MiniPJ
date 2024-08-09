@@ -10,16 +10,26 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.sbs.auth.domain.Member;
-import com.sbs.auth.domain.Role;
 import com.sbs.auth.domain.SignupRequest;
 import com.sbs.auth.domain.UserInfo;
+import com.sbs.auth.domain.UserRole;  // 8/9 수정: UserRole 클래스를 사용하기 위해 import 추가
+import com.sbs.auth.domain.VerificationToken;  // 8/9 수정: VerificationToken 사용을 위한 import 추가
+import com.sbs.auth.domain.ResetPasswordToken;  // 8/9 수정: ResetPasswordToken 사용을 위한 import 추가
 import com.sbs.auth.repository.MemberRepository;
+import com.sbs.auth.repository.VerificationTokenRepository;  // 8/9 수정: VerificationTokenRepository 주입
+import com.sbs.auth.repository.ResetPasswordTokenRepository;  // 8/9 수정: ResetPasswordTokenRepository 주입
 
 @Service
 public class MemberService {
 
     @Autowired
     private MemberRepository memberRepository;
+
+    @Autowired
+    private VerificationTokenRepository verificationTokenRepository;  // 8/9 수정: VerificationTokenRepository 주입
+
+    @Autowired
+    private ResetPasswordTokenRepository resetPasswordTokenRepository;  // 8/9 수정: ResetPasswordTokenRepository 주입
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -39,13 +49,22 @@ public class MemberService {
         member.setUsername(signupRequest.getUsername());
         member.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
         member.setNickname(signupRequest.getNickname());
-        member.setRoles(Role.ROLE_MEMBER);
         member.setEnabled(false);
 
-        String token = UUID.randomUUID().toString();
-        member.setVerificationToken(token);
-        
+        // 8/9 수정: 역할을 설정하기 위해 UserRole 엔티티 사용
+        UserRole userRole = new UserRole();
+        userRole.setRoleName("ROLE_MEMBER");
+        userRole.setMember(member);
+        member.getRoles().add(userRole);  // 8/9 수정: UserRole 추가
+
         memberRepository.save(member);
+
+        // 8/9 수정: VerificationToken 엔티티 사용하여 이메일 인증 토큰 관리
+        String token = UUID.randomUUID().toString();
+        VerificationToken verificationToken = new VerificationToken();
+        verificationToken.setToken(token);
+        verificationToken.setMember(member);
+        verificationTokenRepository.save(verificationToken);
         
         String verificationLink = "http://localhost:8080/api/auth/verify?token=" + token;
         emailService.sendVerificationEmail(member.getUsername(), verificationLink);
@@ -65,10 +84,13 @@ public class MemberService {
         Optional<Member> member = memberRepository.findByUsername(username);
 
         if (member.isPresent()) {
+            // 8/9 수정: 비밀번호 재설정 토큰 및 만료 시간 관리
             String token = UUID.randomUUID().toString();
-            member.get().setResetPasswordToken(token);
-            member.get().setResetPasswordTokenExpiry(LocalDateTime.now().plusMinutes(30)); // 만료 시간 설정
-            memberRepository.save(member.get());
+            ResetPasswordToken resetPasswordToken = new ResetPasswordToken();
+            resetPasswordToken.setToken(token);
+            resetPasswordToken.setMember(member.get());
+            resetPasswordToken.setExpiryDate(LocalDateTime.now().plusMinutes(30)); // 만료 시간 설정
+            resetPasswordTokenRepository.save(resetPasswordToken);
 
             String resetLink = "http://localhost:8080/api/auth/reset-password-form?token=" + token;
             emailService.sendVerificationEmail(username, resetLink);
@@ -77,16 +99,17 @@ public class MemberService {
         }
         return false;
     }
+
     // 비밀번호 재설정 처리 메서드
     public boolean resetPassword(String token, String newPassword) {
-        Optional<Member> member = memberRepository.findByResetPasswordToken(token);
+        Optional<ResetPasswordToken> resetPasswordToken = resetPasswordTokenRepository.findByToken(token);
 
-        if (member.isPresent() && member.get().getResetPasswordTokenExpiry().isAfter(LocalDateTime.now())) {
-            member.get().setPassword(passwordEncoder.encode(newPassword));
-            member.get().setResetPasswordToken(null); // 토큰 제거
-            member.get().setResetPasswordTokenExpiry(null); // 만료 시간 제거
-            member.get().setTemporaryPassword(false); // 임시 비밀번호 플래그 해제
-            memberRepository.save(member.get());
+        if (resetPasswordToken.isPresent() && resetPasswordToken.get().getExpiryDate().isAfter(LocalDateTime.now())) {
+            Member member = resetPasswordToken.get().getMember();
+            member.setPassword(passwordEncoder.encode(newPassword));
+            resetPasswordTokenRepository.delete(resetPasswordToken.get()); // 토큰 제거
+            member.setTemporaryPassword(false); // 임시 비밀번호 플래그 해제
+            memberRepository.save(member);
             return true;
         }
         return false;
@@ -94,26 +117,28 @@ public class MemberService {
     
     // 이메일 인증 처리
     public boolean verifyEmail(String token) {
-        // 인증 토큰으로 사용자를 조회
-        Member member = memberRepository.findByVerificationToken(token)
+        // 8/9 수정: VerificationToken 엔티티 사용
+        VerificationToken verificationToken = verificationTokenRepository.findByToken(token)
                 .orElseThrow(() -> new RuntimeException("Invalid verification token"));
+
+        Member member = verificationToken.getMember();
 
         // 인증 토큰이 유효한 경우, 사용자 활성화 및 토큰 제거
         if (member != null) {
-        	member.setEnabled(true);
-        	member.setVerificationToken(null);
-        	memberRepository.save(member);
-        	
-        	return true;        	
+            member.setEnabled(true);
+            verificationTokenRepository.delete(verificationToken); // 8/9 수정: 인증 토큰 제거
+            memberRepository.save(member);
+            
+            return true;            
         }
         return false;
     }
     
     // 로그인 시 이메일 인증 여부 확인
     public boolean isEmailVerified(String username) {
-    	Member member = memberRepository.findByUsername(username)
-    			.orElseThrow(() -> new RuntimeException("Member not found"));
-    	return member.isEnabled(); // enabled 가 true 면 인증됨
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+        return member.isEnabled(); // enabled 가 true 면 인증됨
     }
     
     // 마이페이지 회원정보 이메일, 닉네임 메서드
