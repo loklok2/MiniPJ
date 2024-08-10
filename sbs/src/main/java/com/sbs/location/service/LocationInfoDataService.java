@@ -15,6 +15,7 @@ public class LocationInfoDataService {
     private LocationInfoDataRepository locationRepo;
     
     public List<LocationInfoData> getAllLocationInfo(){
+        // 모든 위치 정보를 조회합니다.
         return locationRepo.findAll();
     }
 

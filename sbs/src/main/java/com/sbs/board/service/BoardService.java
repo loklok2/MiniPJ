@@ -16,26 +16,26 @@ public class BoardService {
     @Autowired
     private BoardRepository boardRepo;
 
-    // 전체 게시글 목록을 조회하는 메서드
     public List<Board> getAllBoards() {
+        // 전체 게시글 목록을 조회합니다.
         return boardRepo.findAll();
     }
 
-    // ID로 특정 게시글을 조회하는 메서드
     public Board getBoardById(Long id) {
+        // ID로 특정 게시글을 조회합니다.
         return boardRepo.findById(id).orElse(null);
     }
 
-    // 새로운 게시글을 작성하는 메서드
     public Board createBoard(Board board, Member member) {
+        // 새로운 게시글을 작성합니다.
         board.setAuthor(member);  // 작성자 설정
         board.setAuthorNickname(member.getNickname());  // 닉네임 설정
         board.setCreateDate(LocalDateTime.now());
         return boardRepo.save(board);
     }
 
-    // 기존 게시글을 수정하는 메서드
     public Board updateBoard(Long id, Board board2) {
+        // 기존 게시글을 수정합니다.
         Board board = boardRepo.findById(id).orElse(null);
         if (board != null) {
             board.setTitle(board2.getTitle());
@@ -46,8 +46,8 @@ public class BoardService {
         return null;
     }
 
-    // 특정 ID의 게시글을 삭제하는 메서드
     public boolean deleteBoard(Long id) {
+        // 특정 ID의 게시글을 삭제합니다.
         if (boardRepo.existsById(id)) {
             boardRepo.deleteById(id);
             return true;

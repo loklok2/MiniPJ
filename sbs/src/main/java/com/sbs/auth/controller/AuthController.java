@@ -19,7 +19,6 @@ import com.sbs.auth.domain.SignupRequest;
 import com.sbs.auth.service.MemberService;
 import com.sbs.util.JWTUtil;
 
-
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -27,16 +26,16 @@ public class AuthController {
     @Autowired
     private MemberService memberService;
 
-    // 회원가입 요청을 처리하는 메서드입니다.
     @PostMapping("/signup")
     public ResponseEntity<Member> signup(@RequestBody SignupRequest signupRequest){
+        // 회원가입 요청을 처리합니다.
         Member member = memberService.registerUser(signupRequest);
         return new ResponseEntity<>(member, HttpStatus.CREATED);
     }
 
-    // 이메일 인증 요청을 처리하는 메서드입니다.
     @GetMapping("/verify")
     public ResponseEntity<String> veifyEmail(@RequestParam("token") String token){
+        // 이메일 인증 요청을 처리합니다.
         boolean isVerified = memberService.verifyEmail(token);
 
         if(isVerified) {
@@ -46,12 +45,10 @@ public class AuthController {
         }
     }
     
- // 닉네임 기반으로 아이디 찾기
     @PostMapping("/find-usernickname")
     public ResponseEntity<String> findUsername(@RequestBody FindUsernameRequest request) {
-        String nickname = request.getNickname();
-    	
-    	String username = memberService.findUsernameByNickname(nickname);
+        // 닉네임을 기반으로 사용자명을 찾습니다.
+        String username = memberService.findUsernameByNickname(request.getNickname());
 
         if (username != null) {
             return new ResponseEntity<>(username, HttpStatus.OK);
@@ -60,9 +57,9 @@ public class AuthController {
         }
     }
 
-    // 비밀번호 재설정 요청 처리
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
+        // 비밀번호 재설정 링크를 생성하여 이메일로 전송합니다.
         boolean isResetLinkSent = memberService.createPasswordResetToken(request.getUsername());
 
         if (isResetLinkSent) {
@@ -72,9 +69,9 @@ public class AuthController {
         }
     }
 
-    // 비밀번호 재설정 처리
     @PostMapping("/reset-password-form")
     public ResponseEntity<String> updatePassword(@RequestBody ResetPasswordRequest request) {
+        // 비밀번호 재설정을 처리합니다.
         boolean isPasswordReset = memberService.resetPassword(request.getToken(), request.getNewPassword());
 
         if (isPasswordReset) {
@@ -86,18 +83,16 @@ public class AuthController {
                                  .body("Invalid or expired token.");
         }
     }
-   
-    // 이메일을 기반으로 비밀번호 찾기
+
     @PostMapping("/find-password")
     public ResponseEntity<String> findPassword(@RequestBody Map<String, String> request) {
-    	String email = request.get("username");
-    	boolean isEmailSent = memberService.sendTemporaryPassword(email);
-    	
-    	if (isEmailSent) {
-    		return new ResponseEntity<>("임시 비밀번호가 이메일로 전송되었습니다.", HttpStatus.OK);
-    	} else {
-    		return new ResponseEntity<>("이메일 정보 오류", HttpStatus.BAD_REQUEST);
-    	}
+        // 이메일을 통해 임시 비밀번호를 발급합니다.
+        boolean isEmailSent = memberService.sendTemporaryPassword(request.get("username"));
+
+        if (isEmailSent) {
+            return new ResponseEntity<>("임시 비밀번호가 이메일로 전송되었습니다.", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("이메일 정보 오류", HttpStatus.BAD_REQUEST);
+        }
     }
 }
-

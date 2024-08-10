@@ -34,13 +34,11 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     public void onAuthenticationSuccess(HttpServletRequest request, 
                                          HttpServletResponse response, 
                                          Authentication authentication) throws IOException, ServletException {
-        
+        // OAuth2 로그인 성공 후 사용자 처리
         log.info("OAuth2SuccessHandler:onAuthenticationSuccess");
 
-        // 인증된 사용자 정보를 OAuth2User 객체로 가져옵니다.
         OAuth2User user = (OAuth2User) authentication.getPrincipal();
         
-        // CustomMyUtil을 사용하여 OAuth2User로부터 사용자명을 생성합니다.
         String username = CustomMyUtil.getUsernameFromOAuth2User(user);
         
         if (username == null) {
@@ -56,21 +54,17 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         } else {
             log.info("onAuthenticationSuccess: New user created with username: " + username);
             
-            // 새로운 회원을 생성하여 저장합니다.
             Member newMember = Member.builder()
                     .username(username)
-                    .password(encoder.encode("1a2s3d4f"))  // 비밀번호는 임의의 문자열로 설정
+                    .password(encoder.encode("1a2s3d4f"))
                     .enabled(true)
-                    .role(Role.ROLE_MEMBER)  // 단일 역할 설정
+                    .role(Role.ROLE_MEMBER)
                     .build();
             
             memberRepo.save(newMember);
         }
 
-        // 사용자명을 기반으로 JWT 토큰을 생성합니다.
         String jwtToken = JWTUtil.getJWT(username);
-        
-        // 응답 헤더에 JWT 토큰을 추가하여 클라이언트에게 반환합니다.
         response.addHeader(HttpHeaders.AUTHORIZATION, jwtToken); 
     }
 }

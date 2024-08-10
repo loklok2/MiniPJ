@@ -24,42 +24,41 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
-	private final MemberRepository memberRepository;
+    private final MemberRepository memberRepository;
 
-	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-			throws ServletException, IOException {
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        // JWT 토큰을 통해 사용자 인증을 처리합니다.
+        String srcToken = request.getHeader("Authorization"); 
+        if(srcToken == null || !srcToken.startsWith("Bearer ")) { 
+            filterChain.doFilter(request, response); 
+            return;            
+        }
 
-		String srcToken = request.getHeader("Authorization"); 
-		if(srcToken == null || !srcToken.startsWith("Bearer ")) { 
-			filterChain.doFilter(request, response); 
-			return;			
-		}
-
-		String jwtToken = srcToken.replace("Bearer ", ""); 
-		
-		String username = JWT.require(Algorithm.HMAC256("edu.pnu.jwtkey"))  // 이 키는 실제 환경에서는 안전하게 관리되어야 합니다.
-		                    .build()
-		                    .verify(jwtToken)
-		                    .getClaim("username")
-		                    .asString();
-		
-		Optional<Member> opt = memberRepository.findByUsername(username); 
-		if(!opt.isPresent()) { 
-			filterChain.doFilter(request, response); 
-			return;
-		}
-		
-		Member findMember = opt.get();
-		
-		// 권한을 단일 Role로 설정
-		User user = new User(findMember.getUsername(), findMember.getPassword(), 
-				AuthorityUtils.createAuthorityList(findMember.getRole().name()));
-		
-		Authentication auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-		
-		SecurityContextHolder.getContext().setAuthentication(auth);
-		
-		filterChain.doFilter(request, response);
-	}
+        String jwtToken = srcToken.replace("Bearer ", ""); 
+        
+        String username = JWT.require(Algorithm.HMAC256("edu.pnu.jwtkey"))
+                             .build()
+                             .verify(jwtToken)
+                             .getClaim("username")
+                             .asString();
+        
+        Optional<Member> opt = memberRepository.findByUsername(username); 
+        if(!opt.isPresent()) { 
+            filterChain.doFilter(request, response); 
+            return;
+        }
+        
+        Member findMember = opt.get();
+        
+        User user = new User(findMember.getUsername(), findMember.getPassword(), 
+                AuthorityUtils.createAuthorityList(findMember.getRole().name()));
+        
+        Authentication auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+        
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        
+        filterChain.doFilter(request, response);
+    }
 }

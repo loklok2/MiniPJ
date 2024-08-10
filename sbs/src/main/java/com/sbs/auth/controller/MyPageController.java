@@ -18,12 +18,11 @@ public class MyPageController {
     @Autowired
     private MemberService memberService;
 
-    // 로그인한 사용자의 정보를 가져오는 엔드포인트
     @GetMapping("/info")
     public ResponseEntity<UserInfo> getMyInfo(Authentication authentication) {
+        // 현재 로그인된 사용자의 정보를 반환합니다.
         String username = authentication.getName();
         UserInfo userInfo = memberService.getUserInfo(username);
         return new ResponseEntity<>(userInfo, HttpStatus.OK);
     }
-
 }

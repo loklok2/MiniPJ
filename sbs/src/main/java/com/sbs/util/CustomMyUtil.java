@@ -12,10 +12,10 @@ public class CustomMyUtil {
         String regName = null;
         
         // OAuth2 공급자별로 이름을 식별하여 regName 변수에 설정
-        if (userString.contains("google")) 			regName = "Google";
-        else if (userString.contains("facebook")) 	regName = "Facebook";
-        else if (userString.contains("naver")) 		regName = "Naver";
-        else if (userString.contains("kakao")) 		regName = "Kakao";
+        if (userString.contains("google"))            regName = "Google";
+        else if (userString.contains("facebook"))     regName = "Facebook";
+        else if (userString.contains("naver"))        regName = "Naver";
+        else if (userString.contains("kakao"))        regName = "Kakao";
         else {
             // 네이버의 경우 특정 문자열이 포함된 경우에만 regName을 설정
             if (userString.contains("id=") && userString.contains("resultcode=") && userString.contains("response="))

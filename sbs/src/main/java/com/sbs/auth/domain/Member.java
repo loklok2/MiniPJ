@@ -1,11 +1,13 @@
 package com.sbs.auth.domain;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,7 +31,9 @@ public class Member {
 
     @Enumerated(EnumType.STRING)
     private Role role;  // 단일 역할 관리
-
+    
+    private LocalDateTime joinDate = LocalDateTime.now();
+    
     private boolean temporaryPassword;
 
     // 기타 필드들 및 메서드들

@@ -30,15 +30,15 @@ public class BoardController {
     @Autowired
     private MemberRepository memberRepository;
 
-    // 전체 게시글 목록을 반환합니다.
     @GetMapping
     public ResponseEntity<List<Board>> getAllBoards() {
+        // 전체 게시글 목록을 반환합니다.
         return new ResponseEntity<>(boardService.getAllBoards(), HttpStatus.OK);
     }
 
-    // 특정 ID의 게시글을 반환합니다.
     @GetMapping("/{id}")
     public ResponseEntity<Board> getBoardById(@PathVariable Long id) {
+        // 특정 ID의 게시글을 반환합니다.
         Board board = boardService.getBoardById(id);
         if (board != null) {
             return new ResponseEntity<>(board, HttpStatus.OK);
@@ -46,9 +46,9 @@ public class BoardController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    // 새로운 게시글을 생성합니다.
     @PostMapping
     public ResponseEntity<Board> createBoard(@RequestBody Board board, Authentication authentication) {
+        // 새로운 게시글을 생성합니다.
         String username = authentication.getName();
         Member member = memberRepository.findByUsername(username).orElse(null);
 
@@ -60,9 +60,9 @@ public class BoardController {
         }
     }
 
-    // 기존 게시글을 수정합니다.
     @PutMapping("/{id}")
     public ResponseEntity<Board> updateBoard(@PathVariable Long id, @RequestBody Board board2) {
+        // 기존 게시글을 수정합니다.
         Board updatedBoard = boardService.updateBoard(id, board2);
         if (updatedBoard != null) {
             return new ResponseEntity<>(updatedBoard, HttpStatus.OK);
@@ -70,9 +70,9 @@ public class BoardController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    // 특정 ID의 게시글을 삭제합니다.
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBoard(@PathVariable Long id) {
+        // 특정 ID의 게시글을 삭제합니다.
         if (boardService.deleteBoard(id)) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }

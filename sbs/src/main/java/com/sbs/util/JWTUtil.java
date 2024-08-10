@@ -23,6 +23,7 @@ public class JWTUtil {
 
     // 주어진 사용자 이름을 기반으로 JWT 토큰을 생성하는 메서드
     public static String getJWT(String username) {
+        // JWT 토큰 생성 및 서명
         return PREFIX + JWT.create()
                 .withClaim(CLAIM_NAME, username)
                 .withExpiresAt(new Date(System.currentTimeMillis() + ACCESS_TOKEN_MSEC)) // 만료 시간 설정

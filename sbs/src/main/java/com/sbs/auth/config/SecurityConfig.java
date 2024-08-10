@@ -21,30 +21,32 @@ import lombok.RequiredArgsConstructor;
 @EnableWebSecurity
 public class SecurityConfig {
 
-	private final OAuth2SuccessHandler successHandler;
-	private final CustomAuthenticationProvider customAuthenticationProvider;
-	private final MemberRepository memberRepository;  // JWTAuthorizationFilter에서 사용
+    private final OAuth2SuccessHandler successHandler;
+    private final CustomAuthenticationProvider customAuthenticationProvider;
+    private final MemberRepository memberRepository;
 
-	@Bean
-	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.csrf(csrf -> csrf.disable())
-		    .authorizeHttpRequests(authorize -> authorize
-				.requestMatchers("/member/**").authenticated()
-				.requestMatchers("/manager/**").hasAnyRole("MANAGER", "ADMIN")
-				.requestMatchers("/admin/**").hasRole("ADMIN")
-				.requestMatchers("/api/mypage/**").authenticated()
-				.anyRequest().permitAll())
-		    .formLogin(form -> form.disable())
-		    .oauth2Login(oauth2 -> oauth2.successHandler(successHandler))
-		    .addFilterBefore(new JWTAuthorizationFilter(memberRepository), UsernamePasswordAuthenticationFilter.class);  // JWT 필터 추가
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(authorize -> authorize
+                // 경로별로 인증 및 권한을 설정
+                .requestMatchers("/member/**").authenticated()
+                .requestMatchers("/manager/**").hasAnyRole("MANAGER", "ADMIN")
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/mypage/**").authenticated()
+                .anyRequest().permitAll())
+            .formLogin(form -> form.disable())
+            .oauth2Login(oauth2 -> oauth2.successHandler(successHandler))
+            .addFilterBefore(new JWTAuthorizationFilter(memberRepository), UsernamePasswordAuthenticationFilter.class);  // JWT 필터 추가
 
-		return http.build();
-	}
+        return http.build();
+    }
 
-	@Bean
-	AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-		return http.getSharedObject(AuthenticationManagerBuilder.class)
-				.authenticationProvider(customAuthenticationProvider)
-				.build();
-	}
+    @Bean
+    AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        // 커스텀 인증 제공자 설정
+        return http.getSharedObject(AuthenticationManagerBuilder.class)
+                .authenticationProvider(customAuthenticationProvider)
+                .build();
+    }
 }
