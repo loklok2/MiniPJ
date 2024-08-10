@@ -10,14 +10,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.sbs.auth.domain.Member;
+import com.sbs.auth.domain.Role;
 import com.sbs.auth.domain.SignupRequest;
+import com.sbs.auth.domain.Token;
+import com.sbs.auth.domain.TokenType;
 import com.sbs.auth.domain.UserInfo;
-import com.sbs.auth.domain.UserRole;  // 8/9 수정: UserRole 클래스를 사용하기 위해 import 추가
-import com.sbs.auth.domain.VerificationToken;  // 8/9 수정: VerificationToken 사용을 위한 import 추가
-import com.sbs.auth.domain.ResetPasswordToken;  // 8/9 수정: ResetPasswordToken 사용을 위한 import 추가
 import com.sbs.auth.repository.MemberRepository;
-import com.sbs.auth.repository.VerificationTokenRepository;  // 8/9 수정: VerificationTokenRepository 주입
-import com.sbs.auth.repository.ResetPasswordTokenRepository;  // 8/9 수정: ResetPasswordTokenRepository 주입
+import com.sbs.auth.repository.TokenRepository;
 
 @Service
 public class MemberService {
@@ -26,130 +25,154 @@ public class MemberService {
     private MemberRepository memberRepository;
 
     @Autowired
-    private VerificationTokenRepository verificationTokenRepository;  // 8/9 수정: VerificationTokenRepository 주입
-
-    @Autowired
-    private ResetPasswordTokenRepository resetPasswordTokenRepository;  // 8/9 수정: ResetPasswordTokenRepository 주입
+    private TokenRepository tokenRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-    
+
     @Autowired
     private EmailService emailService;
 
-    // 회원 가입 처리 메서드
+    /**
+     * 회원 가입 처리를 담당합니다.
+     * 회원 정보를 저장하고 이메일 인증 토큰을 생성합니다.
+     */
     public Member registerUser(SignupRequest signupRequest) {
-        // 사용자 이름(이메일)이 이미 존재하는지 확인
+        // 이미 존재하는 사용자 이름인지 확인합니다.
         if (memberRepository.existsByUsername(signupRequest.getUsername())) {
             throw new RuntimeException("Username is already taken");
         }
 
-        // 새로운 Member 객체 생성 및 설정
+        // 새로운 회원 정보를 생성합니다.
         Member member = new Member();
         member.setUsername(signupRequest.getUsername());
         member.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
         member.setNickname(signupRequest.getNickname());
-        member.setEnabled(false);
-
-        // 8/9 수정: 역할을 설정하기 위해 UserRole 엔티티 사용
-        UserRole userRole = new UserRole();
-        userRole.setRoleName("ROLE_MEMBER");
-        userRole.setMember(member);
-        member.getRoles().add(userRole);  // 8/9 수정: UserRole 추가
+        member.setEnabled(false); // 초기 상태는 비활성화
+        member.setRole(Role.ROLE_MEMBER); // 단일 역할 설정
 
         memberRepository.save(member);
 
-        // 8/9 수정: VerificationToken 엔티티 사용하여 이메일 인증 토큰 관리
-        String token = UUID.randomUUID().toString();
-        VerificationToken verificationToken = new VerificationToken();
-        verificationToken.setToken(token);
-        verificationToken.setMember(member);
-        verificationTokenRepository.save(verificationToken);
-        
-        String verificationLink = "http://localhost:8080/api/auth/verify?token=" + token;
-        emailService.sendVerificationEmail(member.getUsername(), verificationLink);
-        
+        // 이메일 인증 토큰 생성 및 발송
+        createVerificationToken(member);
+
         return member;
     }
-    
 
-    //닉네임을 기반으로 아이디 찾기 메서드
+    /**
+     * 이메일 인증 토큰을 생성하고 회원에게 발송합니다.
+     */
+    public boolean createVerificationToken(Member member) {
+        // UUID를 이용해 토큰 값을 생성합니다.
+        String tokenValue = UUID.randomUUID().toString();
+        Token token = new Token();
+        token.setTokenType(TokenType.VERIFICATION);
+        token.setTokenValue(tokenValue);
+        token.setExpiryDate(LocalDateTime.now().plusDays(1)); // 토큰의 만료 시간 설정
+        token.setMember(member);
+        tokenRepository.save(token);
+
+        // 인증 링크 생성 및 이메일 발송
+        String verificationLink = "http://localhost:8080/api/auth/verify?token=" + tokenValue;
+        emailService.sendVerificationEmail(member.getUsername(), verificationLink);
+        return true;
+    }
+
+    /**
+     * 이메일 인증을 처리합니다.
+     * 유효한 토큰인 경우, 사용자의 상태를 활성화합니다.
+     */
+    public boolean verifyEmail(String tokenValue) {
+        Token token = tokenRepository.findByTokenValue(tokenValue)
+                .orElseThrow(() -> new RuntimeException("Invalid verification token"));
+
+        // 토큰이 유효하지 않거나 만료된 경우
+        if (token.getTokenType() != TokenType.VERIFICATION || token.getExpiryDate().isBefore(LocalDateTime.now())) {
+            return false;
+        }
+
+        Member member = token.getMember();
+        member.setEnabled(true);
+        tokenRepository.delete(token); // 사용된 토큰 삭제
+        memberRepository.save(member);
+        return true;
+    }
+
+    /**
+     * 비밀번호 재설정 토큰을 생성하고 사용자에게 이메일로 발송합니다.
+     */
+    public boolean createPasswordResetToken(String username) {
+        Optional<Member> memberOpt = memberRepository.findByUsername(username);
+
+        if (memberOpt.isPresent()) {
+            Member member = memberOpt.get();
+            String tokenValue = UUID.randomUUID().toString();
+            Token token = new Token();
+            token.setTokenType(TokenType.RESET_PASSWORD);
+            token.setTokenValue(tokenValue);
+            token.setExpiryDate(LocalDateTime.now().plusMinutes(30)); // 30분 유효한 토큰
+            token.setMember(member);
+            tokenRepository.save(token);
+
+            // 비밀번호 재설정 링크 생성 및 이메일 발송
+            String resetLink = "http://localhost:8080/api/auth/reset-password-form?token=" + tokenValue;
+            emailService.sendPasswordResetMail(username, resetLink);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 비밀번호를 재설정합니다.
+     * 유효한 토큰인 경우, 사용자의 비밀번호를 변경합니다.
+     */
+    public boolean resetPassword(String tokenValue, String newPassword) {
+        Optional<Token> tokenOpt = tokenRepository.findByTokenValue(tokenValue);
+
+        if (tokenOpt.isPresent()) {
+            Token token = tokenOpt.get();
+            if (token.getTokenType() == TokenType.RESET_PASSWORD && token.getExpiryDate().isAfter(LocalDateTime.now())) {
+                Member member = token.getMember();
+                member.setPassword(passwordEncoder.encode(newPassword));
+                member.setTemporaryPassword(false);
+                memberRepository.save(member);
+                tokenRepository.delete(token); // 사용된 토큰 삭제
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 닉네임을 통해 사용자명을 찾습니다.
+     */
     public String findUsernameByNickname(String nickname) {
         Optional<Member> member = memberRepository.findByNickname(nickname);
         return member.map(Member::getUsername).orElse(null);
     }
 
-    // 비밀번호 재설정 요청 처리 메서드
-    public boolean createPasswordResetToken(String username) {
-        Optional<Member> member = memberRepository.findByUsername(username);
-
-        if (member.isPresent()) {
-            // 8/9 수정: 비밀번호 재설정 토큰 및 만료 시간 관리
-            String token = UUID.randomUUID().toString();
-            ResetPasswordToken resetPasswordToken = new ResetPasswordToken();
-            resetPasswordToken.setToken(token);
-            resetPasswordToken.setMember(member.get());
-            resetPasswordToken.setExpiryDate(LocalDateTime.now().plusMinutes(30)); // 만료 시간 설정
-            resetPasswordTokenRepository.save(resetPasswordToken);
-
-            String resetLink = "http://localhost:8080/api/auth/reset-password-form?token=" + token;
-            emailService.sendVerificationEmail(username, resetLink);
-
-            return true;
-        }
-        return false;
-    }
-
-    // 비밀번호 재설정 처리 메서드
-    public boolean resetPassword(String token, String newPassword) {
-        Optional<ResetPasswordToken> resetPasswordToken = resetPasswordTokenRepository.findByToken(token);
-
-        if (resetPasswordToken.isPresent() && resetPasswordToken.get().getExpiryDate().isAfter(LocalDateTime.now())) {
-            Member member = resetPasswordToken.get().getMember();
-            member.setPassword(passwordEncoder.encode(newPassword));
-            resetPasswordTokenRepository.delete(resetPasswordToken.get()); // 토큰 제거
-            member.setTemporaryPassword(false); // 임시 비밀번호 플래그 해제
-            memberRepository.save(member);
-            return true;
-        }
-        return false;
-    }
-    
-    // 이메일 인증 처리
-    public boolean verifyEmail(String token) {
-        // 8/9 수정: VerificationToken 엔티티 사용
-        VerificationToken verificationToken = verificationTokenRepository.findByToken(token)
-                .orElseThrow(() -> new RuntimeException("Invalid verification token"));
-
-        Member member = verificationToken.getMember();
-
-        // 인증 토큰이 유효한 경우, 사용자 활성화 및 토큰 제거
-        if (member != null) {
-            member.setEnabled(true);
-            verificationTokenRepository.delete(verificationToken); // 8/9 수정: 인증 토큰 제거
-            memberRepository.save(member);
-            
-            return true;            
-        }
-        return false;
-    }
-    
-    // 로그인 시 이메일 인증 여부 확인
+    /**
+     * 사용자의 이메일 인증 여부를 확인합니다.
+     */
     public boolean isEmailVerified(String username) {
         Member member = memberRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
-        return member.isEnabled(); // enabled 가 true 면 인증됨
+        return member.isEnabled();
     }
-    
-    // 마이페이지 회원정보 이메일, 닉네임 메서드
+
+    /**
+     * 사용자 정보를 반환합니다.
+     */
     public UserInfo getUserInfo(String username) {
         Member member = memberRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
         return new UserInfo(member.getUsername(), member.getNickname());
     }
-    
-    // 임시 비밀번호를 생성하여 사용자의 이메일로 전송하는 메서드
+
+    /**
+     * 임시 비밀번호를 생성하여 사용자에게 이메일로 발송합니다.
+     */
     public boolean sendTemporaryPassword(String email) {
         Optional<Member> memberOptional = memberRepository.findByUsername(email);
 
@@ -157,12 +180,10 @@ public class MemberService {
             Member member = memberOptional.get();
             String tempPassword = generateTemporaryPassword();
 
-            // 임시 비밀번호를 암호화하여 저장
-            member.setPassword(passwordEncoder.encode(tempPassword)); // 비밀번호 암호화
-            member.setTemporaryPassword(true); // 임시 비밀번호 플래그 설정
-            memberRepository.save(member); // 암호화된 임시비밀번호 저장
+            member.setPassword(passwordEncoder.encode(tempPassword));
+            member.setTemporaryPassword(true);
+            memberRepository.save(member);
 
-            // 임시 비밀번호를 이메일로 전송
             emailService.sendTemporaryPasswordEmail(email, tempPassword);
             return true;
         } else {
@@ -170,7 +191,9 @@ public class MemberService {
         }
     }
 
-    // 8자리의 임시 비밀번호를 생성하는 메서드
+    /**
+     * 랜덤한 임시 비밀번호를 생성합니다.
+     */
     private String generateTemporaryPassword() {
         Random random = new Random();
         int length = 8;

@@ -37,15 +37,10 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         Member member = memberRepository.findByUsername(username)
                 .orElseThrow(() -> new BadCredentialsException("Invalid username or password"));
 
-        // 8/9 수정: Set<UserRole>에서 역할 이름을 추출하여 권한 리스트로 변환
-        Set<String> roles = member.getRoles().stream()
-                .map(UserRole::getRoleName)
-                .collect(Collectors.toSet());
-
         UserDetails userDetails = new User(
                 member.getUsername(),
                 member.getPassword(),
-                AuthorityUtils.createAuthorityList(roles.toArray(new String[0]))
+                AuthorityUtils.createAuthorityList(member.getRole().name())
         );
 
         if (passwordEncoder.matches(password, userDetails.getPassword())) {

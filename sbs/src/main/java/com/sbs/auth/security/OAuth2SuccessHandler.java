@@ -11,7 +11,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import com.sbs.auth.domain.Member;
-import com.sbs.auth.domain.UserRole;
+import com.sbs.auth.domain.Role;
 import com.sbs.auth.repository.MemberRepository;
 import com.sbs.util.CustomMyUtil;
 import com.sbs.util.JWTUtil;
@@ -35,7 +35,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                                          HttpServletResponse response, 
                                          Authentication authentication) throws IOException, ServletException {
         
-        log.info("OAuth2SuccessHandler:onAuthenticationSuccess");  // 인증 성공 로그 출력
+        log.info("OAuth2SuccessHandler:onAuthenticationSuccess");
 
         // 인증된 사용자 정보를 OAuth2User 객체로 가져옵니다.
         OAuth2User user = (OAuth2User) authentication.getPrincipal();
@@ -43,14 +43,12 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // CustomMyUtil을 사용하여 OAuth2User로부터 사용자명을 생성합니다.
         String username = CustomMyUtil.getUsernameFromOAuth2User(user);
         
-        // 사용자명을 생성할 수 없는 경우 예외를 던집니다.
         if (username == null) {
             log.error("onAuthenticationSuccess: Cannot generate username from oauth2user!!");
             throw new ServletException("Cannot generate username from oauth2user!");
         }
-        log.info("onAuthenticationSuccess:" + username);  // 생성된 사용자명을 로그로 출력
+        log.info("onAuthenticationSuccess:" + username);
 
-        // 8/9 수정: 기존 사용자 확인 로직 추가
         Optional<Member> existingMember = memberRepo.findByUsername(username);
 
         if (existingMember.isPresent()) {
@@ -62,14 +60,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             Member newMember = Member.builder()
                     .username(username)
                     .password(encoder.encode("1a2s3d4f"))  // 비밀번호는 임의의 문자열로 설정
-                    .enabled(true) // 8/9 수정: OAuth2 인증 시 사용자를 기본 활성화 상태로 설정
+                    .enabled(true)
+                    .role(Role.ROLE_MEMBER)  // 단일 역할 설정
                     .build();
-            
-            // 새로운 역할 설정
-            UserRole memberRole = new UserRole();
-            memberRole.setRoleName("ROLE_MEMBER");
-            memberRole.setMember(newMember);
-            newMember.getRoles().add(memberRole);
             
             memberRepo.save(newMember);
         }

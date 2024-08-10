@@ -8,4 +8,7 @@
     <fullyQualifiedTypeName name="com.sbs.util.JWTUtil"/>
     <fullyQualifiedTypeName name="java.util.Set"/>
     <fullyQualifiedTypeName name="com.sbs.auth.domain.Member"/>
+    <fullyQualifiedTypeName name="com.sbs.auth.domain.Token"/>
+    <fullyQualifiedTypeName name="lombok.Data"/>
+    <fullyQualifiedTypeName name="com.sbs.auth.domain.Role"/>
 </qualifiedTypeNameHistroy>

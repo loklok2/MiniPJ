@@ -1,24 +1,18 @@
 package com.sbs.auth.domain;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
 @Entity
-@Getter @Setter @ToString
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -31,13 +25,12 @@ public class Member {
     private String username;
     private String password;
     private String nickname;
-
     private boolean enabled;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<UserRole> roles = new HashSet<>();
+    @Enumerated(EnumType.STRING)
+    private Role role;  // 단일 역할 관리
 
     private boolean temporaryPassword;
 
-    // 기타 핵심 필드들만 포함
+    // 기타 필드들 및 메서드들
 }
