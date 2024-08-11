@@ -10,11 +10,7 @@ export const authState = atom({
     },
 })
 
-export const resetPasswordState = atom({
-    key: 'resetPasswordState',
-    default: {
-        token: null,
-        newPassword: null,
-        status: null
-    }
+export const authTokenState = atom({
+    key: 'authTokenState', // 고유한 키를 정의합니다.
+    default: null,         // 초기 상태를 null로 설정합니다.
 })
