@@ -30,6 +30,8 @@ public class LocationInfoData {
 	@Column(length = 500)  // Description 길이를 제한하여 데이터베이스 성능 향상
     private String trrsrtStrySumryCn;
 	
+	private String trrSrtStryUrl;
+	
     // 예시: 관광지의 설명 업데이트 로직
     public void updateDescription(String newTrrsrtStrySumryCn) {
         this.trrsrtStrySumryCn = newTrrsrtStrySumryCn;
