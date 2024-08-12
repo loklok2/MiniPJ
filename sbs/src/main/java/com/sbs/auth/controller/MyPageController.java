@@ -3,6 +3,7 @@ package com.sbs.auth.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +18,7 @@ public class MyPageController {
 
     @Autowired
     private MemberService memberService;
-
+    
     @GetMapping("/info")
     public ResponseEntity<UserInfo> getMyInfo(Authentication authentication) {
         // 현재 로그인된 사용자의 정보를 반환합니다.

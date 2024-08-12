@@ -30,10 +30,8 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authorize -> authorize
                 // 경로별로 인증 및 권한을 설정
-                .requestMatchers("/public/**").authenticated()
-                .requestMatchers("/member/**").hasAnyRole("MEMBER", "ADMIN")
+                .requestMatchers("/api/mypage/**", "/api/boards/**","/api/comments/**" ).authenticated()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/mypage/**").authenticated()
                 .anyRequest().permitAll())
             .formLogin(form -> form.disable())
             .oauth2Login(oauth2 -> oauth2.successHandler(successHandler))

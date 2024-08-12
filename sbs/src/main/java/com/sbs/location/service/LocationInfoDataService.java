@@ -18,5 +18,9 @@ public class LocationInfoDataService {
         // 모든 위치 정보를 조회합니다.
         return locationRepo.findAll();
     }
+    
+//    public LocationInfoData getLocationInfo() {
+//    	return locationRepo.get
+//    }
 
 }

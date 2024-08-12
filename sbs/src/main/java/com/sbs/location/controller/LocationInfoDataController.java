@@ -22,5 +22,6 @@ public class LocationInfoDataController {
         // 모든 위치 정보를 반환합니다.
         return locationService.getAllLocationInfo();
     }
+ 
     
 }

@@ -8,10 +8,8 @@
     <fullyQualifiedTypeName name="java.util.Set"/>
     <fullyQualifiedTypeName name="com.sbs.auth.domain.Token"/>
     <fullyQualifiedTypeName name="com.sbs.auth.domain.Role"/>
-    <fullyQualifiedTypeName name="jakarta.persistence.Entity"/>
     <fullyQualifiedTypeName name="java.time.LocalDateTime"/>
     <fullyQualifiedTypeName name="com.sbs.auth.domain.Member"/>
-    <fullyQualifiedTypeName name="jakarta.persistence.Id"/>
     <fullyQualifiedTypeName name="jakarta.annotation.Generated"/>
     <fullyQualifiedTypeName name="jakarta.persistence.GeneratedValue"/>
     <fullyQualifiedTypeName name="jakarta.persistence.GenerationType"/>
@@ -20,15 +18,22 @@
     <fullyQualifiedTypeName name="jakarta.persistence.JoinColumn"/>
     <fullyQualifiedTypeName name="org.springframework.stereotype.Service"/>
     <fullyQualifiedTypeName name="com.sbs.board.repository.CommentRepository"/>
-    <fullyQualifiedTypeName name="java.util.List"/>
-    <fullyQualifiedTypeName name="java.util.Optional"/>
-    <fullyQualifiedTypeName name="org.springframework.web.bind.annotation.RestController"/>
     <fullyQualifiedTypeName name="com.sbs.board.domain.Comment"/>
     <fullyQualifiedTypeName name="com.sbs.board.service.CommentService"/>
     <fullyQualifiedTypeName name="com.sbs.auth.repository.MemberRepository"/>
-    <fullyQualifiedTypeName name="org.springframework.beans.factory.annotation.Autowired"/>
     <fullyQualifiedTypeName name="com.sbs.board.repository.BoardRepository"/>
     <fullyQualifiedTypeName name="org.springframework.web.bind.annotation.PostMapping"/>
     <fullyQualifiedTypeName name="org.springframework.http.ResponseEntity"/>
+    <fullyQualifiedTypeName name="jakarta.persistence.Entity"/>
+    <fullyQualifiedTypeName name="jakarta.persistence.Id"/>
     <fullyQualifiedTypeName name="lombok.Data"/>
+    <fullyQualifiedTypeName name="com.sbs.location.repository.LocationTourTransDataRepository"/>
+    <fullyQualifiedTypeName name="org.springframework.web.bind.annotation.RestController"/>
+    <fullyQualifiedTypeName name="org.springframework.beans.factory.annotation.Autowired"/>
+    <fullyQualifiedTypeName name="org.springframework.web.bind.annotation.GetMapping"/>
+    <fullyQualifiedTypeName name="com.sbs.location.service.LocationTourTransDataService"/>
+    <fullyQualifiedTypeName name="java.lang.Integer"/>
+    <fullyQualifiedTypeName name="java.util.List"/>
+    <fullyQualifiedTypeName name="java.util.Optional"/>
+    <fullyQualifiedTypeName name="org.springframework.security.access.annotation.Secured"/>
 </qualifiedTypeNameHistroy>

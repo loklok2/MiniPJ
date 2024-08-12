@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,7 +36,7 @@ public class BoardController {
         // 전체 게시글 목록을 반환합니다.
         return new ResponseEntity<>(boardService.getAllBoards(), HttpStatus.OK);
     }
-
+    
     @GetMapping("/{id}")
     public ResponseEntity<Board> getBoardById(@PathVariable Long id) {
         // 특정 ID의 게시글을 반환합니다.
@@ -45,7 +46,7 @@ public class BoardController {
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-
+    
     @PostMapping
     public ResponseEntity<Board> createBoard(@RequestBody Board board, Authentication authentication) {
         // 새로운 게시글을 생성합니다.
@@ -59,7 +60,7 @@ public class BoardController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
-
+    
     @PutMapping("/{id}")
     public ResponseEntity<Board> updateBoard(@PathVariable Long id, @RequestBody Board board2) {
         // 기존 게시글을 수정합니다.
@@ -69,7 +70,7 @@ public class BoardController {
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-
+    
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBoard(@PathVariable Long id) {
         // 특정 ID의 게시글을 삭제합니다.
