@@ -7,19 +7,15 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-
 import com.sbs.auth.domain.Member;
-import com.sbs.auth.domain.UserRole;
 import com.sbs.auth.exception.TemporaryPasswordException;
 import com.sbs.auth.repository.MemberRepository;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
+@Slf4j
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
@@ -35,21 +31,25 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String password = authentication.getCredentials().toString();
 
         Member member = memberRepository.findByUsername(username)
-                .orElseThrow(() -> new BadCredentialsException("Invalid username or password"));
+                .orElseThrow(() -> {
+                    log.warn("사용자명: {} 에 대한 인증 실패 - 사용자명을 찾을 수 없음", username);
+                    return new BadCredentialsException("잘못된 사용자명 또는 비밀번호입니다.");
+                });
 
-        UserDetails userDetails = new User(
-                member.getUsername(),
-                member.getPassword(),
-                AuthorityUtils.createAuthorityList(member.getRole().name())
-        );
-
-        if (passwordEncoder.matches(password, userDetails.getPassword())) {
+        if (passwordEncoder.matches(password, member.getPassword())) {
             if (member.isTemporaryPassword()) {
-                throw new TemporaryPasswordException("Temporary password used. Redirect to reset password page.");
+                log.warn("사용자명: {} 임시 비밀번호 사용", username);
+                throw new TemporaryPasswordException("임시 비밀번호가 사용되었습니다. 비밀번호를 재설정해 주세요.");
             }
+            UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                    member.getUsername(),
+                    member.getPassword(),
+                    AuthorityUtils.createAuthorityList(member.getRole().name())
+            );
             return new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
         } else {
-            throw new BadCredentialsException("Invalid username or password");
+            log.warn("사용자명: {} 에 대한 인증 실패 - 잘못된 비밀번호", username);
+            throw new BadCredentialsException("잘못된 사용자명 또는 비밀번호입니다.");
         }
     }
 

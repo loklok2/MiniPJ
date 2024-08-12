@@ -26,7 +26,7 @@ public class LoginController {
         this.authenticationManager = authenticationManager;
         this.memberService = memberService;
     }
-
+    
     @PostMapping("/api/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         // 로그인 요청을 처리합니다.

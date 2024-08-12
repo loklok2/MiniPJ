@@ -30,25 +30,26 @@ public class LocationInfoDataController {
         return ResponseEntity.ok(locations);    
     }
     
-    // ID로 위치 정보를 조회하는 엔드포인트
-    @GetMapping("/{id}")
-    public ResponseEntity<LocationInfoData> getLocationById(@PathVariable Integer id) {
-        return locationService.getLocationById(id)
-                .map(ResponseEntity::ok)	// 위치 정보가 존재하면 200 OK 응답
-                .orElse(ResponseEntity.notFound().build());	// 위치 정보가 없으면 404 Not Found 응답
-    }
-
-    // 새로운 위치 정보를 생성하는 엔드포인트
-    @PostMapping
-    public LocationInfoData createLocation(@RequestBody LocationInfoData locationInfoData) {
-        return locationService.createLocation(locationInfoData);
-    }
-
-    // ID로 위치 정보를 삭제하는 엔드포인트
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteLocation(@PathVariable Integer id) {
-    	locationService.deleteLocation(id);
-        return ResponseEntity.noContent().build();	// 삭제 성공 시 204 No Content 응답
-    }
+//    // ID로 위치 정보를 조회하는 엔드포인트
+//    @GetMapping("/{id}")
+//    public ResponseEntity<LocationInfoData> getLocationById(@PathVariable Integer id) {
+//        return locationService.getLocationById(id)
+//                .map(ResponseEntity::ok)	// 위치 정보가 존재하면 200 OK 응답
+//                .orElse(ResponseEntity.notFound().build());	// 위치 정보가 없으면 404 Not Found 응답
+//    }
+//
+//    // 새로운 위치 정보를 생성하는 엔드포인트
+//    @PostMapping
+//    public LocationInfoData createLocation(@RequestBody LocationInfoData locationInfoData) {
+//        return locationService.createLocation(locationInfoData);
+//    }
+//
+//    // ID로 위치 정보를 삭제하는 엔드포인트
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity<Void> deleteLocation(@PathVariable Integer id) {
+//    	locationService.deleteLocation(id);
+//        return ResponseEntity.noContent().build();	// 삭제 성공 시 204 No Content 응답
+//    }
+ 
     
 }
