@@ -30,8 +30,8 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authorize -> authorize
                 // 경로별로 인증 및 권한을 설정
-                .requestMatchers("/member/**").authenticated()
-                .requestMatchers("/manager/**").hasAnyRole("MANAGER", "ADMIN")
+                .requestMatchers("/public/**").authenticated()
+                .requestMatchers("/member/**").hasAnyRole("MEMBER", "ADMIN")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/mypage/**").authenticated()
                 .anyRequest().permitAll())

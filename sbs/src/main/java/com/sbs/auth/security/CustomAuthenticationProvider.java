@@ -13,12 +13,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.sbs.auth.domain.Member;
-import com.sbs.auth.domain.UserRole;
 import com.sbs.auth.exception.TemporaryPasswordException;
 import com.sbs.auth.repository.MemberRepository;
 
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
