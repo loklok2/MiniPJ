@@ -1,165 +1,186 @@
-import { useEffect, useState, useCallback } from 'react';
-import { NaverMap, Marker, InfoWindow, useNavermaps, useMap } from 'react-naver-maps';
+import { useEffect, useState } from 'react';
+import ReviewBoard from './ReviewBoard';
+import TransportInfo from './TransportInfo';
 
-// 네이버 지도 API 키
 const NAVER_MAPS_CLIENT_ID = '9yspoa5cox'; // 실제 Naver 클라이언트 ID
 
 export default function Map() {
     const [mapLoaded, setMapLoaded] = useState(false);
     const [locations, setLocations] = useState([]);
-    const [transportation, setTransportation] = useState([]);
-    const [trans, setTrans] = useState([]);
+    const [transDatas, setTransDatas] = useState([]);
+    const [transPortations, setTransPortations] = useState([]);
     const [error, setError] = useState(null);
-    const [selectedLocation, setSelectedLocation] = useState(null);  // 모달에 표시할 위치 정보
-    const [infoWindowExpanded, setInfoWindowExpanded] = useState({}); // InfoWindow의 전체 보기 상태
-    const { map } = useMap();
-    const { naver } = useNavermaps();
-
-    useEffect(() => {
-        if (naver && !mapLoaded) {
-            setMapLoaded(true);
-        }
-    }, [naver, mapLoaded])
+    const [selectedLocation, setSelectedLocation] = useState(null);
+    const [markers, setMarkers] = useState([]);
+    const [transMarkers, setTransMarkers] = useState([]);
+    const [polylines, setPolylines] = useState([]);
+    const [map, setMap] = useState(null);
 
     // 네이버 지도 API 로드
     useEffect(() => {
-        if (window.naver) {
-            setMapLoaded(true);
-            return;
+        const loadNaverMapsApi = () => {
+            if (window.naver) {
+                setMapLoaded(true);
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = `https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${NAVER_MAPS_CLIENT_ID}`;
+            script.onload = () => setMapLoaded(true);
+            script.onerror = () => {
+                setError('네이버 지도 API 로드 실패');
+                console.error('Naver Maps API 로드 실패');
+            };
+
+            document.head.appendChild(script);
         }
 
-        const script = document.createElement('script');
-        script.src = `https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${NAVER_MAPS_CLIENT_ID}`;
-        script.onload = () => setMapLoaded(true);
-        script.onerror = () => {
-            setError('네이버 지도 API 로드 실패');
-            console.error('Naver Maps API 로드 실패');
-        }
-
-        document.head.appendChild(script);
+        loadNaverMapsApi();
     }, []);
 
     // 데이터 fetch
     useEffect(() => {
-        if (!mapLoaded || !window.naver) return;
+        if (!mapLoaded) return;
 
         const fetchData = async () => {
             try {
-                const [locationResponse, transDataResponse, transPortationResponse] = await Promise.all([
-                    fetch(`http://localhost:8080/api/locations/all`),
-                    fetch('http://localhost:8080/api/trans/all'),
+                const [locationResponse, transDataResponse, transportationResponse] = await Promise.all([
+                    fetch('http://localhost:8080/api/locations/all'),
+                    fetch('http://localhost:8080/api/tourtrans/all'),
                     fetch('http://localhost:8080/api/transport/all'),
-                ])
+                ]);
 
-                if (!locationResponse.ok || !transDataResponse.ok || !transPortationResponse.ok) {
-                    throw new Error('데이터를 가져오는 데 실패했습니다.');
-                }
+                if (!locationResponse.ok) throw new Error('위치 데이터를 가져오는 데 실패했습니다.');
+                if (!transDataResponse.ok) throw new Error('교통 데이터를 가져오는 데 실패했습니다.');
+                if (!transportationResponse.ok) throw new Error('정류장 데이터를 가져오는 데 실패했습니다.');
 
                 const locationData = await locationResponse.json();
                 const transData = await transDataResponse.json();
-                const transport = await transPortationResponse.json();
-
-                // 여기서 데이터를 확인
-                console.log('locationData:', locationData);
-                console.log('transData:', transData);
-                console.log('transport:', transport);
+                const transportation = await transportationResponse.json();
 
                 setLocations(locationData);
-                setTrans(transData);
-                setTransportation(transport);
+                setTransDatas(transData);
+                setTransPortations(transportation);
             } catch (error) {
                 setError('데이터를 가져오는 중 오류가 발생했습니다.');
                 console.error('데이터 가져오기 실패:', error);
             }
-        }
+        };
 
         fetchData();
     }, [mapLoaded]);
 
-    // 지도 초기화 및 마커 추가
+    // 마커 및 경로 설정
     useEffect(() => {
-        if (!mapLoaded || !window.naver || locations.length === 0 || transData.length === 0) return;
+        if (!mapLoaded || !locations.length) return;
 
-        // 클러스터링 초기화
-        const clusterIcons = [
-            {
-                content: '<div style="cursor:pointer;width:40px;height:40px;line-height:42px;font-size:10px;color:white;text-align:center;font-weight:bold;background:url(https://example.com/img/cluster-marker-1.png);background-size:contain;"></div>',
-                size: new window.naver.maps.Size(40, 40),
-                anchor: new window.naver.maps.Point(20, 20),
-            },
-            // 다른 클러스터 아이콘 추가 가능
-        ];
-
-        const markers = [];
-        const map = new window.naver.maps.Map('map', {
-            center: new window.naver.maps.LatLng(35.1796, 129.0756), // 부산의 좌표로 설정
-            zoom: 11
+        const newMap = new window.naver.maps.Map('map', {
+            center: new window.naver.maps.LatLng(35.1796, 129.0756),
+            zoom: 11,
         });
 
-        transport.forEach(loc => {
-            // transData 배열에서 해당 transport에 맞는 정류장 정보를 모두 가져오기
-            const correspondingTransList = transData.filter(trans => trans.value === loc.value);
+        setMap(newMap);
 
-            if (correspondingTransList.length > 0) {
-                correspondingTransList.forEach(correspondingTrans => {
-                    // 위도와 경도를 로그로 확인
-                    console.log('correspondingTrans:', correspondingTrans);
-                    console.log('위도:', correspondingTrans.fcltyLa, '경도:', correspondingTrans.fcltyLo);
+        const newMarkers = locations.map((location) => {
+            const marker = new window.naver.maps.Marker({
+                position: new window.naver.maps.LatLng(location.trrsrtLa, location.trrsrtLo),
+                map: newMap,
+                title: location.areaClturTrrsrtNm,
+            });
 
-                    const marker = new window.naver.maps.Marker({
-                        position: new window.naver.maps.LatLng(correspondingTrans.fcltyLa, correspondingTrans.fcltyLo),
-                        map: map,
-                        title: correspondingTrans.pbtrnspFcltyNm // 마커에 제목 설정
-                    });
+            marker.addListener('click', () => {
+                // 기존 대중교통 마커와 경로 제거
+                transMarkers.forEach((transMarker) => transMarker.setMap(null));
+                setTransMarkers([]);
+                polylines.forEach((polyline) => polyline.setMap(null));
+                setPolylines([]);
 
-                    const infoWindow = new window.naver.maps.InfoWindow({
-                        content: `
-                                <div style="padding: 10px; font-size: 14px;">
-                                    <strong>정류장명: ${correspondingTrans.pbtrnspFcltyNm}</strong><br><br>
-                                    주소: ${correspondingTrans.pbtrnspFcltyAddr}<br>
-                                </div>
-                            `,
-                    });
+                setSelectedLocation(location);
 
-                    // 마커에 클릭 이벤트 추가
-                    window.naver.maps.Event.addListener(marker, 'click', () => {
-                        infoWindow.open(map, marker);
-                        setSelectedLocation(correspondingTrans);
-                        // 정보 창
-                        setInfoWindowExpanded(prevState => ({
-                            ...prevState,
-                            [loc.id]: !prevState[loc.id],
-                        }));
-                    });
-                });
-            } else {
-                console.warn(`No matching transData found for transport value: ${loc.value}`);
-            }
+                const relatedTransData = transDatas.filter(transData =>
+                    transData.keyId === location.keyId &&
+                    transPortations.some(transport => transport.value === transData.value)
+                );
+
+                const newTransMarkers = relatedTransData.map((data) => {
+                    const matchingTransport = transPortations.find(transport => transport.value === data.value);
+                    if (matchingTransport) {
+                        const markerIcon = matchingTransport.transPortation.includes('지하철') ? 'green' : 'blue';
+                        const transMarker = new window.naver.maps.Marker({
+                            position: new window.naver.maps.LatLng(data.fcltyLa, data.fcltyLo),
+                            map: newMap,
+                            title: data.pbtrnspFcltyNm,
+                            icon: {
+                                content: `<div style="background-color:${markerIcon}; width:20px; height:20px; border-radius:50%;"></div>`,
+                            },
+                        });
+
+                        transMarker.addListener('click', () => {
+                            const polyline = new window.naver.maps.Polyline({
+                                path: [
+                                    new window.naver.maps.LatLng(location.trrsrtLa, location.trrsrtLo),
+                                    new window.naver.maps.LatLng(data.fcltyLa, data.fcltyLo)
+                                ],
+                                strokeColor: '#5347AA',
+                                strokeWeight: 4,
+                                map: newMap,
+                            });
+                            setPolylines((prevPolylines) => [...prevPolylines, polyline]);
+                        });
+
+                        return transMarker;
+                    }
+                    return null;
+                }).filter(Boolean);
+
+                setTransMarkers(newTransMarkers);
+
+                newMap.setZoom(14);
+                newMap.panTo(new window.naver.maps.LatLng(location.trrsrtLa, location.trrsrtLo));
+            });
+
+            return marker;
         });
 
+        setMarkers(newMarkers);
 
-        initializeMap();
-    }, [mapLoaded, locations, transData, transport]);
+        // 맵 클릭 시 모든 마커와 경로 제거
+        window.naver.maps.Event.addListener(newMap, 'click', () => {
+            newMarkers.forEach((marker) => marker.setMap(null));
+            setMarkers([]);
+            transMarkers.forEach((transMarker) => transMarker.setMap(null));
+            setTransMarkers([]);
+            polylines.forEach(polyline => polyline.setMap(null));
+            setPolylines([]);
+            setSelectedLocation(null);
+            setMarkers(newMarkers); // 초기 마커 설정
+            newMarkers.forEach((marker) => marker.setMap(newMap)); // 마커 다시 설정
+            newMap.setZoom(11);
+            newMap.panTo(new window.naver.maps.LatLng(35.1796, 129.0756));
+        });
+
+    }, [mapLoaded, locations, transDatas, transPortations]);
 
     return (
-        <div className='w-full h-full bg-slate-100 flex justify-center items-center'>
-            <div id="map" style={{ width: '70%', height: '500px' }}></div>
+        <div className='w-full h-full bg-slate-100 flex'>
+            <div className='w-1/4 h-full bg-white p-4'>
+                {selectedLocation ? (
+                    <>
+                        <TransportInfo selectedLocation={selectedLocation} />
+                        {selectedLocation.keyId ? (
+                            <ReviewBoard locationId={selectedLocation.keyId} />
+                        ) : (
+                            <p>위치 정보가 없습니다.</p>
+                        )}
+                    </>
+                ) : (
+                    <p>마커를 클릭하여 위치 정보를 확인하세요.</p>
+                )}
+            </div>
+            <div id="map"
+                style={{ width: '70%', height: '500px' }}
+                className='w-3/4 h-full'></div>
             {error && <p className='text-red-500'>{error}</p>}
-
-            {/* 모달 창 */}
-            {selectedLocation && (
-                <div className='fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center'>
-                    <div className='p-5 w-1/2 bg-white rounded-lg'>
-                        <h2 className='mb-4 text-xl font-bold'>정류장명: {selectedLocation.pbtrnspFcltyNm}</h2>
-                        <p>위도: {selectedLocation.fcltyLa}</p>
-                        <p>경도: {selectedLocation.fcltyLo}</p>
-                        <p>주소: {selectedLocation.pbtrnspFcltyAddr}</p>
-                        <button className='mt-4 px-4 py-2 bg-blue-500 text-white rounded' onClick={() => setSelectedLocation(null)}>
-                            닫기
-                        </button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }
