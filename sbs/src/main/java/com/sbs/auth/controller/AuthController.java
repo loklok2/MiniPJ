@@ -51,7 +51,8 @@ public class AuthController {
             return new ResponseEntity<>("No account found with that email and nickname.", HttpStatus.NOT_FOUND);
         }
     
-
+    }
+    
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
         boolean isResetLinkSent = memberService.createPasswordResetToken(request.getUsername());
