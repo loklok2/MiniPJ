@@ -1,7 +1,5 @@
 package com.sbs.auth.controller;
 
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +14,6 @@ import com.sbs.auth.domain.FindUsernameRequest;
 import com.sbs.auth.domain.Member;
 import com.sbs.auth.domain.ResetPasswordRequest;
 import com.sbs.auth.domain.SignupRequest;
-import com.sbs.auth.service.EmailService;
 import com.sbs.auth.service.MemberService;
 import com.sbs.util.JWTUtil;
 
@@ -29,14 +26,12 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<Member> signup(@RequestBody SignupRequest signupRequest){
-        // 회원가입 요청을 처리합니다.
         Member member = memberService.registerUser(signupRequest);
         return new ResponseEntity<>(member, HttpStatus.CREATED);
     }
 
     @GetMapping("/verify")
     public ResponseEntity<String> veifyEmail(@RequestParam("token") String token){
-        // 이메일 인증 요청을 처리합니다.
         boolean isVerified = memberService.verifyEmail(token);
 
         return isVerified ?
@@ -44,29 +39,40 @@ public class AuthController {
                 new ResponseEntity<>("Invalid or expired verification token", HttpStatus.BAD_REQUEST);
     }
     
-    @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
-        boolean isResetLinkSent = memberService.createPasswordResetToken(request.getUsername());
-        return isResetLinkSent ?
-                new ResponseEntity<>("Password reset link sent.", HttpStatus.OK) :
-                new ResponseEntity<>("No account found with that username.", HttpStatus.NOT_FOUND);
-    }
-    
-
-    @PostMapping("/reset-password-form")
-    public ResponseEntity<?> updatePassword(@RequestBody ResetPasswordRequest request) {
-        boolean isPasswordReset = memberService.resetPassword(request.getToken(), request.getNewPassword());
-        return isPasswordReset ?
-                ResponseEntity.ok("Password has been reset successfully.") :
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or expired token.");
-    }
-
     @PostMapping("/find-usernickname")
     public ResponseEntity<String> findUsername(@RequestBody FindUsernameRequest request) {
         String username = memberService.findUsernameByNickname(request.getNickname());
-        return username != null ?
-                new ResponseEntity<>(username, HttpStatus.OK) :
-                new ResponseEntity<>("No account found with that nickname.", HttpStatus.NOT_FOUND);
+
+        if (username != null) {
+            return new ResponseEntity<>(username, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("No account found with that email and nickname.", HttpStatus.NOT_FOUND);
+        }
+    
     }
     
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
+        boolean isResetLinkSent = memberService.createPasswordResetToken(request.getUsername());
+
+        if (isResetLinkSent) {
+            return new ResponseEntity<>("Password reset link sent.", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("No account found with that email address.", HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("/reset-password-form")
+    public ResponseEntity<String> updatePassword(@RequestBody ResetPasswordRequest request) {
+        boolean isPasswordReset = memberService.resetPassword(request.getToken(), request.getNewPassword());
+
+        if (isPasswordReset) {
+            String newJwtToken = JWTUtil.getJWT(request.getUsername()); // 비밀번호 재설정 시 새로운 토큰 발행
+            return ResponseEntity.ok().header("Authorization", "Bearer " + newJwtToken)
+                                 .body("Password has been reset successfully and new token generated.");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body("Invalid or expired token.");
+        }
+    }
 }

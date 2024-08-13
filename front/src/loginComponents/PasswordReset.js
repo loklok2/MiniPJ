@@ -8,7 +8,9 @@ export default function PasswordReset() {
     const [loading, setLoading] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
-    const [token, setAuthToken] = useAuthToken();
+    const [, setAuthToken] = useAuthToken(); // 수정된 부분: 배열 구조분해 할당에서 첫 번째 값은 사용하지 않으므로 빈 자리로 표시
+    
+    // URLSearchParams를 사용하여 쿼리 파라미터에서 토큰을 가져옵니다.
     const query = new URLSearchParams(location.search);
     const resetToken = query.get('token');
 
@@ -28,12 +30,12 @@ export default function PasswordReset() {
 
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:8080/api/auth/reset-password', {
+            const response = await fetch('http://localhost:8080/api/auth/reset-password-form', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ token, newPassword }),
+                body: JSON.stringify({ token: resetToken, newPassword }),
             });
 
             if (response.ok) {

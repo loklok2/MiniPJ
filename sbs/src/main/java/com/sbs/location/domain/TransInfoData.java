@@ -22,7 +22,7 @@ public class TransInfoData {
     @Column(name = "DATA_NO")  // 데이터베이스의 컬럼명과 매핑
     private int dataNo;
 
-    @Column(name = "Value") // 데이터베이스의 컬럼명과 매핑
+    @Column(name = "Value", length = 45) // 데이터베이스의 컬럼명과 매핑
     private String value;
 
     @Column(name = "Transportation") // 데이터베이스의 컬럼명과 매핑

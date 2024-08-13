@@ -10,14 +10,14 @@ import lombok.Data;
 @Entity
 @Data
 public class LocationInfoData {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int dataNo;  // `DATA_NO`: 자동 증가하는 기본 키
 
     @Column(name = "KEYID")
     private Integer keyId;  // `KEYID`: 외래 키, 다른 테이블과의 관계를 나타냄
-    
+
     @Column(name = "CTPRVN_NM")
     private String ctprvnNm;  // `CTPRVN_NM`: 시/도 이름
     
@@ -46,11 +46,13 @@ public class LocationInfoData {
     private String trrsrtStryNm;  // `TRRSRT_STRY_NM`: 관광지 스토리 이름
     
     @Column(name = "trrsrt_stry_sumry_cn", columnDefinition = "TEXT")
-    private String trrsrtStrySumryCn; //관광지 스토리 내용
-
+    private String trrsrtStrySumryCn; // `TRRSRT_STRY_SUMRY_CN`: 관광지 스토리 요약 내용
+    
     @Column(name = "TRRSRT_STRY_URL")
     private String trrsrtStryUrl;  // `TRRSRT_STRY_URL`: 관광지 스토리 URL
     
     @Column(name = "CORE_KWRD_CN")
     private String coreKwrdCn;  // `CORE_KWRD_CN`: 핵심 키워드 내용
+
+
 }

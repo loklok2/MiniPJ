@@ -36,7 +36,7 @@ public class BoardService {
 
     public Board updateBoard(Long id, Board board2) {
         // 기존 게시글을 수정합니다.
-        Board board = boardRepo.findById(id).orElse(null);
+        Board board = getBoardById(id);
         if (board != null) {
             board.setTitle(board2.getTitle());
             board.setContent(board2.getContent());

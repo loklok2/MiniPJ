@@ -31,7 +31,7 @@ public class BoardController {
     @Autowired
     private MemberRepository memberRepository;
 
-    @GetMapping
+    @GetMapping("/public")
     public ResponseEntity<List<Board>> getAllBoards() {
         // 전체 게시글 목록을 반환합니다.
         return new ResponseEntity<>(boardService.getAllBoards(), HttpStatus.OK);

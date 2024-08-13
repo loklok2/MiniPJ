@@ -7,7 +7,6 @@ import lombok.Data;
 
 @Data
 @Entity
-@Builder
 public class Token {
 
     @Id

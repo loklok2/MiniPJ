@@ -1,6 +1,5 @@
-import React from 'react'
-import Navbar from './Navbar'
-import Footer from './Footer'
+import Navbar from '../components/Navbar'
+import Footer from '../components/Footer'
 
 // 레이아웃과 header, footer를 포함
 export default function AppLayout({ children }) {

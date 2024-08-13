@@ -43,7 +43,7 @@ export default function LoginForm({ onLogin }) {
 
             if (data.token) {
                 // 로그인 성공
-                localStorage.setItem('token', data.token); // JWT 저장
+                localStorage.setItem('token', data.token); // JWT 토큰을 로컬 스토리지에 저장
                 setAuth({
                     isLoggedIn: true,
                     token: data.token,

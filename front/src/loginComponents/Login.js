@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { authState } from '../atoms/authAtom'
 
@@ -14,7 +14,8 @@ export default function Login({ onLogin }) {
   const handleLogin = (userIn) => {
     setUser(userIn);
     onLogin(userIn);
-  }
+    setIsLoggedIn({ isLoggedIn: true, token: userIn.token, user: userIn });
+  };
 
   const handleSignUp = (userIn) => {
     localStorage.setItem('user', JSON.stringify(userIn));
@@ -41,6 +42,12 @@ export default function Login({ onLogin }) {
       ) : (
         <LoginForm onLogin={handleLogin} />
       )}
+      <button
+        className="mt-4 text-blue-500 hover:underline"
+        onClick={() => setIsSignUp((prev) => !prev)}
+      >
+        {isSignUp ? '이미 계정이 있으신가요? 로그인' : '계정이 없으신가요? 회원가입'}
+      </button>
     </div>
   )
 }

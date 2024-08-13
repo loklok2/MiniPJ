@@ -17,8 +17,6 @@ import com.sbs.auth.domain.UserInfo;
 import com.sbs.auth.repository.MemberRepository;
 import com.sbs.auth.repository.TokenRepository;
 
-import jakarta.transaction.Transactional;
-
 @Service
 public class MemberService {
 
@@ -39,13 +37,12 @@ public class MemberService {
             throw new RuntimeException("Username is already taken");
         }
 
-        Member member = Member.builder()
-                .username(signupRequest.getUsername())
-                .password(passwordEncoder.encode(signupRequest.getPassword()))
-                .nickname(signupRequest.getNickname())
-                .enabled(false) // 초기 상태는 비활성화
-                .role(Role.ROLE_MEMBER)
-                .build();
+        Member member = new Member();
+        member.setUsername(signupRequest.getUsername());
+        member.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
+        member.setNickname(signupRequest.getNickname());
+        member.setEnabled(false); // 초기 상태는 비활성화
+        member.setRole(Role.ROLE_MEMBER);
 
         memberRepository.save(member);
         createVerificationToken(member);
@@ -55,12 +52,11 @@ public class MemberService {
 
     public boolean createVerificationToken(Member member) {
         String tokenValue = UUID.randomUUID().toString();
-        Token token = Token.builder()
-                .tokenType(TokenType.VERIFICATION)
-                .tokenValue(tokenValue)
-                .expiryDate(LocalDateTime.now().plusDays(1))
-                .member(member)
-                .build();
+        Token token = new Token();
+        token.setTokenType(TokenType.VERIFICATION);
+        token.setTokenValue(tokenValue);
+        token.setExpiryDate(LocalDateTime.now().plusDays(1));
+        token.setMember(member);
         tokenRepository.save(token);
 
         String verificationLink = "http://localhost:8080/api/auth/verify?token=" + tokenValue;
@@ -89,53 +85,45 @@ public class MemberService {
         if (memberOpt.isPresent()) {
             Member member = memberOpt.get();
             String tokenValue = UUID.randomUUID().toString();
-            Token token = Token.builder()
-                    .tokenType(TokenType.RESET_PASSWORD)
-                    .tokenValue(tokenValue)
-                    .expiryDate(LocalDateTime.now().plusMinutes(30)) // 30분 유효한 토큰
-                    .member(member)
-                    .build();
+            Token token = new Token();
+            token.setTokenType(TokenType.RESET_PASSWORD);
+            token.setTokenValue(tokenValue);
+            token.setExpiryDate(LocalDateTime.now().plusMinutes(30)); // 30분 유효한 토큰
+            token.setMember(member);
             tokenRepository.save(token);
 
-            String resetLink = "http://localhost:8080/api/auth/reset-password-form?token=" + tokenValue;
+            String resetLink = "http://localhost:3000/reset-password?token=" + tokenValue; // React 앱에서 처리
             emailService.sendPasswordResetMail(username, resetLink);
             return true;
         }
         return false;
     }
-    
-    public boolean validateResetToken(String tokenValue) {
-        return tokenRepository.findByTokenValue(tokenValue)
-                .map(token -> token.getTokenType() == TokenType.RESET_PASSWORD && token.getExpiryDate().isAfter(LocalDateTime.now()))
-                .orElse(false);
-    }
 
-    @Transactional
     public boolean resetPassword(String tokenValue, String newPassword) {
-        Token token = tokenRepository.findByTokenValue(tokenValue)
-                .orElseThrow(() -> new RuntimeException("Invalid or expired token"));
+        Optional<Token> tokenOpt = tokenRepository.findByTokenValue(tokenValue);
 
-        if (token.getTokenType() == TokenType.RESET_PASSWORD && token.getExpiryDate().isAfter(LocalDateTime.now())) {
-            Member member = token.getMember();
-            member.setPassword(passwordEncoder.encode(newPassword));
-            member.setTemporaryPassword(false);
-            memberRepository.save(member);
-            tokenRepository.delete(token); // 사용된 토큰 삭제
-            return true;
+        if (tokenOpt.isPresent()) {
+            Token token = tokenOpt.get();
+            if (token.getTokenType() == TokenType.RESET_PASSWORD && token.getExpiryDate().isAfter(LocalDateTime.now())) {
+                Member member = token.getMember();
+                member.setPassword(passwordEncoder.encode(newPassword));
+                memberRepository.save(member);
+                tokenRepository.delete(token); // 사용된 토큰 삭제
+                return true;
+            }
         }
         return false;
     }
 
     public String findUsernameByNickname(String nickname) {
-        return memberRepository.findByNickname(nickname)
-                .map(Member::getUsername)
-                .orElse(null);
+        Optional<Member> member = memberRepository.findByNickname(nickname);
+        return member.map(Member::getUsername).orElse(null);
     }
 
     public boolean isEmailVerified(String username) {
-        return memberRepository.findByUsername(username)
-                .map(Member::isEnabled)
-                .orElse(false);
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+        return member.isEnabled();
     }
 
     public UserInfo getUserInfo(String username) {
