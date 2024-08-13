@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.sbs.location.domain.LocationTourTransData;
+import com.sbs.location.domain.LocationTourTrans;
 
-public interface LocationTourTransDataRepository extends JpaRepository<LocationTourTransData, Integer> {
+public interface LocationTourTransDataRepository extends JpaRepository<LocationTourTrans, Integer> {
 	
-	List<LocationTourTransData> findByKeyId(Integer keyId);
+	List<LocationTourTrans> findByKeyId(Integer keyId);
 }

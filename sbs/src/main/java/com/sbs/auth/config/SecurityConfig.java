@@ -10,7 +10,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.sbs.auth.repository.MemberRepository;
-import com.sbs.auth.security.CustomAuthenticationProvider;
 import com.sbs.auth.security.JWTAuthorizationFilter;
 import com.sbs.auth.security.OAuth2SuccessHandler;
 
@@ -22,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 
     private final OAuth2SuccessHandler successHandler;
-    private final CustomAuthenticationProvider customAuthenticationProvider;
     private final MemberRepository memberRepository;
 
     @Bean
@@ -32,6 +30,7 @@ public class SecurityConfig {
                 // 경로별로 인증 및 권한을 설정
                 .requestMatchers("/api/mypage/**", "/api/boards/**","/api/comments/**" ).authenticated()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/boards/public/**").permitAll()
                 .anyRequest().permitAll())
             .formLogin(form -> form.disable())
             .oauth2Login(oauth2 -> oauth2.successHandler(successHandler))
@@ -42,9 +41,8 @@ public class SecurityConfig {
 
     @Bean
     AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        // 커스텀 인증 제공자 설정
+        // 기본 인증 제공자를 사용하여 AuthenticationManager 설정
         return http.getSharedObject(AuthenticationManagerBuilder.class)
-                .authenticationProvider(customAuthenticationProvider)
                 .build();
     }
 }

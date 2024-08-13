@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sbs.location.domain.LocationTourTransData;
+import com.sbs.location.domain.LocationTourTrans;
 import com.sbs.location.service.LocationTourTransDataService;
 
 @RestController
@@ -20,7 +20,7 @@ public class LocationTourTransDataController {
 	
 	@GetMapping("/{keyId}")
 	//특정 관광지의 접근 대중교통 위치
-	public List<LocationTourTransData> getTourTransByLocation(@PathVariable Integer keyId) {
+	public List<LocationTourTrans> getTourTransByLocation(@PathVariable Integer keyId) {
 		return locationTourTransDataService.getTourTransByLocationKeyId(keyId);
 	}
 

@@ -12,7 +12,6 @@ public class EmailService {
     private JavaMailSender javamailSender;
 
     public void sendVerificationEmail(String toEmail, String verificationLink) {
-        // 이메일 인증을 위한 메일 전송
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);
         message.setSubject("Please verify your email");
@@ -22,19 +21,7 @@ public class EmailService {
         javamailSender.send(message);
     }
 
-    public void sendTemporaryPasswordEmail(String toEmail, String tempPassword) {
-        // 임시 비밀번호 전송 메일
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(toEmail);
-        message.setSubject("임시 비밀번호 안내");
-        message.setText("임시 비밀번호는: " + tempPassword + " 입니다. 로그인 후 비밀번호를 변경해 주세요.");
-        message.setFrom("your-email@gmail.com");
-
-        javamailSender.send(message);
-    }
-
     public void sendPasswordResetMail(String toEmail, String resetLink) {
-        // 비밀번호 재설정 메일 전송
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);
         message.setSubject("비밀번호 재설정 안내");
