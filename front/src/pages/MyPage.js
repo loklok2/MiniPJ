@@ -10,7 +10,7 @@ export default function MyPage() {
     useEffect(() => {
         const fetchUserInfo = async () => {
             try {
-                const response = await fetch('http://localhost:8080/api/mypag/info', {
+                const response = await fetch('http://localhost:8080/api/mypage/info', {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
                     },

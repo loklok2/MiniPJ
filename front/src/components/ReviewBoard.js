@@ -8,7 +8,7 @@ export default function ReviewBoard({ locationId }) {
     useEffect(() => {
         const fetchReviews = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/api/boards/${locationId}`);
+                const response = await fetch(`http://localhost:8080/api/boards/{id}`);
                 if (!response.ok) throw new Error('리뷰 데이터를 가져오지 못했습니다.');
 
                 const data = await response.json();
