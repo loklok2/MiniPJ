@@ -47,7 +47,7 @@ public class BoardController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
     
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<Board> createBoard(@RequestBody Board board, Authentication authentication) {
         // 새로운 게시글을 생성합니다.
         String username = authentication.getName();

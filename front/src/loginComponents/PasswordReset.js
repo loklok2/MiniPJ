@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAuthToken } from '../hooks/useAuthToken';
+import { useAuth } from '../hooks/useAuth';
+
 
 export default function PasswordReset() {
     const [newPassword, setNewPassword] = useState('');
@@ -8,17 +9,11 @@ export default function PasswordReset() {
     const [loading, setLoading] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
-    const [token, setAuthToken] = useAuthToken(); // 수정된 부분: 배열 구조분해 할당에서 첫 번째 값은 사용하지 않으므로 빈 자리로 표시
-    
+    const { logout } = useAuth();  // useAuth 훅에서 로그아웃 함수를 가져옴
+
     // URLSearchParams를 사용하여 쿼리 파라미터에서 토큰을 가져옵니다.
     const query = new URLSearchParams(location.search);
     const resetToken = query.get('token');
-
-    useEffect(() => {
-        if (resetToken && resetToken !== token) {
-            setAuthToken(resetToken); // 새로운 토큰이 있을 경우에만 상태를 업데이트
-        }
-    }, [resetToken, token, setAuthToken]);
 
     const handlePasswordReset = async () => {
         if (!newPassword) {
@@ -38,7 +33,7 @@ export default function PasswordReset() {
 
             if (response.ok) {
                 setStatus('success');
-                setTimeout(() => navigate('/login'), 2000);
+                logout();  // 비밀번호 재설정이 성공하면 로그아웃 처리
             } else {
                 const errorData = await response.text();
                 setStatus(errorData || '비밀번호 변경에 실패했습니다.');
@@ -50,6 +45,12 @@ export default function PasswordReset() {
             setLoading(false);
         }
     }
+
+    useEffect(() => {
+        if (status === 'success') {
+            navigate('/login');
+        }
+    }, [status, navigate]);
 
     return (
         <div className='flex flex-col items-center justify-center min-h-screen bg-gray-100'>
@@ -64,13 +65,16 @@ export default function PasswordReset() {
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         disabled={loading}
-                        className='mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50'
+                        className='mt-1 block w-full border border-gray-300 rounded-md 
+                                   shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50'
                     />
                 </div>
                 <button
                     onClick={handlePasswordReset}
                     disabled={loading}
-                    className='w-full py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50'
+                    className='w-full py-2 px-4 bg-blue-500 text-white rounded-md 
+                             hover:bg-blue-600 focus:outline-none focus:ring-2 
+                             focus:ring-blue-500 focus:ring-opacity-50'
                 >
                     {loading ? '변경 중...' : '비밀번호 변경'}
                 </button>

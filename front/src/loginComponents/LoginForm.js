@@ -4,7 +4,7 @@ import { authState } from '../atoms/authAtom';
 import { Link } from 'react-router-dom';
 
 export default function LoginForm({ onLogin }) {
-    const [auth, setAuth] = useRecoilState(authState); // Recoil 상태 사용
+    const [, setAuth] = useRecoilState(authState); // Recoil 상태 사용
     const emailRef = useRef();
     const passwordRef = useRef();
     const [error, setError] = useState();

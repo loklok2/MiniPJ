@@ -15,6 +15,7 @@ export default function Login({ onLogin }) {
     setUser(userIn);
     onLogin(userIn);
     setIsLoggedIn({ isLoggedIn: true, token: userIn.token, user: userIn });
+    localStorage.setItem('token', userIn.token); // JWT토큰을 로컬스토리지에 저장
   };
 
   const handleSignUp = (userIn) => {

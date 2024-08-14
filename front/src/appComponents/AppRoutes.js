@@ -4,6 +4,7 @@ import { useRecoilState } from 'recoil'
 import { authState } from '../atoms/authAtom'
 
 import Home from '../pages/Home'
+import TouristSpots from '../pages/TouristSpots'
 import Map from '../mapComponents/Map'
 import Login from '../loginComponents/Login'
 import MyPage from '../pages/MyPage'
@@ -13,6 +14,7 @@ import PasswordReset from '../loginComponents/PasswordReset'
 import BoardList from '../pages/BoardList'
 import BoardForm from '../boardComponents/BoardForm'
 import BoardDetail from '../boardComponents/BoardDetail'
+import BoardEdit from '../boardComponents/BoardEdit'
 
 
 // 애플리케이션의 모든 라우트를 정의
@@ -23,6 +25,7 @@ export default function AppRoutes() {
     return (
         <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/tourlist" element={<TouristSpots/>} />
             <Route path="/map" element={<Map />} />
             <Route path="/login" element={auth.isLoggedIn ? <Navigate to="/mypage" /> : <Login />} />
             <Route path="/signup" element={<SignUp />} />
@@ -33,6 +36,7 @@ export default function AppRoutes() {
             <Route path="/boards" element={<BoardList />} />
             <Route path="/boards/create" element={<BoardForm />} />
             <Route path="/boards/:boardId" element={<BoardDetail />} />
+            <Route path="/boards/edit/:boardId" element={<BoardEdit />}/>
             {/* 추가적인 경로들 추가 */}
         </Routes>
     )

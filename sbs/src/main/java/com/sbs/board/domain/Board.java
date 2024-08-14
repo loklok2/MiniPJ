@@ -27,7 +27,7 @@ public class Board {
     private String content;  // 게시글의 내용
     private String authorNickname;  // 게시글 작성 당시의 닉네임
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "author_id", nullable = false)
     private Member author;  // Member 엔티티와의 관계
 

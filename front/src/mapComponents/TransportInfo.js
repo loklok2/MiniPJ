@@ -11,18 +11,25 @@ export default function TransportInfo({ selectedLocation }) {
         setIsExpanded(!isExpanded);
     };
 
-    const truncatedInfo = selectedLocation.trrsrtStrySumryCn.substring(0, 40) + (selectedLocation.trrsrtStrySumryCn.length > 40 ? '...' : '');
+    const truncatedInfo = selectedLocation.trrsrtStryNm.substring(0, 40) + (selectedLocation.trrsrtStryNm.length > 40 ? '...' : '');
 
     return (
-        <div className="p-4 bg-white rounded-lg shadow-md">
-            <h2 className="text-lg font-semibold mb-2">관광지명: {selectedLocation.areaClturTrrsrtNm}</h2>
-            <p className={`text-sm ${isExpanded ? 'max-h-full' : 'max-h-10'} overflow-hidden`}>
-                관광지정보: {isExpanded ? selectedLocation.trrsrtStrySumryCn : truncatedInfo}
+        <div className="p-6 bg-white rounded-lg shadow-lg">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">
+                관광지명: <span className="text-blue-600">{selectedLocation.areaClturTrrsrtNm}</span>
+            </h2>
+            <p className={`text-sm text-gray-700 mb-4 ${isExpanded ? 'max-h-full' : 'max-h-10'} overflow-hidden`}>
+                <span className="font-medium">관광지정보: </span>
+                {isExpanded ? selectedLocation.trrsrtStryNm : truncatedInfo}
             </p>
-            {selectedLocation.trrsrtStrySumryCn.length > 40 && (
+            <p className="text-sm text-gray-600">
+                <span className="font-medium">주소: </span>
+                {selectedLocation.addr}
+            </p>
+            {selectedLocation.trrsrtStryNm.length > 40 && (
                 <button
                     onClick={toggleExpand}
-                    className="mt-2 text-blue-500 hover:text-blue-700 focus:outline-none"
+                    className="mt-4 text-sm text-blue-500 hover:text-blue-700 transition-colors duration-300 focus:outline-none"
                 >
                     {isExpanded ? '접기' : '더보기'}
                 </button>

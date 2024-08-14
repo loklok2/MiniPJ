@@ -1,22 +1,23 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthToken } from '../hooks/useAuthToken';  // JWT 토큰을 가져오는 커스텀 훅
 import { useRecoilValue } from 'recoil';
-import { authState } from '../atoms/authAtom'; // 인증 상태를 관리하는 Recoil 상태
+import { authState } from '../atoms/authAtom';
 
 export default function BoardForm() {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
+    const [loading, setLoading] = useState(true);  // 로딩 상태 추가
     const navigate = useNavigate();
-    const [token] = useAuthToken();
     const auth = useRecoilValue(authState); // Recoil을 사용하여 현재 인증 상태를 가져옴
 
-    // 로그인 상태 확인: 컴포넌트가 렌더링될 때 사용자가 로그인 상태가 아니라면 로그인 페이지로 리다이렉트
+    // 로그인 상태 확인
     useEffect(() => {
         if (!auth.isLoggedIn) {
-            navigate('/login'); // 사용자가 로그인되지 않은 경우 로그인 페이지로 리다이렉트
+            navigate('/login'); // 사용자가 로그인되지 않은 경우 로그인 페이지로 리디렉트
+        } else {
+            setLoading(false); // 로그인된 경우 로딩 상태 해제
         }
     }, [auth, navigate]);
 
@@ -30,7 +31,7 @@ export default function BoardForm() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,  // JWT 토큰을 헤더에 추가
+                    'Authorization': `Bearer ${auth.token}`,  // JWT 토큰을 헤더에 추가
                 },
                 body: JSON.stringify({ title, content }),
             });
@@ -40,16 +41,17 @@ export default function BoardForm() {
                 throw new Error(`게시물 작성에 실패했습니다: ${errorMessage}`);
             }
 
-
             setSuccess('게시물이 성공적으로 작성되었습니다.');
-            setTimeout(() => {
-                navigate('/boardlist');
-            }, 2000);
+            navigate('/boards'); // 게시물 작성 후 즉시 리디렉션
         } catch (error) {
             setError(error.message);
             console.error('게시물 작성 실패:', error);
         }
     };
+
+    if (loading) {
+        return <div>Loading...</div>;  // 로딩 중일 때 표시
+    }
 
     return (
         <div className='flex flex-col items-center justify-center min-h-screen bg-gray-100'>

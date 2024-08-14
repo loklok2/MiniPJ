@@ -35,7 +35,8 @@ export default function BoardList() {
                 {/* 게시물 작성 링크 */}
                 <Link
                     to="/boards/create"
-                    className="px-4 py-2 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 transition-colors duration-300"
+                    className="px-4 py-2 bg-green-600 text-white font-semibold 
+                               rounded-md hover:bg-green-700 transition-colors duration-300"
                 >
                     게시물 작성
                 </Link>
@@ -50,12 +51,14 @@ export default function BoardList() {
                         <div className="p-4">
                             <h2 className="text-xl font-semibold mb-2 truncate">{board.title}</h2>
                             <p className="text-gray-700 text-sm truncate">{board.content}</p>
+                            <p className="text-gray-500 text-sm">{board.author.nickname}</p> {/* 닉네임 표시 */}
                             {/* 댓글 보기 링크 */}
                             <Link
                                 to={`/boards/${board.id}`}
-                                className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors duration-300"
+                                className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white
+                                           font-semibold rounded-md hover:bg-blue-700 transition-colors duration-300"
                             >
-                                댓글 보기
+                                상세보기
                             </Link>
                         </div>
                     </div>

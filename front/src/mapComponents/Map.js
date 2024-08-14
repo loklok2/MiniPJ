@@ -149,6 +149,11 @@ export default function Map() {
 
     }, [mapLoaded, locations, transDatas, transPorts, transMarkers]);
 
+    useEffect(() => {
+        console.log("selectedLocation", selectedLocation);
+    }, [selectedLocation])
+
+
     // 교통 수단의 타입에 따라 아이콘 URL을 반환하는 함수
     const getIconUrl = (transDataValue, transPortData) => {
         // `transPortData` 배열에서 `value`가 `transDataValue`와 일치하는 항목을 찾습니다.

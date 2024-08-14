@@ -1,27 +1,27 @@
 import { useState, useEffect } from 'react';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { authState } from '../atoms/authAtom';
 
 export default function MyPage() {
     const [userInfo, setUserInfo] = useState({});
-    const auth = useRecoilValue(authState); // 로그인 상태와 JWT 토큰을 가져옴
+    const [auth] = useRecoilState(authState); // 로그인 상태와 JWT 토큰을 가져옴
 
     useEffect(() => {
         console.log('JWT Token:', auth.token);  // useRecoilValue(authState)를 통해 가져온 auth.token이 실제로 값이 있는지 확인
 
         const fetchUserInfo = async () => {
             try {
-                const token = localStorage.getItem('token');
-                if (!token) throw new Error('토큰이 존재하지 않습니다.');
+                if (!auth.token) throw new Error('토큰이 존재하지 않습니다.');
 
                 const response = await fetch('http://localhost:8080/api/mypage/info', {
                     headers: {
-                        'Authorization': `Bearer ${token}`, // Recoil 상태에서 토큰을 가져옴
+                        'Authorization': `Bearer ${auth.token}`, // Recoil 상태에서 토큰을 가져옴
                     },
                 });
 
                 if (!response.ok) {
-                    throw new Error('사용자 정보를 가져오지 못했습니다.');
+                    const errorData = await response.text();
+                    throw new Error(`사용자 정보를 가져오지 못했습니다: ${errorData}`);
                 }
 
                 const data = await response.json();
@@ -31,12 +31,12 @@ export default function MyPage() {
             }
         };
 
-        if (auth) { // auth.token이 존재하는 경우에만 fetchUserInfo 호출
+        if (auth.token) { // auth.token이 존재하는 경우에만 fetchUserInfo 호출
             fetchUserInfo();
         }
-    }, [auth]);
+    }, [auth.token]);
 
-    if (!auth.token) {
+    if (!auth.isLoggedIn) {
         return <div>로그인 상태가 아닙니다. 로그인 후 다시 시도해 주세요.</div>;
     }
 

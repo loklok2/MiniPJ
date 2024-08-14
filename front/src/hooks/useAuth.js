@@ -9,6 +9,7 @@ export const useAuth = () => {
     const navigate = useNavigate()
 
     const login = (user) => {
+        console.log("Login called"); // 로그 추가
         setAuth({ isLoggedIn: true, token: user.token, user });   // 전체 상태를 업데이트
         localStorage.setItem('isLoggedIn', JSON.stringify(true));
         localStorage.setItem('token', user.token)
@@ -16,13 +17,19 @@ export const useAuth = () => {
     }
 
     const logout = () => {
+        console.log("Logout called"); // 로그 추가
         setAuth({ isLoggedIn: false, token: null, user: null });
         localStorage.setItem('isLoggedIn', JSON.stringify(false));
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         navigate('/login'); // 로그인 페이지로 리디렉션
-
     }
 
-    return { auth, login, logout }
+    const updateToken = (newToken) => {
+        console.log("Update called");
+        setAuth((prevState) => ({ ...prevState, token: newToken }));
+        localStorage.setItem('token', newToken);
+    }
+
+    return { auth, login, logout, updateToken }
 }
