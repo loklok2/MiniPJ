@@ -21,4 +21,5 @@ public class BoardDTO {
     private LocalDateTime updateDate;
     private int viewCount;
     private int likeCount;
+    
 }

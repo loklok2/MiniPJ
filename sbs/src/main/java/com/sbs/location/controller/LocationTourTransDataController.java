@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sbs.location.domain.LocationInfoDataDTO;
 import com.sbs.location.domain.LocationTourTransDTO;
 import com.sbs.location.service.LocationTourTransDataService;
 
@@ -17,6 +18,12 @@ public class LocationTourTransDataController {
 	
 	@Autowired
 	private LocationTourTransDataService locationTourTransDataService;
+	
+	@GetMapping("/all")
+    public List<LocationTourTransDTO> getLocationInfo(){
+        // 모든 위치 정보를 DTO로 반환합니다.
+        return locationTourTransDataService.getAllLocationInfo();
+    }
 	
 	@GetMapping("/{keyId}")
 	// 특정 관광지의 접근 대중교통 위치 정보를 반환합니다.

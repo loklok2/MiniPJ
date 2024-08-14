@@ -1,6 +1,7 @@
 package com.sbs.board.domain;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.sbs.auth.domain.Member;
@@ -39,7 +40,7 @@ public class Comment {
     private Comment parentComment; //부모 댓글
     
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> childComments;  // 자식 댓글 리스트
+    private List<Comment> childComments = new ArrayList<>();  // 자식 댓글 리스트
 
     private String content;  // 댓글 내용
     private LocalDateTime createDate = LocalDateTime.now();  // 댓글 작성 시간

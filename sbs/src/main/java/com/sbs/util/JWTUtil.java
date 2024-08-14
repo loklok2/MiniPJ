@@ -7,7 +7,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 
 public class JWTUtil {
     // JWT 토큰의 유효기간을 10분으로 설정 (밀리초 단위)
-    private static final long ACCESS_TOKEN_MSEC = 30 * (60 * 1000); // 10분 유지
+    private static final long ACCESS_TOKEN_MSEC = 30 * (60 * 1000); // 30분 유지
     // JWT 토큰 서명에 사용되는 비밀 키
     private static final String JWT_KEY = "edu.pnu.jwtkey";
     // JWT 클레임 이름
