@@ -3,24 +3,22 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuthToken } from '../hooks/useAuthToken';
 
 export default function PasswordReset() {
-    const [newPassword, setNewPassword] = useState();
-    const [status, setStatus] = useState();
+    const [newPassword, setNewPassword] = useState('');
+    const [status, setStatus] = useState(null);
     const [loading, setLoading] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
-    const [, setAuthToken] = useAuthToken(); // 수정된 부분: 배열 구조분해 할당에서 첫 번째 값은 사용하지 않으므로 빈 자리로 표시
+    const [token, setAuthToken] = useAuthToken(); // 수정된 부분: 배열 구조분해 할당에서 첫 번째 값은 사용하지 않으므로 빈 자리로 표시
     
     // URLSearchParams를 사용하여 쿼리 파라미터에서 토큰을 가져옵니다.
     const query = new URLSearchParams(location.search);
     const resetToken = query.get('token');
 
     useEffect(() => {
-        if (!resetToken) {
-            setStatus('error');
-        } else {
-            setAuthToken(resetToken); // 토큰을 Recoil 상태에 저장
+        if (resetToken && resetToken !== token) {
+            setAuthToken(resetToken); // 새로운 토큰이 있을 경우에만 상태를 업데이트
         }
-    }, [resetToken, setAuthToken])
+    }, [resetToken, token, setAuthToken]);
 
     const handlePasswordReset = async () => {
         if (!newPassword) {

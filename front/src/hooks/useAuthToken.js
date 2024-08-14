@@ -1,27 +1,27 @@
 import { useRecoilState } from 'recoil';
-import { authTokenState } from '../atoms/authAtom';
+import { authState } from '../atoms/authAtom';
 
-// JWT 토큰을 설정하는 커스텀 훅
+/*
+JWT 토큰을 독립적으로 관리:
+비밀번호 재설정 페이지에서 인증을 위한 JWT 토큰을 별도로 설정하거나 초기화
+ */
 export function useAuthToken() {
-    const [token, setToken] = useRecoilState(authTokenState);
+    const [auth, setAuth] = useRecoilState(authState);
 
+    // JWT 토큰을 설정하는 커스텀 훅
     const setAuthToken = (newToken) => {
-        setToken(newToken);
+        setAuth(prevState => ({ ...prevState, token: newToken }));
         // 예를 들어 로컬 스토리지에 토큰을 저장할 수도 있습니다.
-        localStorage.setItem('authToken', newToken);
+        localStorage.setItem('token', newToken);
     };
 
-    return [token, setAuthToken];
-}
-
-// JWT 토큰을 초기화하는 훅
-export function useClearAuthToken() {
-    const [, setToken] = useRecoilState(authTokenState);
-
+    // JWT 토큰을 초기화하는 훅
     const clearAuthToken = () => {
-        setToken(null);
-        localStorage.removeItem('authToken');
+        setAuth(prevState => ({ ...prevState, token: null }));
+        localStorage.removeItem('token');
     };
 
-    return clearAuthToken;
+    return [auth.token, setAuthToken, clearAuthToken];
 }
+
+

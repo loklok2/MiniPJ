@@ -9,6 +9,12 @@ export default function BoardDetail() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        console.log("boardId:", boardId); // boardId가 올바르게 들어오는지 확인
+        if (boardId === "create") {
+            setError("잘못된 접근입니다.");
+            return;
+        }
+        
         const fetchBoard = async () => {
             try {
                 const response = await fetch(`http://localhost:8080/api/boards/${boardId}`);

@@ -31,7 +31,7 @@ export default function AppRoutes() {
             <Route path="/reset-password" element={<PasswordReset />} />
             <Route path="/password-reset" element={<PasswordReset />} />
             <Route path="/boards" element={<BoardList />} />
-            <Route path="/boardform" element={<BoardForm />} />
+            <Route path="/boards/create" element={<BoardForm />} />
             <Route path="/boards/:boardId" element={<BoardDetail />} />
             {/* 추가적인 경로들 추가 */}
         </Routes>

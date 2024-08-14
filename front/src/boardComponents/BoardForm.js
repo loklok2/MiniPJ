@@ -36,8 +36,10 @@ export default function BoardForm() {
             });
 
             if (!response.ok) {
-                throw new Error('게시물 작성에 실패했습니다.');
+                const errorMessage = await response.text(); // 서버에서 반환하는 오류 메시지 가져오기
+                throw new Error(`게시물 작성에 실패했습니다: ${errorMessage}`);
             }
+
 
             setSuccess('게시물이 성공적으로 작성되었습니다.');
             setTimeout(() => {

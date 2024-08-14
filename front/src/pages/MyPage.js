@@ -1,18 +1,22 @@
-// src/components/MyPage.js
-import React, { useState, useEffect } from 'react';
-import { useRecoilState } from 'recoil';
+import { useState, useEffect } from 'react';
+import { useRecoilValue } from 'recoil';
 import { authState } from '../atoms/authAtom';
 
 export default function MyPage() {
     const [userInfo, setUserInfo] = useState({});
-    const [auth] = useRecoilState(authState);
+    const auth = useRecoilValue(authState); // 로그인 상태와 JWT 토큰을 가져옴
 
     useEffect(() => {
+        console.log('JWT Token:', auth.token);  // useRecoilValue(authState)를 통해 가져온 auth.token이 실제로 값이 있는지 확인
+
         const fetchUserInfo = async () => {
             try {
+                const token = localStorage.getItem('token');
+                if (!token) throw new Error('토큰이 존재하지 않습니다.');
+
                 const response = await fetch('http://localhost:8080/api/mypage/info', {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Authorization': `Bearer ${token}`, // Recoil 상태에서 토큰을 가져옴
                     },
                 });
 
@@ -27,12 +31,12 @@ export default function MyPage() {
             }
         };
 
-        if (auth) {
+        if (auth) { // auth.token이 존재하는 경우에만 fetchUserInfo 호출
             fetchUserInfo();
         }
     }, [auth]);
 
-    if (!auth) {
+    if (!auth.token) {
         return <div>로그인 상태가 아닙니다. 로그인 후 다시 시도해 주세요.</div>;
     }
 
