@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sbs.auth.domain.Member;
 import com.sbs.auth.repository.MemberRepository;
-import com.sbs.board.domain.Board;
+import com.sbs.board.domain.BoardDTO;
 import com.sbs.board.service.BoardService;
 
 @RestController
@@ -32,29 +32,30 @@ public class BoardController {
 
     // 모든 게시글 목록 조회
     @GetMapping("/public")
-    public ResponseEntity<List<Board>> getAllBoards() {
-        return new ResponseEntity<>(boardService.getAllBoards(), HttpStatus.OK);
+    public ResponseEntity<List<BoardDTO>> getAllBoards() {
+        List<BoardDTO> boardDTOs = boardService.getAllBoards();
+        return new ResponseEntity<>(boardDTOs, HttpStatus.OK);
     }
     
     // 특정 게시글 조회 및 조회수 증가
     @GetMapping("/{id}")
-    public ResponseEntity<Board> getBoardById(@PathVariable Long id) {
-        Board board = boardService.getBoardById(id);
-        if (board != null) {
-            return new ResponseEntity<>(board, HttpStatus.OK);
+    public ResponseEntity<BoardDTO> getBoardById(@PathVariable Long id) {
+        BoardDTO boardDTO = boardService.getBoardById(id);
+        if (boardDTO != null) {
+            return new ResponseEntity<>(boardDTO, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
     
     // 게시글 생성
     @PostMapping("/create")
-    public ResponseEntity<Board> createBoard(@RequestBody Board board, Authentication authentication) {
+    public ResponseEntity<BoardDTO> createBoard(@RequestBody BoardDTO boardDTO, Authentication authentication) {
         String username = authentication.getName();
         Member member = memberRepository.findByUsername(username).orElse(null);
 
         if (member != null) {
-            Board createdBoard = boardService.createBoard(board, member);
-            return new ResponseEntity<>(createdBoard, HttpStatus.CREATED);
+            BoardDTO createdBoardDTO = boardService.createBoard(boardDTO, member);
+            return new ResponseEntity<>(createdBoardDTO, HttpStatus.CREATED);
         } else {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -62,10 +63,10 @@ public class BoardController {
     
     // 게시글 수정
     @PutMapping("/{id}")
-    public ResponseEntity<Board> updateBoard(@PathVariable Long id, @RequestBody Board board2) {
-        Board updatedBoard = boardService.updateBoard(id, board2);
-        if (updatedBoard != null) {
-            return new ResponseEntity<>(updatedBoard, HttpStatus.OK);
+    public ResponseEntity<BoardDTO> updateBoard(@PathVariable Long id, @RequestBody BoardDTO boardDTO) {
+        BoardDTO updatedBoardDTO = boardService.updateBoard(id, boardDTO);
+        if (updatedBoardDTO != null) {
+            return new ResponseEntity<>(updatedBoardDTO, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
@@ -81,10 +82,10 @@ public class BoardController {
 
     // 특정 게시글에 대해 좋아요수 증가
     @PostMapping("/{id}/like")
-    public ResponseEntity<Board> likeBoard(@PathVariable Long id) {
-        Board board = boardService.likeBoard(id);
-        if (board != null) {
-            return new ResponseEntity<>(board, HttpStatus.OK);
+    public ResponseEntity<BoardDTO> likeBoard(@PathVariable Long id) {
+        BoardDTO likedBoardDTO = boardService.likeBoard(id);
+        if (likedBoardDTO != null) {
+            return new ResponseEntity<>(likedBoardDTO, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }

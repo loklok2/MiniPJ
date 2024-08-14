@@ -16,7 +16,7 @@ import com.sbs.auth.domain.Member;
 import com.sbs.auth.repository.MemberRepository;
 import com.sbs.board.domain.Board;
 import com.sbs.board.domain.Comment;
-import com.sbs.board.domain.CreateCommentRequest;
+import com.sbs.board.domain.CommentDTO;
 import com.sbs.board.repository.BoardRepository;
 import com.sbs.board.repository.CommentRepository;
 import com.sbs.board.service.CommentService;
@@ -39,13 +39,13 @@ public class CommentController {
 
     // 댓글 작성
     @PostMapping("/create")
-    public ResponseEntity<Comment> createComment(@RequestBody CreateCommentRequest request, Authentication authentication) {
+    public ResponseEntity<Comment> createComment(@RequestBody CommentDTO commentDTO, Authentication authentication) {
         String username = authentication.getName();
 
         // 게시글과 부모 댓글 객체를 조회
-        Board board = boardRepository.findById(request.getBoardId()).orElse(null);
-        Comment parentComment = request.getParentCommentId() != null ? 
-                                 commentRepository.findById(request.getParentCommentId()).orElse(null) : null;
+        Board board = boardRepository.findById(commentDTO.getBoardId()).orElse(null);
+        Comment parentComment = commentDTO.getParentCommentId() != null ? 
+                                 commentRepository.findById(commentDTO.getParentCommentId()).orElse(null) : null;
 
         // 작성자 조회
         Member author = memberRepository.findByUsername(username).orElse(null);
@@ -56,7 +56,7 @@ public class CommentController {
 
         // 댓글 생성
         Comment comment = new Comment();
-        comment.setContent(request.getContent());
+        comment.setContent(commentDTO.getContent());
         comment.setBoard(board);
         comment.setAuthor(author);
         comment.setAuthorNickname(author.getNickname()); // 작성자의 닉네임 설정
