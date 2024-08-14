@@ -33,4 +33,8 @@ public class Board {
 
     private LocalDateTime createDate;  // 게시글 생성 시간
     private LocalDateTime updateDate;  // 게시글 수정 시간
+    
+    private int viewCount = 0; //게시글 조회수
+    private int likeCount = 0; //게시글 좋아요 수
+    
 }

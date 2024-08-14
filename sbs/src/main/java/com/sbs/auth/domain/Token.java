@@ -3,6 +3,8 @@ package com.sbs.auth.domain;
 import java.time.LocalDateTime;
 import jakarta.persistence.*;
 import lombok.Data;
+
+
 @Data
 @Entity
 public class Token {

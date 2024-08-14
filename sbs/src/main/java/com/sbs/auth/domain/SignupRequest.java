@@ -1,10 +1,11 @@
 package com.sbs.auth.domain;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-@Getter @Setter @ToString  // Lombok 애너테이션으로 getter, setter, toString 메서드를 자동으로 생성합니다.
+@Data
 public class SignupRequest {
     
     private String username;  // 8/5: username이라고 명명했지만 실제로는 이메일로 사용될 필드

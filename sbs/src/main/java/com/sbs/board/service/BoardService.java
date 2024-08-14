@@ -23,7 +23,12 @@ public class BoardService {
 
     public Board getBoardById(Long id) {
         // ID로 특정 게시글을 조회합니다.
-        return boardRepo.findById(id).orElse(null);
+    	Board board = boardRepo.findById(id).orElse(null);
+    	if (board != null) {
+    		board.setViewCount(board.getViewCount() + 1); // 조회수 증가 로직
+    		boardRepo.save(board); // 저장
+    	}
+    	return board;
     }
 
     public Board createBoard(Board board, Member member) {
@@ -54,4 +59,16 @@ public class BoardService {
         }
         return false;
     }
+    
+    public Board likeBoard(Long id) {
+    	//게시글 좋아요
+    	Board board = boardRepo.findById(id).orElse(null);
+    	if (board != null) {
+    		board.setLikeCount(board.getLikeCount() + 1); //좋아요 수 증가 로직
+    		boardRepo.save(board);
+    	}
+    	return board;
+    
+    }
+    
 }
