@@ -9,8 +9,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.sbs.auth.domain.Member;
+import com.sbs.auth.domain.MemberDTO;
 import com.sbs.auth.domain.Role;
-import com.sbs.auth.domain.SignupRequest;
 import com.sbs.auth.domain.Token;
 import com.sbs.auth.domain.TokenType;
 import com.sbs.auth.domain.UserInfo;
@@ -32,15 +32,15 @@ public class MemberService {
     @Autowired
     private EmailService emailService;
 
-    public Member registerUser(SignupRequest signupRequest) {
-        if (memberRepository.existsByUsername(signupRequest.getUsername())) {
+    public Member registerUser(MemberDTO memberDTO) {
+        if (memberRepository.existsByUsername(memberDTO.getUsername())) {
             throw new RuntimeException("Username is already taken");
         }
 
         Member member = new Member();
-        member.setUsername(signupRequest.getUsername());
-        member.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
-        member.setNickname(signupRequest.getNickname());
+        member.setUsername(memberDTO.getUsername());
+        member.setPassword(passwordEncoder.encode(memberDTO.getPassword()));
+        member.setNickname(memberDTO.getNickname());
         member.setEnabled(false); // 초기 상태는 비활성화
         member.setRole(Role.ROLE_MEMBER);
 

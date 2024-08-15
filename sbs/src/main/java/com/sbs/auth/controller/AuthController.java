@@ -10,10 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sbs.auth.domain.FindUsernameRequest;
 import com.sbs.auth.domain.Member;
-import com.sbs.auth.domain.ResetPasswordRequest;
-import com.sbs.auth.domain.SignupRequest;
+import com.sbs.auth.domain.MemberDTO;
 import com.sbs.auth.service.MemberService;
 import com.sbs.util.JWTUtil;
 
@@ -25,8 +23,8 @@ public class AuthController {
     private MemberService memberService;
 
     @PostMapping("/signup")
-    public ResponseEntity<Member> signup(@RequestBody SignupRequest signupRequest){
-        Member member = memberService.registerUser(signupRequest);
+    public ResponseEntity<Member> signup(@RequestBody MemberDTO memberDTO){
+        Member member = memberService.registerUser(memberDTO);
         return new ResponseEntity<>(member, HttpStatus.CREATED);
     }
 
@@ -40,8 +38,8 @@ public class AuthController {
     }
     
     @PostMapping("/find-usernickname")
-    public ResponseEntity<String> findUsername(@RequestBody FindUsernameRequest request) {
-        String username = memberService.findUsernameByNickname(request.getNickname());
+    public ResponseEntity<String> findUsername(@RequestBody MemberDTO memberDTO) {
+        String username = memberService.findUsernameByNickname(memberDTO.getNickname());
 
         if (username != null) {
             return new ResponseEntity<>(username, HttpStatus.OK);
@@ -52,8 +50,8 @@ public class AuthController {
     }
     
     @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
-        boolean isResetLinkSent = memberService.createPasswordResetToken(request.getUsername());
+    public ResponseEntity<String> resetPassword(@RequestBody MemberDTO memberDTO) {
+        boolean isResetLinkSent = memberService.createPasswordResetToken(memberDTO.getUsername());
 
         if (isResetLinkSent) {
             return new ResponseEntity<>("Password reset link sent.", HttpStatus.OK);
@@ -63,11 +61,11 @@ public class AuthController {
     }
 
     @PostMapping("/reset-password-form")
-    public ResponseEntity<String> updatePassword(@RequestBody ResetPasswordRequest request) {
-        boolean isPasswordReset = memberService.resetPassword(request.getToken(), request.getNewPassword());
+    public ResponseEntity<String> updatePassword(@RequestBody MemberDTO memberDTO) {
+        boolean isPasswordReset = memberService.resetPassword(memberDTO.getToken(), memberDTO.getNewPassword());
 
         if (isPasswordReset) {
-            String newJwtToken = JWTUtil.getJWT(request.getUsername()); // 비밀번호 재설정 시 새로운 토큰 발행
+            String newJwtToken = JWTUtil.getJWT(memberDTO.getUsername()); // 비밀번호 재설정 시 새로운 토큰 발행
             return ResponseEntity.ok().header("Authorization", "Bearer " + newJwtToken)
                                  .body("Password has been reset successfully and new token generated.");
         } else {

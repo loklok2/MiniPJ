@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sbs.location.domain.LocationInfoData;
+import com.sbs.location.domain.LocationInfoDataDTO;
 import com.sbs.location.service.LocationInfoDataService;
 
 @RestController
@@ -23,10 +23,8 @@ public class LocationInfoDataController {
     private LocationInfoDataService locationService;
     
     @GetMapping("/all")
-    public List<LocationInfoData> getLocationInfo(){
-        // 모든 위치 정보를 반환합니다.
+    public List<LocationInfoDataDTO> getLocationInfo(){
+        // 모든 위치 정보를 DTO로 반환합니다.
         return locationService.getAllLocationInfo();
     }
- 
-    
 }
