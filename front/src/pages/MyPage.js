@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useRecoilState } from 'recoil';
-import { authState } from '../atoms/authAtom';
+import { useAuth } from '../hooks/useAuth';
 
 export default function MyPage() {
     const [userInfo, setUserInfo] = useState({});
-    const [auth] = useRecoilState(authState); // 로그인 상태와 JWT 토큰을 가져옴
+    const { auth, logout } = useAuth(); // 로그인 상태와 JWT 토큰을 가져옴
+    const [loading, setLoading] = useState(true)    // 로딩 상태 추가
+    const [error, setError] = useState(null)    // 에러 상태 추가
 
     useEffect(() => {
         console.log('JWT Token:', auth.token);  // useRecoilValue(authState)를 통해 가져온 auth.token이 실제로 값이 있는지 확인
@@ -20,24 +21,45 @@ export default function MyPage() {
                 });
 
                 if (!response.ok) {
+                    if (response.status === 401) {
+                        // 토큰이 만료되었거나 유효하지 않은 경우 로그아웃 처리
+                        logout()   // 만료된 토큰이므로 로그아웃 처리
+                        throw new Error('인증이 만료되었습니다. 다시 로그인해 주세요.')
+                    }
                     const errorData = await response.text();
                     throw new Error(`사용자 정보를 가져오지 못했습니다: ${errorData}`);
                 }
 
                 const data = await response.json();
                 setUserInfo(data);
+                setError(null)  // 이전 오류 초기화
             } catch (error) {
                 console.error('사용자 정보 가져오기 실패:', error);
+                setError(error.message)
+                setUserInfo({})
+            } finally {
+                setLoading(false)   // 로딩 상태 해제
             }
         };
 
-        if (auth.token) { // auth.token이 존재하는 경우에만 fetchUserInfo 호출
-            fetchUserInfo();
+        if (auth.isLoggedIn) {  // 로그인 상태 확인 후 fetchUserInfo 호출
+            fetchUserInfo()
+        } else {
+            setLoading(false)
         }
-    }, [auth.token]);
+
+    }, [auth.token, auth.isLoggedIn, logout]);
+
+    if (loading) {
+        return <div>로딩 중...</div>
+    }
 
     if (!auth.isLoggedIn) {
         return <div>로그인 상태가 아닙니다. 로그인 후 다시 시도해 주세요.</div>;
+    }
+
+    if (error) {
+        return <div className='text-red-500'>{error}</div>  // 에러 메시지 UI에 표시
     }
 
     return (

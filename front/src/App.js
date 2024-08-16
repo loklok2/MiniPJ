@@ -1,6 +1,5 @@
-import React from 'react'
 import { BrowserRouter } from 'react-router-dom'
-import { RecoilRoot } from 'recoil'
+import { RecoilRoot, useSetRecoilState } from 'recoil'
 import AppLayout from './appComponents/AppLayout'
 import AppRoutes from './appComponents/AppRoutes'
 

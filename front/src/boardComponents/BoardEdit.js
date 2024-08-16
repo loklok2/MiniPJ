@@ -1,8 +1,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { useRecoilValue } from "recoil"
-import { authState } from "../atoms/authAtom"
+import { useAuth } from "../hooks/useAuth";
 
 export default function BoardEdit() {
   const { boardId } = useParams();
@@ -10,7 +9,7 @@ export default function BoardEdit() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const navigate = useNavigate();
-  const auth = useRecoilValue(authState);
+  const { auth } = useAuth()    // useAuth 훅을 사용하여 인증 상태를 가져옵니다
 
 
   // 게시물 데이터를 가져오는 함수

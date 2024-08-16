@@ -1,5 +1,6 @@
 package com.sbs.board.domain;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -22,6 +23,7 @@ public class Image {
     private String filename; //이미지 이름
     
     @Lob
+    @Column(name = "data", columnDefinition = "LONGBLOB")
     private byte[] data; //이미지 데이터(BLOB형식)
     
 

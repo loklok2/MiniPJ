@@ -7,39 +7,37 @@ import SignUpForm from './SignUpForm'
 import MyPage from '../pages/MyPage'
 
 export default function Login({ onLogin }) {
-  const [user, setUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useRecoilState(authState);
   const [isSignUp, setIsSignUp] = useState(false);
 
   const handleLogin = (userIn) => {
-    setUser(userIn);
-    onLogin(userIn);
     setIsLoggedIn({ isLoggedIn: true, token: userIn.token, user: userIn });
-    localStorage.setItem('token', userIn.token); // JWT토큰을 로컬스토리지에 저장
+    localStorage.setItem('authState', JSON.stringify({ isLoggedIn: true, token: userIn.token, user: userIn }))  // JWT토큰을 로컬스토리지에 저장
+    onLogin(userIn);
   };
 
   const handleSignUp = (userIn) => {
-    localStorage.setItem('user', JSON.stringify(userIn));
-    setUser(userIn);
     setIsLoggedIn({ isLoggedIn: true, token: '', user: userIn });
+    localStorage.setItem('authState', JSON.stringify({ isLoggedIn: true, token: '', user: userIn}))
     setIsSignUp(false); // 회원가입 후 로그인 폼으로 돌아가기
   }
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      setIsLoggedIn({ isLoggedIn: true, token });
+    const storedAuthState = localStorage.getItem('authState');
+    if (storedAuthState) {
+      setIsLoggedIn(JSON.parse(storedAuthState));
     } else {
-      setIsLoggedIn({ isLoggedIn: false });
+      setIsLoggedIn({ isLoggedIn: false, token: null, user: null });
     }
-  }, [setIsLoggedIn])
+  }, [setIsLoggedIn]);
 
   return (
     <div className="w-full h-full flex flex-col justify-center items-center">
       {isLoggedIn.isLoggedIn ? (
-        <MyPage />
+        <MyPage user={isLoggedIn.user} />
       ) : isSignUp ? (
         <SignUpForm onSignUp={handleSignUp} />
+
       ) : (
         <LoginForm onLogin={handleLogin} />
       )}

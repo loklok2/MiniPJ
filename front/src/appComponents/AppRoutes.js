@@ -1,4 +1,4 @@
-import React from 'react'
+import { useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useRecoilState } from 'recoil'
 import { authState } from '../atoms/authAtom'
@@ -20,7 +20,16 @@ import BoardEdit from '../boardComponents/BoardEdit'
 // 애플리케이션의 모든 라우트를 정의
 export default function AppRoutes() {
     // Recoil 상태를 기반으로 로그인 상태에 따라 다른 컴포넌트를 렌더링s
-    const [auth] = useRecoilState(authState);
+    const [auth, setAuth] = useRecoilState(authState);
+
+    useEffect(() => {
+        // localStorage 에서 authState를 불러와 Recoil 상태에 설정
+        const storedAuthState = localStorage.getItem('')
+        
+        if (storedAuthState) {
+            setAuth(JSON.parse(storedAuthState))
+        }
+    }, [setAuth])
 
     return (
         <Routes>
@@ -34,9 +43,9 @@ export default function AppRoutes() {
             <Route path="/reset-password" element={<PasswordReset />} />
             <Route path="/password-reset" element={<PasswordReset />} />
             <Route path="/boards" element={<BoardList />} />
-            <Route path="/boards/create" element={<BoardForm />} />
+            <Route path="/boards/create" element={auth.isLoggedIn ? <BoardForm /> : <Navigate to="/login" />}/>
             <Route path="/boards/:boardId" element={<BoardDetail />} />
-            <Route path="/boards/edit/:boardId" element={<BoardEdit />}/>
+            <Route path="/boards/edit/:boardId" element={auth.isLoggedIn ? <BoardEdit /> : <Navigate to="/login" />}/>
             {/* 추가적인 경로들 추가 */}
         </Routes>
     )

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
-import { authState } from '../atoms/authAtom';
+import { useAuth } from '../hooks/useAuth';
 import CommentList from './CommentList';
 import CommentForm from './CommentForm';
 
@@ -10,7 +9,7 @@ export default function BoardDetail() {
     const [board, setBoard] = useState(null);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
-    const auth = useRecoilValue(authState);
+    const { auth } = useAuth()  // useAuth 훅에서 auth 객체를 가져옵니다.
 
     useEffect(() => {
         console.log("boardId:", boardId); // boardId가 올바르게 들어오는지 확인
@@ -66,21 +65,34 @@ export default function BoardDetail() {
         return <p>게시물을 불러오는 중...</p>;
     }
 
-    const isAuthor = auth.user && board.author && auth.user.username === board.author.username;
+    const isAuthor = auth.user && board.author && auth.user.username === board.username;
 
     return (
-        <div className='w-full max-w-3xl mx-auto p-4'>
-            <h1 className='text-2xl font-bold mb-6'>{board.title}</h1>
-            <p className='mb-8'>{board.content}</p>
-            <p className='mb-8 text-gray-500'>{board.author.nickname}</p>   {/* 닉네임 표시 */}
+        <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+            <h1 className="text-3xl font-bold mb-4">{board.title}</h1>
 
-            <div className="flex justify-end space-x-2 mb-6">
+            {/* 이미지 렌더링 */}
+            <div className="mb-6">
+                {board.images && board.images.length > 0 && board.images.map((image, index) => (
+                    <img
+                        key={index}
+                        src={`data:image/jpeg;base64,${image}`}
+                        alt={`Image ${index + 1}`}
+                        className="mb-4 w-full h-auto object-cover rounded-lg"
+                    />
+                ))}
+            </div>
+
+            <p className="mb-6 text-lg leading-relaxed">{board.content}</p>
+            <p className="mb-6 text-gray-500">작성자: {board.nickname}</p>
+
+            <div className="flex justify-end space-x-4 mb-6">
                 {auth.isLoggedIn && isAuthor && (
                     <>
                         {/* 로그인된 사용자: 수정 버튼 */}
                         <button
-                            className='px-4 py-2 bg-blue-500 text-white rounded-md 
-                                     hover:bg-blue-600 trasition-colors duration-300'
+                            className="px-4 py-2 bg-blue-600 text-white rounded-md 
+                                     hover:bg-blue-700 transition-colors duration-300"
                             onClick={() => navigate(`/boards/edit/${boardId}`)}
                         >
                             수정
@@ -88,22 +100,19 @@ export default function BoardDetail() {
 
                         {/* 로그인된 사용자: 삭제 버튼 */}
                         <button
-                            className='px-4 py-2 bg-red-500 text-white rounded-md 
-                                     hover:bg-red-600 transition-colors duration-300'
+                            className="px-4 py-2 bg-red-600 text-white rounded-md 
+                                     hover:bg-red-700 transition-colors duration-300"
                             onClick={handleDelete}
                         >
                             삭제
                         </button>
-
                     </>
-
-
                 )}
 
                 {/* 목록(뒤로가기) 버튼 */}
                 <button
-                    className='px-4 py-2 bg-gray-500 text-white rounded-md 
-                         hover:bg-gray-600 transition-colors duration-300'
+                    className="px-4 py-2 bg-gray-500 text-white rounded-md 
+                             hover:bg-gray-600 transition-colors duration-300"
                     onClick={() => navigate('/boards')}
                 >
                     목록

@@ -1,6 +1,7 @@
 package com.sbs.board.service;
 
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,24 +44,31 @@ public class BoardService {
 
     // 게시글을 ID로 조회하고 조회수를 증가시키며, DTO로 반환
     public BoardDTO getBoardById(Long id) {
+        // 게시물을 찾고, 이미지 데이터를 base64로 인코딩하여 DTO에 추가합니다.
         Board board = boardRepo.findById(id).orElse(null);
-        if (board != null) {
-            board.setViewCount(board.getViewCount() + 1); // 조회수 증가
-            boardRepo.save(board); // 저장
-
-            BoardDTO dto = new BoardDTO();
-            dto.setId(board.getId());
-            dto.setTitle(board.getTitle());
-            dto.setContent(board.getContent());
-            dto.setAuthorNickname(board.getAuthorNickname());
-            dto.setAuthorId(board.getAuthor().getId());
-            dto.setCreateDate(board.getCreateDate());
-            dto.setUpdateDate(board.getUpdateDate());
-            dto.setViewCount(board.getViewCount());
-            dto.setLikeCount(board.getLikeCount());
-            return dto;
+        if (board == null) {
+            return null;
         }
-        return null;
+        
+        BoardDTO boardDTO = new BoardDTO();
+        boardDTO.setId(board.getId());
+        boardDTO.setTitle(board.getTitle());
+        boardDTO.setContent(board.getContent());
+        boardDTO.setAuthorNickname(board.getAuthor().getNickname());
+        
+        // 이미지 데이터 base64로 인코딩
+        List<String> imageStrings = board.getImages().stream()
+            .map(image -> {
+                try {
+                    return Base64.getEncoder().encodeToString(image.getData());
+                } catch (Exception e) {
+                    return null;
+                }
+            })
+            .collect(Collectors.toList());
+        
+        boardDTO.setImages(imageStrings);
+        return boardDTO;
     }
 
     // 게시글을 생성하고, 이미지를 저장하며, DTO로 반환

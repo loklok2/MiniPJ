@@ -1,13 +1,12 @@
 import { useRef, useState } from 'react';
-import { useRecoilState } from 'recoil';
-import { authState } from '../atoms/authAtom';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 export default function LoginForm({ onLogin }) {
-    const [, setAuth] = useRecoilState(authState); // Recoil 상태 사용
     const emailRef = useRef();
     const passwordRef = useRef();
     const [error, setError] = useState();
+    const { login } = useAuth();    // useAuth 훅을 사용하여 login 함수를 가져옴
 
     const handleSignIn = async (e) => {
         e.preventDefault();
@@ -39,21 +38,28 @@ export default function LoginForm({ onLogin }) {
                 body: JSON.stringify({ username: email, password }),
             });
 
+            if (response.status === 400) {
+                setError('잘못된 요청입니다. 입력 값을 확인하세요.')
+                return
+            } else if (response.status === 401) {
+                setError('인증에 실패했습니다. 이메일과 비밀번호를 확인하세요.')
+                return
+            } else if (response.status === 500) {
+                setError('서버 오류가 발생했습니다. 잠시 후 다시 시도하세요.')
+                return
+            }
+
             const data = await response.json();
 
             if (data.token) {
                 // 로그인 성공
-                localStorage.setItem('token', data.token); // JWT 토큰을 로컬 스토리지에 저장
-                setAuth({
-                    isLoggedIn: true,
-                    token: data.token,
-                    user: { username: email, password: password },
-                });
+                login({ token: data.token, username: email })   // login 함수를 호출하여 상태를 업데이트하고 localStorage에 저장
+                onLogin(data)   // 상위 컴포넌트에 로그인 정보 전달
             } else {
                 setError('로그인 실패. 이메일과 비밀번호를 확인하세요.');
             }
         } catch (err) {
-            setError('서버 오류. 다시 시도해 주세요.');
+            setError('네트워크 오류가 발생했습니다. 인터넷 연결을 확인하거나 나중에 다시 시도하세요.');
         }
     }
 

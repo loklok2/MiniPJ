@@ -51,7 +51,7 @@ export default function BoardList() {
                         <div className="p-4">
                             <h2 className="text-xl font-semibold mb-2 truncate">{board.title}</h2>
                             <p className="text-gray-700 text-sm truncate">{board.content}</p>
-                            <p className="text-gray-500 text-sm">{board.author.nickname}</p> {/* 닉네임 표시 */}
+                            <p className="text-gray-500 text-sm">{board.nickname}</p> {/* 닉네임 표시 */}
                             {/* 댓글 보기 링크 */}
                             <Link
                                 to={`/boards/${board.id}`}

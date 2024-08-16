@@ -19,9 +19,7 @@ export const useAuth = () => {
     const logout = () => {
         console.log("Logout called"); // 로그 추가
         setAuth({ isLoggedIn: false, token: null, user: null });
-        localStorage.setItem('isLoggedIn', JSON.stringify(false));
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        localStorage.removeItem('authState');
         navigate('/login'); // 로그인 페이지로 리디렉션
     }
 

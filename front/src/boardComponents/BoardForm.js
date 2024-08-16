@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
-import { authState } from '../atoms/authAtom';
+import { useAuth } from '../hooks/useAuth';
 
 export default function BoardForm() {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
+    const [images, setImages] = useState([]); // images 상태 추가
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
     const [loading, setLoading] = useState(true);  // 로딩 상태 추가
     const navigate = useNavigate();
-    const auth = useRecoilValue(authState); // Recoil을 사용하여 현재 인증 상태를 가져옴
+    const { auth } = useAuth()      // useAuth 훅에서 auth 객체를 가져옴
 
     // 로그인 상태 확인
     useEffect(() => {
@@ -21,19 +21,29 @@ export default function BoardForm() {
         }
     }, [auth, navigate]);
 
+    const handleImageChange = (e) => {
+        setImages(e.target.files);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
-        setSuccess(null);
+
+        const formData = new FormData();
+        formData.append('board', new Blob([JSON.stringify({ title, content })], { type: 'application/json' }));
+
+        // Array.prototype.forEach를 사용하여 FileList 순회
+        Array.prototype.forEach.call(images, (image) => {
+            formData.append('images', image);
+        });
 
         try {
             const response = await fetch('http://localhost:8080/api/boards/create', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${auth.token}`,  // JWT 토큰을 헤더에 추가
                 },
-                body: JSON.stringify({ title, content }),
+                body: formData,  // FormData 객체를 body에 전달
             });
 
             if (!response.ok) {
@@ -79,6 +89,11 @@ export default function BoardForm() {
                             className='mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50'
                         />
                     </div>
+                    <input
+                        type="file"
+                        multiple
+                        onChange={handleImageChange} // 이미지 파일 선택 시 상태 업데이트
+                    />
                     <button
                         type='submit'
                         className='w-full py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50'
