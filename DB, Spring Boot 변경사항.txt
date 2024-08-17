@@ -7,3 +7,22 @@ BoardService 클래스 ---- 게시글 ID로 조회하고, 이미지 데이터를
 BoardControll 클래스 ---- createBoard() 메서드 요청받는 어노테이션 타입 @RequestPart로 변경
 
 Image 클래스 ---- 이미지 데이터 타입 (LONGBLOB)으로 변경(이미지 저장 크기 늘림)
+
+LocationInfoData 클래스 ---- 이미지URL 필드 추가
+
+LocationInfoDataDTO 클래스 ---- 이미지 URL 필드 추가
+
+LocationInfoDataService 클래스 ---- 이미지 URL 세팅 비지니스 로직 추가
+
+
+
+****관광지 이미지 넣는 방식****(현재 DB에 직접 Image_URL 속성 추가하여 넣어 놓음)**************
+
+****관광지 이미지 넣는 방식****(이상현 교수님 피드백)
+
+관광지 폴더를 Spring Boot 서버에서 읽어와 Controller로 응답해주는 방식 제시함
+
+************WebMvcConfigurer의 addResourceHandler 이용하는 방법********************
+
+
+

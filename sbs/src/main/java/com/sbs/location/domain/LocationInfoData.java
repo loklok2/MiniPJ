@@ -54,5 +54,7 @@ public class LocationInfoData {
     @Column(name = "CORE_KWRD_CN")
     private String coreKwrdCn;  // `CORE_KWRD_CN`: 핵심 키워드 내용
 
-
+    @Column(name = "IMAGE_URL", length = 512)
+    private String imageUrl;  // `IMAGE_URL`: 이미지 URL
+    
 }

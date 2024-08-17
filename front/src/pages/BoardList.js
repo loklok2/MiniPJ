@@ -1,69 +1,124 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import SearchBar from '../utils/SearchBar';
+import Pagination from '../utils/Pagination';
+import BoardCard from '../boardComponents/BoardCard';
 
 export default function BoardList() {
     const [boards, setBoards] = useState([]);
+    const [filteredBoards, setFilteredBoards] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [searchText, setSearchText] = useState('');
+    const [currentPage, setCurrentPage] = useState(parseInt(localStorage.getItem('currentPage')) || 1);
+    const itemsPerPage = 6;
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchBoards = async () => {
             try {
                 const response = await fetch('http://localhost:8080/api/boards/public');
-
                 if (!response.ok) {
-                    throw new Error('게시물을 가져오는 중 오류가 발생했습니다.');
+                    throw new Error('게시판 목록을 가져오는 중 오류가 발생했습니다.');
                 }
                 const data = await response.json();
                 setBoards(data);
+                setFilteredBoards(data);
             } catch (error) {
                 setError(error.message);
-                console.error('데이터 가져오기 실패:', error);
+            } finally {
+                setLoading(false);
             }
         };
 
-        fetchData();
+        fetchBoards();
     }, []);
 
+    useEffect(() => {
+        localStorage.setItem('currentPage', currentPage);
+    }, [currentPage]);
+
+    const handleSearch = () => {
+        const filtered = boards.filter(board =>
+            board.title.toLowerCase().includes(searchText.toLowerCase())
+        );
+        setFilteredBoards(filtered);
+        setCurrentPage(1); // Reset to the first page after a search
+    };
+
+    const handleLike = async (boardId) => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/boards/${boardId}/like`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`, // Include auth token if required
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('좋아요 증가에 실패했습니다.');
+            }
+
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                const updatedBoard = await response.json();
+                setBoards(prevBoards => prevBoards.map(board => board.id === boardId ? updatedBoard : board));
+                setFilteredBoards(prevFilteredBoards => prevFilteredBoards.map(board => board.id === boardId ? updatedBoard : board));
+            } else {
+                throw new Error('서버에서 예상치 못한 응답이 반환되었습니다.');
+            }
+        } catch (error) {
+            console.error('좋아요 증가 실패:', error);
+            alert('좋아요 증가에 실패했습니다.');
+        }
+    };
+
+    // Define currentBoards and totalPages
+    const indexOfLastBoard = currentPage * itemsPerPage;
+    const indexOfFirstBoard = indexOfLastBoard - itemsPerPage;
+    const currentBoards = filteredBoards.slice(indexOfFirstBoard, indexOfLastBoard); // Slice filteredBoards based on pagination
+    const totalPages = Math.ceil(filteredBoards.length / itemsPerPage); // Calculate total pages
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
+
+    if (loading) {
+        return <div className="text-center text-xl py-10">로딩 중...</div>;
+    }
+
     if (error) {
-        return <p className="text-red-500">{error}</p>;
+        return <div className="text-center text-red-500 text-xl py-10">오류: {error}</div>;
     }
 
     return (
-        <div className="p-6 bg-gray-100 min-h-screen">
-            <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-center">게시판 목록</h1>
-                {/* 게시물 작성 링크 */}
-                <Link
-                    to="/boards/create"
-                    className="px-4 py-2 bg-green-600 text-white font-semibold 
-                               rounded-md hover:bg-green-700 transition-colors duration-300"
-                >
-                    게시물 작성
-                </Link>
+        <div className="container max-w-screen-lg mx-auto px-4 py-12">
+            <h1 className="text-4xl font-bold text-center mb-12 text-gray-800">게시판 목록</h1>
+
+            <SearchBar
+                searchText={searchText}
+                onSearchTextChange={setSearchText}
+                onSearch={handleSearch}
+            />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {currentBoards.length > 0 ? (
+                    currentBoards.map((board) => (
+                        <BoardCard 
+                            key={board.id} 
+                            board={board} 
+                            onLike={handleLike} 
+                        />
+                    ))
+                ) : (
+                    <div className="text-center text-gray-500">검색 결과가 없습니다.</div>
+                )}
             </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {boards.map((board) => (
-                    <div
-                        key={board.id}
-                        className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
-                    >
-                        <div className="p-4">
-                            <h2 className="text-xl font-semibold mb-2 truncate">{board.title}</h2>
-                            <p className="text-gray-700 text-sm truncate">{board.content}</p>
-                            <p className="text-gray-500 text-sm">{board.nickname}</p> {/* 닉네임 표시 */}
-                            {/* 댓글 보기 링크 */}
-                            <Link
-                                to={`/boards/${board.id}`}
-                                className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white
-                                           font-semibold rounded-md hover:bg-blue-700 transition-colors duration-300"
-                            >
-                                상세보기
-                            </Link>
-                        </div>
-                    </div>
-                ))}
-            </div>
+
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+            />
         </div>
     );
 }

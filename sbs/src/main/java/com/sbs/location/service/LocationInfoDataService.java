@@ -34,6 +34,7 @@ public class LocationInfoDataService {
                 dto.setTrrsrtStrySumryCn(location.getTrrsrtStrySumryCn());
                 dto.setTrrsrtStryUrl(location.getTrrsrtStryUrl());
                 dto.setCoreKwrdCn(location.getCoreKwrdCn());
+                dto.setImageUrl(location.getImageUrl());
                 return dto;
             }).collect(Collectors.toList());
     }

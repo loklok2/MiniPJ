@@ -1,173 +1,129 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import SearchBar from '../utils/SearchBar'
+import Pagination from '../utils/Pagination'
+import TouristSpotCard from '../TouristComponents/TouristSpotCard'
 
 export default function TouristSpots() {
-    const [spots, setSpots] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [expandedSpots, setExpandedSpots] = useState({});
+    // 상태 변수들
+    const [spots, setSpots] = useState([]) // 모든 관광지 데이터를 저장하는 상태
+    const [filteredSpots, setFilteredSpots] = useState([]) // 필터링된 관광지 데이터를 저장하는 상태
+    const [loading, setLoading] = useState(true) // 데이터를 로딩 중인지 여부를 나타내는 상태
+    const [error, setError] = useState(null) // 에러 메시지를 저장하는 상태
+    const [expandedSpots, setExpandedSpots] = useState({}) // 각 관광지 카드의 확장 여부를 저장하는 상태
+    const [searchText, setSearchText] = useState('') // 검색 텍스트를 저장하는 상태
+    const [currentPage, setCurrentPage] = useState(parseInt(localStorage.getItem('currentPage')) || 1) // 현재 페이지 번호를 저장하는 상태, 로컬 스토리지에서 불러옴
+    const itemsPerPage = 6 // 한 페이지에 표시할 항목 수
 
-    // 페이징을 위한 상태 관리
-    const [currentPage, setCurrentPage] = useState(
-        parseInt(localStorage.getItem('currentPage')) || 1
-    );
-    const itemsPerPage = 6;     // 한 페이지에 표시할 항목 수
-    const maxPageNumbers = 3;   // 최대 페이지 번호 버튼 수
+    // React Router 훅
+    const location = useLocation() // 현재 페이지의 위치 정보를 가져옴 (예: URL의 쿼리 파라미터 등)
+    const navigate = useNavigate() // 페이지 간 이동을 제어하는 훅
+    const { selectedPhoto, searchQuery } = location.state || {} // 이전 페이지에서 전달된 상태를 가져옴 (선택된 사진 URL 또는 검색 쿼리)
 
-    // 관광지 데이터를 가져오는 API 요청
-    const fetchTouristSpots = async () => {
-        try {
-            const response = await fetch('http://localhost:8080/api/locations/all');
+    // 관광지 데이터를 가져오는 useEffect 훅
+    useEffect(() => {
+        const fetchTouristSpots = async () => {
+            try {
+                const response = await fetch('http://localhost:8080/api/locations/all') // 관광지 데이터를 가져오는 API 호출
+                const data = await response.json() // 응답 데이터를 JSON 형식으로 파싱
+                setSpots(data) // 모든 관광지 데이터를 상태에 저장
 
-            if (!response.ok) {
-                throw new Error('데이터를 가져오는데 실패했습니다.');
+                // 이전 페이지에서 전달된 검색 쿼리 또는 선택된 사진 URL을 기반으로 데이터를 필터링
+                if (searchQuery) {
+                    const filtered = data.filter(spot =>
+                        spot.areaClturTrrsrtNm.toLowerCase().includes(searchQuery.toLowerCase())
+                    )
+                    setFilteredSpots(filtered)
+                } else if (selectedPhoto) {
+                    const filtered = data.filter(spot => spot.imageUrl === selectedPhoto)
+                    setFilteredSpots(filtered)
+                } else {
+                    setFilteredSpots(data) // 필터링 조건이 없을 경우 모든 데이터를 표시
+                }
+            } catch (error) {
+                setError(error.message) // 에러 발생 시 에러 메시지를 상태에 저장
+            } finally {
+                setLoading(false) // 데이터 로딩이 끝났음을 표시
             }
-
-            const data = await response.json();
-            setSpots(data);
-        } catch (error) {
-            setError(error.message);
-        } finally {
-            setLoading(false);
         }
-    }
 
-    useEffect(() => {
-        fetchTouristSpots();
-    }, [])
+        fetchTouristSpots() // 데이터 가져오기 함수 호출
+    }, [selectedPhoto, searchQuery]) // selectedPhoto 또는 searchQuery가 변경될 때마다 실행
 
+    // 페이지 변경 시 로컬 스토리지에 현재 페이지 번호 저장
     useEffect(() => {
-        localStorage.setItem('currentPage', currentPage);
+        localStorage.setItem('currentPage', currentPage)
     }, [currentPage])
 
-    // 페이지 이동 처리 함수
+    // 검색어를 기반으로 관광지 데이터를 필터링하는 함수
+    const handleSearch = () => {
+        const filtered = spots.filter(spot =>
+            spot.areaClturTrrsrtNm.toLowerCase().includes(searchText.toLowerCase())
+        )
+        setFilteredSpots(filtered)
+        setCurrentPage(1) // 새로운 검색 시 페이지를 1로 리셋
+    }
+
+    // 현재 페이지에 표시할 관광지 데이터를 계산하는 변수들
+    const indexOfLastSpot = currentPage * itemsPerPage // 현재 페이지에서의 마지막 항목 인덱스
+    const indexOfFirstSpot = indexOfLastSpot - itemsPerPage // 현재 페이지에서의 첫 항목 인덱스
+    const currentSpots = filteredSpots.slice(indexOfFirstSpot, indexOfLastSpot) // 현재 페이지에 표시할 관광지 데이터
+    const totalPages = Math.ceil(filteredSpots.length / itemsPerPage) // 전체 페이지 수 계산
+
+    // 페이지 번호가 변경될 때 호출되는 함수
     const handlePageChange = (pageNumber) => {
-        setCurrentPage(pageNumber);
+        setCurrentPage(pageNumber)
     }
 
-    // 현재 페이지에 표시할 데이터 계산
-    const indexOfLastPage = currentPage * itemsPerPage;
-    const indexOfFirstPage = indexOfLastPage - itemsPerPage;
-    const currentPages = spots.slice(indexOfFirstPage, indexOfLastPage);
-
-    // 전체 페이지 수 계산
-    const totalPages = Math.ceil(spots.length / itemsPerPage);
-
-    // 페이지 범위 계산
-    const getPageNumbers = () => {
-        const startPage = Math.max(1, currentPage - Math.floor(maxPageNumbers / 2));
-        const endPage = Math.min(totalPages, startPage + maxPageNumbers - 1);
-        return Array.from({ length: endPage - startPage + 1 }, (_, index) => startPage + index);
-    }
-
-    // 관광지 정보 확장/축소 토글 함수
-    const toggleExpand = (spotId) => {
-        setExpandedSpots((prev) => ({
-            ...prev,
-            [spotId]: !prev[spotId]
-        }));
-    }
-
-    // 로딩 상태 처리
+    // 데이터를 로딩 중일 때 표시할 UI
     if (loading) {
-        return <div className="text-center text-xl py-10">로딩 중...</div>;
+        return <div className="text-center text-xl py-10">로딩 중...</div>
     }
 
-    // 오류 처리
+    // 에러가 발생했을 때 표시할 UI
     if (error) {
-        return <div className="text-center text-red-500 text-xl py-10">오류: {error}</div>;
+        return <div className="text-center text-red-500 text-xl py-10">오류: {error}</div>
     }
 
-    // 관광지 목록 렌더링
+    // 관광지 목록과 페이지 네비게이션을 렌더링
     return (
         <div className="container max-w-screen-lg mx-auto px-4 py-12">
-            <h1 className="text-3xl font-bold text-center mb-12">관광지 정보</h1>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
-                {currentPages.length > 0 ? (
-                    currentPages.map((spot) => {
-                        const isExpanded = expandedSpots[spot.dataNo] || false;
-                        const truncatedInfo = spot.trrsrtStrySumryCn.length > 40
-                            ? `${spot.trrsrtStrySumryCn.substring(0, 40)}...`
-                            : spot.trrsrtStrySumryCn;
+            <h1 className="text-4xl font-bold text-center mb-12 text-gray-800">관광지 정보</h1>
+
+            {/* 검색 바 섹션 */}
+            <SearchBar
+                searchText={searchText}
+                onSearchTextChange={setSearchText}
+                onSearch={handleSearch}
+            />
+
+            {/* 관광지 카드 섹션 */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {currentSpots.length > 0 ? (
+                    currentSpots.map((spot) => {
+                        const isExpanded = expandedSpots[spot.dataNo] || false
 
                         return (
-                            <div key={spot.dataNo}
-                                className="bg-white rounded-lg shadow-lg overflow-hidden">
-                                <img
-                                    src="https://lh3.googleusercontent.com/proxy/pkYo-dY6Nwt6Z_1RBkqmB42AFIv_3KBUB7zlfdj89aTSv70_R9bLvOg4BUaXy_fsPi1dFED-Ux5nltU-bIXo_w"
-                                    alt={spot.areaClturTrrsrtNm}
-                                    className="w-full h-48 object-cover sm:h-64"
-                                />
-                                <div className="p-4 md:p-6">
-                                    <h2 className="text-2xl font-semibold mb-4">{spot.areaClturTrrsrtNm}</h2>
-                                    <p className="text-gray-500 mb-2">
-                                        {isExpanded ? spot.trrsrtStrySumryCn : truncatedInfo}
-                                    </p>
-                                    {spot.trrsrtStrySumryCn.length > 40 && (
-                                        <button
-                                            onClick={() => toggleExpand(spot.dataNo)}
-                                            className="mb-4 text-blue-500 hover:text-blue-700 focus:outline-none"
-                                        >
-                                            {isExpanded ? '접기' : '더보기'}
-                                        </button>
-                                    )}
-                                    <p className="mt-4 text-blue-500 hover:underline">
-                                        <a href={spot.trrsrtStryUrl} target="_blank" rel="noopener noreferrer">
-                                            자세히 보기
-                                        </a>
-                                    </p>
-                                    <p className="mt-6 p-2 text-sm rounded-lg shadow-sm text-gray-600 bg-gray-100">
-                                        {spot.addr}
-                                    </p>
-                                </div>
-                            </div>
+                            <TouristSpotCard
+                                key={spot.dataNo}
+                                spot={spot}
+                                isExpanded={isExpanded}
+                                onToggleExpand={() => setExpandedSpots(prev => ({ ...prev, [spot.dataNo]: !isExpanded }))}
+                                onViewMap={() => navigate('/map', { state: { selectedSpot: spot } })}
+                            />
                         )
                     })
                 ) : (
-                    <div className="text-center text-gray-500">관광지가 없습니다.</div>
+                    <div className="text-center text-gray-500">검색 결과가 없습니다.</div>
                 )}
             </div>
 
             {/* 페이지 네비게이션 */}
-            <div className="flex justify-center mt-8 space-x-2">
-                <button
-                    onClick={() => handlePageChange(1)}
-                    disabled={currentPage === 1}
-                    className="px-3 py-1 rounded bg-gray-300 text-gray-700"
-                >
-                    처음
-                </button>
-                <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className="px-3 py-1 rounded bg-gray-300 text-gray-700"
-                >
-                    &lt;
-                </button>
-                {getPageNumbers().map((pageNumber) => (
-                    <button
-                            key={pageNumber}
-                            onClick={() => handlePageChange(pageNumber)}
-                            className={`px-3 py-1 rounded ${currentPage === pageNumber ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700'}`}
-                    >
-                        {pageNumber}
-                    </button>   
-                ))}
-                <button
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                        className="px-3 py-1 rounded bg-gray-300 text-gray-700"
-                >
-                    &gt;
-                </button>
-                <button
-                        onClick={() => handlePageChange(totalPages)}
-                        disabled={currentPage === totalPages}
-                        className="px-3 py-1 rounded bg-gray-300 text-gray-700"
-                >
-                    마지막
-                </button>
-            </div>
-
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+            />
         </div>
     )
 }

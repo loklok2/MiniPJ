@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function CommentList({ boardId }) {
     const [comments, setComments] = useState([]);
@@ -15,7 +15,6 @@ export default function CommentList({ boardId }) {
                 setComments(data);
             } catch (error) {
                 setError(error.message);
-                console.error('댓글 가져오기 실패:', error);
             }
         };
 
@@ -27,16 +26,13 @@ export default function CommentList({ boardId }) {
     }
 
     return (
-        <div>
-            <h2>댓글 목록</h2>
-            <ul>
-                {comments.map(comment => (
-                    <li key={comment.id}>
-                        <p>{comment.content}</p>
-                        <small>{comment.author.username}</small>
-                    </li>
-                ))}
-            </ul>
-        </div>
+        <ul>
+            {comments.map(comment => (
+                <li key={comment.id} className="mb-4">
+                    <p className="text-gray-800">{comment.content}</p>
+                    <p className="text-gray-600 text-sm">작성자: {comment.authorNickname}</p>
+                </li>
+            ))}
+        </ul>
     );
 }
