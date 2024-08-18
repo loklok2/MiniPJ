@@ -1,6 +1,7 @@
+import { jwtDecode } from 'jwt-decode'
 import { useRecoilState } from 'recoil'
 import { authState } from '../atoms/authAtom'
-import { json, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 // 인증 관련 로직을 커스텀 훅으로 분리
 // 로그인 상태와 관련된 로직을 useAuth 훅에서 관리, 로그인, 로그아웃, 상태 조회 기능을 제공
@@ -8,9 +9,28 @@ export const useAuth = () => {
     const [auth, setAuth] = useRecoilState(authState)
     const navigate = useNavigate()
 
+    const isTokenExpired = (token) => {
+        const decodedToken = jwtDecode(token);
+        const currentTime = Date.now() / 1000; // 현재 시간을 초 단위로 변환
+        return decodedToken.exp < currentTime; // 만료 시간이 현재 시간보다 이전이면 true 반환
+    };
+
     const login = (user) => {
+        if (isTokenExpired(user.token)) {
+            logout(); // 토큰이 만료되었으면 로그아웃 처리
+            return;
+        }
+
         console.log("Login called"); // 로그 추가
-        const newAuthState = { isLoggedIn: true, token: user.token, user}
+        const newAuthState = {
+            isLoggedIn: true,
+            token: user.token,
+            user: {
+                id: user.id, // 로그인 시 받은 사용자 ID를 포함합니다.
+                username: user.username,
+                nickname: user.nickname,
+            },
+        }
         setAuth(newAuthState)   // 전체 상태를 업데이트
         localStorage.setItem('authState', JSON.stringify(newAuthState)) // authState 전체를 저장
 
@@ -24,6 +44,12 @@ export const useAuth = () => {
     }
 
     const updateToken = (newToken) => {
+
+        if (isTokenExpired(newToken)) {
+            logout(); // 토큰이 만료되었으면 로그아웃 처리
+            return;
+        }
+        
         console.log("Update called");
         setAuth((prevState) => {
             const updatedAuthState = { ...prevState, token: newToken };

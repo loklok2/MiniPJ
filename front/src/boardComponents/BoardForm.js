@@ -10,7 +10,7 @@ export default function BoardForm() {
     const [success, setSuccess] = useState(null);
     const [loading, setLoading] = useState(true);  // 로딩 상태 추가
     const navigate = useNavigate();
-    const { auth } = useAuth()      // useAuth 훅에서 auth 객체를 가져옴
+    const { auth, logout } = useAuth()      // useAuth 훅에서 auth 객체를 가져옴
 
     // 로그인 상태 확인
     useEffect(() => {
@@ -30,7 +30,11 @@ export default function BoardForm() {
         setError(null);
 
         const formData = new FormData();
-        formData.append('board', new Blob([JSON.stringify({ title, content })], { type: 'application/json' }));
+        formData.append('board', new Blob([JSON.stringify({
+            title,
+            content,
+            authorNickname: auth.user.nickname
+        })], { type: 'application/json' }));
 
         // Array.prototype.forEach를 사용하여 FileList 순회
         Array.prototype.forEach.call(images, (image) => {
@@ -45,6 +49,11 @@ export default function BoardForm() {
                 },
                 body: formData,  // FormData 객체를 body에 전달
             });
+
+            if (response.status === 401) {
+                logout();  // 인증 만료 시 자동 로그아웃
+                throw new Error('세션이 만료되었습니다. 다시 로그인해주세요.');
+            }
 
             if (!response.ok) {
                 const errorMessage = await response.text(); // 서버에서 반환하는 오류 메시지 가져오기
@@ -93,6 +102,7 @@ export default function BoardForm() {
                         type="file"
                         multiple
                         onChange={handleImageChange} // 이미지 파일 선택 시 상태 업데이트
+                        className='mb-4'
                     />
                     <button
                         type='submit'

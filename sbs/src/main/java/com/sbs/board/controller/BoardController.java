@@ -12,11 +12,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sbs.auth.domain.Member;
 import com.sbs.auth.repository.MemberRepository;
 import com.sbs.board.domain.BoardDTO;
@@ -54,7 +55,7 @@ public class BoardController {
 	public ResponseEntity<BoardDTO> createBoard(@RequestPart("board") BoardDTO boardDTO,
 												@RequestPart(value = "images", required = false) List<MultipartFile> images,
 												Authentication authentication) {
-		
+
 		String username = authentication.getName();
 		Member member = memberRepository.findByUsername(username).orElse(null);
 
@@ -68,10 +69,17 @@ public class BoardController {
 
 	// 게시글을 수정하는 엔드포인트. 작성자만 수정 가능
 	@PutMapping("/{id}")
-	public ResponseEntity<BoardDTO> updateBoard(@PathVariable Long id, @RequestParam("board") BoardDTO boardDTO,
-			@RequestParam("images") List<MultipartFile> images, Authentication authentication) {
+	public ResponseEntity<BoardDTO> updateBoard(@PathVariable Long id, 
+												@RequestPart("board") String boardJson,
+												@RequestPart(value = "images", required = false) List<MultipartFile> images,
+												Authentication authentication) throws JsonProcessingException {
+		
+		ObjectMapper objectMapper = new ObjectMapper();
+		BoardDTO boardDTO = objectMapper.readValue(boardJson, BoardDTO.class);
+		
 		String currentUsername = authentication.getName();
 		BoardDTO updatedBoardDTO = boardService.updateBoard(id, boardDTO, images, currentUsername);
+		
 		if (updatedBoardDTO != null) {
 			return new ResponseEntity<>(updatedBoardDTO, HttpStatus.OK);
 		}

@@ -1,7 +1,6 @@
 package com.sbs.board.service;
 
 import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,9 +11,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.sbs.auth.domain.Member;
 import com.sbs.board.domain.Board;
 import com.sbs.board.domain.BoardDTO;
-import com.sbs.board.domain.Image;
+import com.sbs.board.domain.ImageDTO;
 import com.sbs.board.repository.BoardRepository;
-import com.sbs.board.repository.ImageRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class BoardService {
@@ -23,56 +23,34 @@ public class BoardService {
     private BoardRepository boardRepo;
     
     @Autowired
-    private ImageRepository imageRepo;
+    private ImageService imageService;
 
     // 모든 게시글을 조회하여 DTO로 반환
     public List<BoardDTO> getAllBoards() {
-        return boardRepo.findAll().stream().map(board -> {
-            BoardDTO dto = new BoardDTO();
-            dto.setId(board.getId());
-            dto.setTitle(board.getTitle());
-            dto.setContent(board.getContent());
-            dto.setAuthorNickname(board.getAuthorNickname());
-            dto.setAuthorId(board.getAuthor().getId());
-            dto.setCreateDate(board.getCreateDate());
-            dto.setUpdateDate(board.getUpdateDate());
-            dto.setViewCount(board.getViewCount());
-            dto.setLikeCount(board.getLikeCount());
-            return dto;
-        }).collect(Collectors.toList());
+        return boardRepo.findAll().stream()
+            .map(this::convertToDTO) // convertToDTO 메서드로 변환 작업을 통합
+            .collect(Collectors.toList());
     }
 
     // 게시글을 ID로 조회하고 조회수를 증가시키며, DTO로 반환
     public BoardDTO getBoardById(Long id) {
-        // 게시물을 찾고, 이미지 데이터를 base64로 인코딩하여 DTO에 추가합니다.
         Board board = boardRepo.findById(id).orElse(null);
+        
         if (board == null) {
             return null;
         }
-        
-        BoardDTO boardDTO = new BoardDTO();
-        boardDTO.setId(board.getId());
-        boardDTO.setTitle(board.getTitle());
-        boardDTO.setContent(board.getContent());
-        boardDTO.setAuthorNickname(board.getAuthor().getNickname());
-        
-        // 이미지 데이터 base64로 인코딩
-        List<String> imageStrings = board.getImages().stream()
-            .map(image -> {
-                try {
-                    return Base64.getEncoder().encodeToString(image.getData());
-                } catch (Exception e) {
-                    return null;
-                }
-            })
-            .collect(Collectors.toList());
-        
-        boardDTO.setImages(imageStrings);
-        return boardDTO;
+
+        board.setViewCount(board.getViewCount() + 1);
+        boardRepo.save(board);
+
+        return convertToDTO(board); // 변환 작업을 통합
     }
 
     // 게시글을 생성하고, 이미지를 저장하며, DTO로 반환
+    @Transactional
     public BoardDTO createBoard(BoardDTO boardDTO, Member member, List<MultipartFile> images) {
+    	
+    	
         Board board = new Board();
         board.setTitle(boardDTO.getTitle());
         board.setContent(boardDTO.getContent());
@@ -80,85 +58,47 @@ public class BoardService {
         board.setAuthorNickname(member.getNickname());
         board.setCreateDate(LocalDateTime.now());
         board.setUpdateDate(LocalDateTime.now());
-        board.setViewCount(boardDTO.getViewCount());
-        board.setLikeCount(boardDTO.getLikeCount());
+        board.setViewCount(0);
+        board.setLikeCount(0);
         
         Board createdBoard = boardRepo.save(board);
 
-        // 이미지를 저장
-        if (images != null && !images.isEmpty()) {
-            for (MultipartFile imageFile : images) {
-                Image image = new Image();
-                image.setFilename(imageFile.getOriginalFilename());
-                try {
-                    image.setData(imageFile.getBytes());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                image.setBoard(createdBoard);
-                imageRepo.save(image);
-            }
-        }
+        // 새로 생성된 게시물에 이미지를 추가
+        imageService.addImagesToBoard(createdBoard, images);
 
-        BoardDTO dto = new BoardDTO();
-        dto.setId(createdBoard.getId());
-        dto.setTitle(createdBoard.getTitle());
-        dto.setContent(createdBoard.getContent());
-        dto.setAuthorNickname(createdBoard.getAuthorNickname());
-        dto.setAuthorId(createdBoard.getAuthor().getId());
-        dto.setCreateDate(createdBoard.getCreateDate());
-        dto.setUpdateDate(createdBoard.getUpdateDate());
-        dto.setViewCount(createdBoard.getViewCount());
-        dto.setLikeCount(createdBoard.getLikeCount());
-        return dto;
+        return convertToDTO(createdBoard); // 변환 작업을 통합
     }
 
     // 게시글을 수정하는 메서드. 작성자와 현재 사용자를 비교하여 권한이 있는 경우에만 수정
+    @Transactional
     public BoardDTO updateBoard(Long id, BoardDTO boardDTO, List<MultipartFile> images, String currentUsername) {
         Board board = boardRepo.findById(id).orElse(null);
         if (board != null && board.getAuthor().getUsername().equals(currentUsername)) {
             board.setTitle(boardDTO.getTitle());
             board.setContent(boardDTO.getContent());
             board.setUpdateDate(LocalDateTime.now());
-            Board updatedBoard = boardRepo.save(board);
 
-            // 이미지 업데이트 로직
+            // 기존 이미지를 삭제하고 새로운 이미지를 추가
             if (images != null && !images.isEmpty()) {
-                imageRepo.deleteByBoard(updatedBoard); // 기존 이미지를 삭제하고
-                for (MultipartFile imageFile : images) {
-                    Image image = new Image();
-                    image.setFilename(imageFile.getOriginalFilename());
-                    try {
-                        image.setData(imageFile.getBytes());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    image.setBoard(updatedBoard);
-                    imageRepo.save(image);
-                }
+                imageService.deleteImagesByBoard(board);
+                imageService.addImagesToBoard(board, images);
             }
 
-            BoardDTO dto = new BoardDTO();
-            dto.setId(updatedBoard.getId());
-            dto.setTitle(updatedBoard.getTitle());
-            dto.setContent(updatedBoard.getContent());
-            dto.setAuthorNickname(updatedBoard.getAuthorNickname());
-            dto.setAuthorId(updatedBoard.getAuthor().getId());
-            dto.setCreateDate(updatedBoard.getCreateDate());
-            dto.setUpdateDate(updatedBoard.getUpdateDate());
-            dto.setViewCount(updatedBoard.getViewCount());
-            dto.setLikeCount(updatedBoard.getLikeCount());
-            return dto;
+            Board updatedBoard = boardRepo.save(board);
+            
+            return convertToDTO(updatedBoard); // 변환 작업을 통합
         }
         return null; // 권한이 없거나 게시글이 없는 경우 null 반환
     }
 
     // 게시글을 삭제하는 메서드. 작성자와 현재 사용자를 비교하여 권한이 있는 경우에만 삭제
+    @Transactional
     public boolean deleteBoard(Long id, String currentUsername) {
         Board board = boardRepo.findById(id).orElse(null);
         if (board != null && board.getAuthor().getUsername().equals(currentUsername)) {
-            imageRepo.deleteByBoard(board); // 관련 이미지 삭제
-            boardRepo.deleteById(id); // 게시글 삭제
+            // 게시물에 연관된 이미지 모두 삭제
+            imageService.deleteImagesByBoard(board);
+            boardRepo.deleteById(id);
             return true;
         }
         return false; // 권한이 없거나 게시글이 없는 경우 false 반환
@@ -167,22 +107,35 @@ public class BoardService {
     // 게시글 좋아요 수 증가
     public BoardDTO likeBoard(Long id) {
         Board board = boardRepo.findById(id).orElse(null);
-        if (board != null) {
-            board.setLikeCount(board.getLikeCount() + 1);
-            Board updatedBoard = boardRepo.save(board);
-
-            BoardDTO dto = new BoardDTO();
-            dto.setId(updatedBoard.getId());
-            dto.setTitle(updatedBoard.getTitle());
-            dto.setContent(updatedBoard.getContent());
-            dto.setAuthorNickname(updatedBoard.getAuthorNickname());
-            dto.setAuthorId(updatedBoard.getAuthor().getId());
-            dto.setCreateDate(updatedBoard.getCreateDate());
-            dto.setUpdateDate(updatedBoard.getUpdateDate());
-            dto.setViewCount(updatedBoard.getViewCount());
-            dto.setLikeCount(updatedBoard.getLikeCount());
-            return dto;
+        
+        if (board == null) {
+            return null;
         }
-        return null;
+
+        board.setLikeCount(board.getLikeCount() + 1);
+        Board updatedBoard = boardRepo.save(board);
+
+        return convertToDTO(updatedBoard);
     }
+    
+    // 데이터베이스 엔티티(Board)를 클라이언트에 전달할 수 있는 형태(BoardDTO)로 변환하는 메서드
+    private BoardDTO convertToDTO(Board board) {
+        BoardDTO dto = new BoardDTO();
+        dto.setId(board.getId());
+        dto.setTitle(board.getTitle());
+        dto.setContent(board.getContent());
+        dto.setAuthorNickname(board.getAuthorNickname());
+        dto.setAuthorId(board.getAuthor().getId());
+        dto.setCreateDate(board.getCreateDate());
+        dto.setUpdateDate(board.getUpdateDate());
+        dto.setViewCount(board.getViewCount());
+        dto.setLikeCount(board.getLikeCount());
+
+        // 이미지 데이터를 DTO에 추가
+        List<ImageDTO> images = imageService.getImagesByBoardId(board.getId());
+        dto.setImages(images);
+
+        return dto;
+    }
+    
 }

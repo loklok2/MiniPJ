@@ -23,6 +23,6 @@ public class BoardDTO {
     private int viewCount;
     private int likeCount;
     
-    private List<String> images; // base64 인코딩된 이미지 데이터를 저장할 리스트
+    private List<ImageDTO> images; // 이미지 데이터를 저장할 리스트
     
 }

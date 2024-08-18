@@ -33,7 +33,7 @@ export default function AppRoutes() {
             <Route path="/boards" element={<BoardList />} />
             <Route path="/boards/:id" element={<BoardDetail />} />
             <Route path="/boards/create" element={auth.isLoggedIn ? <BoardForm /> : <Navigate to="/login" />} />
-            <Route path="/boards/edit/:id" element={auth.isLoggedIn ? <BoardEdit /> : <Navigate to="/login" />} />
+            <Route path="/boards/edit/:boardId" element={auth.isLoggedIn ? <BoardEdit /> : <Navigate to="/login" />} />
             {/* 추가적인 경로들 추가 */}
         </Routes>
     );

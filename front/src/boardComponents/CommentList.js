@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-export default function CommentList({ boardId }) {
+export default function CommentList({ boardId, commentsUpdated }) {
     const [comments, setComments] = useState([]);
     const [error, setError] = useState(null);
 
@@ -19,7 +19,7 @@ export default function CommentList({ boardId }) {
         };
 
         fetchComments();
-    }, [boardId]);
+    }, [boardId, commentsUpdated]) // commentsUpdated가 변경될 때마다 댓글을 새로 가져옴
 
     if (error) {
         return <p>{error}</p>;
@@ -28,7 +28,8 @@ export default function CommentList({ boardId }) {
     return (
         <ul>
             {comments.map(comment => (
-                <li key={comment.id} className="mb-4">
+                <li key={comment.id} 
+                    className="mb-4">
                     <p className="text-gray-800">{comment.content}</p>
                     <p className="text-gray-600 text-sm">작성자: {comment.authorNickname}</p>
                 </li>

@@ -10,15 +10,16 @@ export function useAuthToken() {
 
     // JWT 토큰을 설정하는 커스텀 훅
     const setAuthToken = (newToken) => {
-        setAuth(prevState => ({ ...prevState, token: newToken }));
-        // 예를 들어 로컬 스토리지에 토큰을 저장할 수도 있습니다.
-        localStorage.setItem('token', newToken);
+        const updatedAuthState = { ...auth, token: newToken }
+        setAuth(updatedAuthState)
+        localStorage.setItem('authState', JSON.stringify(updatedAuthState))
     };
 
     // JWT 토큰을 초기화하는 훅
     const clearAuthToken = () => {
-        setAuth(prevState => ({ ...prevState, token: null }));
-        localStorage.removeItem('token');
+        const updatedAuthState = { ...auth, token: null }
+        setAuth(updatedAuthState)
+        localStorage.setItem('authState', JSON.stringify(updatedAuthState))
     };
 
     return [auth.token, setAuthToken, clearAuthToken];

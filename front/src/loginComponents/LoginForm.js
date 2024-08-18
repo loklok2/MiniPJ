@@ -53,7 +53,12 @@ export default function LoginForm({ onLogin }) {
 
             if (data.token) {
                 // 로그인 성공
-                login({ token: data.token, username: email })   // login 함수를 호출하여 상태를 업데이트하고 localStorage에 저장
+                login({
+                    id: data.id, // 서버에서 전달된 사용자 ID
+                    username: data.username,
+                    nickname: data.nickname,
+                    token: data.token,
+                });   // login 함수를 호출하여 상태를 업데이트하고 localStorage에 저장
                 onLogin(data)   // 상위 컴포넌트에 로그인 정보 전달
             } else {
                 setError('로그인 실패. 이메일과 비밀번호를 확인하세요.');

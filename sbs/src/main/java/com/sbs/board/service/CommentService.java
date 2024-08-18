@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import com.sbs.board.domain.Comment;
 import com.sbs.board.repository.CommentRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class CommentService {
 
@@ -16,6 +18,7 @@ public class CommentService {
     private CommentRepository commentRepo;
     
     // 댓글 작성
+    @Transactional
     public Comment createComment(Comment comment) {
         // 자식 댓글 여부 설정
         if (comment.getParentComment() != null) {
@@ -25,6 +28,7 @@ public class CommentService {
     }
     
     // 댓글 수정
+    @Transactional
     public Comment updateComment(Long id, String newContent, String username) {
         Optional<Comment> optionalComment = commentRepo.findById(id);
         
@@ -41,6 +45,7 @@ public class CommentService {
     }
     
     // 댓글 삭제
+    @Transactional
     public boolean deleteComment(Long id, String username) {
         Optional<Comment> optionalComment = commentRepo.findById(id);
         
