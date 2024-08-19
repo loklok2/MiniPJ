@@ -18,8 +18,14 @@ export default function Home() {
       const response = await fetch('http://localhost:8080/api/locations/all')
       const data = await response.json()
 
-      // API 응답에서 이미지 URL을 추출하여 imagesForSlider 상태에 저장
-      const imageUrls = data.map(spot => spot.imageUrl).filter(url => url)
+      // API 응답에서 각 이미지의 서버 URL을 생성하여 imagesForSlider 상태에 저장
+      const imageUrls = data
+        .map(spot => `http://localhost:8080/api/locations/image/${spot.dataNo}`)
+        .filter(url => url)
+
+      // // API 응답에서 이미지 URL을 추출하여 imagesForSlider 상태에 저장
+      // const imageUrls = data.map(spot => spot.imageUrl).filter(url => url)
+
       setImagesForSlider(imageUrls)
     }
 
@@ -41,7 +47,8 @@ export default function Home() {
     <div className="w-full h-full bg-gray-50 py-12">
       {/* PhotoSlider 컴포넌트를 사용하여 이미지 슬라이더를 표시 */}
       <div className="max-w-screen-lg mx-auto mb-8">  {/* mb-8을 추가하여 아래 여백을 더 줌 */}
-        <PhotoSlider photos={imagesForSlider} onPhotoClick={handlePhotoClick} />
+        <PhotoSlider photos={imagesForSlider} 
+                     onPhotoClick={handlePhotoClick} />
       </div>
 
       {/* SearchBar 컴포넌트를 사용하여 검색 필드를 표시 */}

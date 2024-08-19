@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import lombok.Data;
 
 @Entity
@@ -56,5 +57,9 @@ public class LocationInfoData {
 
     @Column(name = "IMAGE_URL", length = 512)
     private String imageUrl;  // `IMAGE_URL`: 이미지 URL
+    
+    @Lob
+    @Column(name = "IMAGE_DATA", columnDefinition = "LONGBLOB")
+    private byte[] imageData;  // `IMAGE_DATA`: 이미지 데이터 (BLOB 형식)
     
 }

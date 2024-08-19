@@ -7,8 +7,11 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.sbs.auth.domain.Member;
+import com.sbs.auth.repository.MemberRepository;
 import com.sbs.board.domain.Board;
 import com.sbs.board.domain.Comment;
+import com.sbs.board.domain.CommentDTO;
 import com.sbs.board.repository.BoardRepository;
 import com.sbs.board.repository.CommentRepository;
 
@@ -22,6 +25,9 @@ public class CommentService {
     
     @Autowired
     private BoardRepository boardRepo;
+    
+    @Autowired
+    private MemberRepository memberRepository;
     
     //게시글에 대한 전체 댓글 조회
     public List<Comment> getCommnetByBoard(Long boardId) {
@@ -39,11 +45,20 @@ public class CommentService {
     
     // 댓글 작성
     @Transactional
-    public Comment createComment(Comment comment) {
-        // 자식 댓글 여부 설정
-        if (comment.getParentComment() != null) {
-            comment.setChild(true);
+    public Comment createComment(CommentDTO commentDTO) {
+        // 게시글과 부모 댓글을 조회
+        Board board = boardRepo.findById(commentDTO.getBoardId()).orElse(null);
+        Comment parentComment = commentDTO.getParentCommentId() != null ? 
+                                commentRepo.findById(commentDTO.getParentCommentId()).orElse(null) : null;
+
+        // 작성자 조회
+        Member author = memberRepository.findById(commentDTO.getAuthorId()).orElse(null);
+        if (board == null || author == null) {
+            return null; // 오류 처리 (필요시 예외 처리 가능)
         }
+
+        // CommentDTO를 Comment 엔티티로 변환하여 저장
+        Comment comment = commentDTO.toEntity(board, author, parentComment);
         return commentRepo.save(comment);
     }
     

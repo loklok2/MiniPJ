@@ -12,11 +12,14 @@ export default function TouristSpotCard({ spot, isExpanded, onToggleExpand, onVi
         ? `${spot.trrsrtStrySumryCn.substring(0, 40)}...`
         : spot.trrsrtStrySumryCn
 
+    // 서버에서 제공하는 이미지 URL 생성
+    const imageSrc = `http://localhost:8080/api/locations/image/${spot.dataNo}`;
+
     return (
         <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col justify-between">
             {/* 관광지 이미지 */}
             <img
-                src={spot.imageUrl}  // 이미지 URL을 설정
+                src={imageSrc}  // 인코딩된 이미지 데이터 사용
                 alt={spot.areaClturTrrsrtNm}  // 이미지의 대체 텍스트로 관광지 이름을 설정
                 className="w-full h-48 object-cover"
             />

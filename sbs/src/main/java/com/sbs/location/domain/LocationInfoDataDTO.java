@@ -19,4 +19,5 @@ public class LocationInfoDataDTO {
     private String trrsrtStryUrl;
     private String coreKwrdCn;
     private String imageUrl;
+    private byte[] imageData;  // 이미지 데이터를 저장할 필드 추가
 }
