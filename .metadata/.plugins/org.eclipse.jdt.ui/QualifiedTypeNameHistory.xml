@@ -19,7 +19,6 @@
     <fullyQualifiedTypeName name="jakarta.persistence.FetchType"/>
     <fullyQualifiedTypeName name="java.time.LocalDateTime"/>
     <fullyQualifiedTypeName name="java.util.Optional"/>
-    <fullyQualifiedTypeName name="com.sbs.auth.domain.Member"/>
     <fullyQualifiedTypeName name="com.sbs.auth.repository.MemberRepository"/>
     <fullyQualifiedTypeName name="com.sbs.board.repository.CommentRepository"/>
     <fullyQualifiedTypeName name="com.sbs.auth.domain.MemberDTO"/>
@@ -49,4 +48,5 @@
     <fullyQualifiedTypeName name="org.springframework.web.bind.annotation.PathVariable"/>
     <fullyQualifiedTypeName name="com.sbs.board.domain.Comment"/>
     <fullyQualifiedTypeName name="org.springframework.http.HttpStatus"/>
+    <fullyQualifiedTypeName name="com.sbs.auth.domain.Member"/>
 </qualifiedTypeNameHistroy>

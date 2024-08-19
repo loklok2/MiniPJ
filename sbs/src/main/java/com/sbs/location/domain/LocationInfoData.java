@@ -54,6 +54,6 @@ public class LocationInfoData {
     private String imageUrl;  // `IMAGE_URL`: 이미지 URL
     
     @Lob
-    @Column(name = "IMAGE_DATA")
+    @Column(name = "IMAGE_DATA", columnDefinition = "LONGBLOB")
     private byte[] imageData;  // `IMAGE_DATA`: 이미지 데이터 (BLOB 형식)
 }
