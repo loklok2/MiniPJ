@@ -34,12 +34,12 @@ public class SecurityConfig {
                 .requestMatchers("/api/boards/public/**").permitAll() // 게시글 조회는 누구나 접근 가능
                 .requestMatchers("/api/boards/{id}").permitAll() // 특정 게시글 조회는 누구나 접근 가능
                 .requestMatchers("/api/boards/**").authenticated() // 게시글 작성, 수정, 삭제는 인증된 사용자만 접근 가능
-                .requestMatchers("/api/images/**").permitAll() // 이미지 API는 누구나 접근 가능하게 설정
-                .requestMatchers("/api/comments/**").authenticated() // 댓글 작성, 수정, 삭제, 좋아요는 인증된 사용자만 접근 가능
+                .requestMatchers("/api/images/**").permitAll() // 이미지 API는 누구나 접근 가능하도록 설정
+                .requestMatchers("/api/comments/**").authenticated() // 댓글 작성, 수정, 삭제, 요청은 인증된 사용자만 접근 가능
                 .requestMatchers("/api/locations/**").permitAll() // 위치 정보 관련 API는 누구나 접근 가능
-                .requestMatchers("/api/tourtrans/**").permitAll() // 관광지 정보 관련 API는 누구나 접근 가능
-                .anyRequest().permitAll()) // 그 외의 경로는 모두 접근 가능하게 설정
-            .formLogin(form -> form.disable()) // 기본 로그인 페이지 사용 안함
+                .requestMatchers("/api/tourtrans/**").permitAll() // 관광 정보 관련 API는 누구나 접근 가능
+                .anyRequest().permitAll()) // 그 외의 경로는 모두 접근 가능하도록 설정
+            .formLogin(form -> form.disable()) // 기본 로그인 페이지 사용 안 함
             .oauth2Login(oauth2 -> oauth2.successHandler(successHandler)) // OAuth2 로그인 성공 핸들러 설정
             .addFilterBefore(new JWTAuthorizationFilter(memberRepository), UsernamePasswordAuthenticationFilter.class);  // JWT 필터 추가
 

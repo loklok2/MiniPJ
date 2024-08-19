@@ -35,7 +35,7 @@ public class MyPageController {
     @Autowired
     private CommentRepository commentRepository;
     
-    // í˜„ì¬ ë¡œê·¸ì¸ëœ ì‚¬ìš©ìì˜ ì •ë³´ë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.
+    // ÇöÀç ·Î±×ÀÎµÈ »ç¿ëÀÚÀÇ Á¤º¸¸¦ ¹İÈ¯ÇÕ´Ï´Ù.
     @GetMapping("/info")
     public ResponseEntity<UserInfo> getMyInfo(Authentication authentication) {
         String username = authentication.getName();
@@ -43,7 +43,7 @@ public class MyPageController {
         return new ResponseEntity<>(userInfo, HttpStatus.OK);
     }
     
-    // í˜„ì¬ ë¡œê·¸ì¸ëœ ì‚¬ìš©ìê°€ ì‘ì„±í•œ ê²Œì‹œê¸€ ëª©ë¡ ë°˜í™˜
+    // ÇöÀç ·Î±×ÀÎµÈ »ç¿ëÀÚ°¡ ÀÛ¼ºÇÑ °Ô½Ã±Û ¸ñ·Ï ¹İÈ¯
     @GetMapping("/my-boards")
     public ResponseEntity<List<Board>> getMyBoards(Authentication authentication) {
         String username = authentication.getName();
@@ -57,7 +57,7 @@ public class MyPageController {
         return new ResponseEntity<>(boards, HttpStatus.OK);
     }
     
-    // í˜„ì¬ ë¡œê·¸ì¸ëœ ì‚¬ìš©ìê°€ ì‘ì„±í•œ ëŒ“ê¸€ ëª©ë¡ ë°˜í™˜
+    // ÇöÀç ·Î±×ÀÎµÈ »ç¿ëÀÚ°¡ ÀÛ¼ºÇÑ ´ñ±Û ¸ñ·Ï ¹İÈ¯
     @GetMapping("/my-comments")
     public ResponseEntity<List<Comment>> getMyComments(Authentication authentication) {
         String username = authentication.getName();

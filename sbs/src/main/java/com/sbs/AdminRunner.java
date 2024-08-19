@@ -27,7 +27,7 @@ public class AdminRunner implements CommandLineRunner {
             admin.setPassword(passwordEncoder.encode("test"));
             admin.setNickname("Admin");
             admin.setEnabled(true);
-            admin.setRole(Role.ROLE_ADMIN);  // 관리자로 역할 설정
+            admin.setRole(Role.ROLE_ADMIN);  // 관리자 역할 설정
 
             memberRepository.save(admin);
         }
