@@ -20,8 +20,8 @@ import lombok.RequiredArgsConstructor;
 @EnableWebSecurity
 public class SecurityConfig {
 
-	private final OAuth2SuccessHandler successHandler;
-	private final MemberRepository memberRepository;
+    private final OAuth2SuccessHandler successHandler;
+    private final MemberRepository memberRepository;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -34,8 +34,10 @@ public class SecurityConfig {
                 .requestMatchers("/api/boards/public/**").permitAll() // 게시글 조회는 누구나 접근 가능
                 .requestMatchers("/api/boards/{id}").permitAll() // 특정 게시글 조회는 누구나 접근 가능
                 .requestMatchers("/api/boards/**").authenticated() // 게시글 작성, 수정, 삭제는 인증된 사용자만 접근 가능
-                .requestMatchers("/api/images/**").permitAll() // 이미지 API는 누구나 접근 가능하도록 설정
-                .requestMatchers("/api/comments/**").authenticated() // 댓글 작성, 수정, 삭제, 요청은 인증된 사용자만 접근 가능
+                .requestMatchers("/api/images/**").permitAll() // 이미지 API는 누구나 접근 가능
+                .requestMatchers("/api/comments/public/**").permitAll() // 게시글의 댓글 조회는 누구나 접근 가능
+                .requestMatchers("/api/comments/create").authenticated() // 댓글 작성은 인증된 사용자만 접근 가능
+                .requestMatchers("/api/comments/{id}/**").authenticated() // 댓글 수정 및 삭제는 인증된 사용자만 접근 가능
                 .requestMatchers("/api/locations/**").permitAll() // 위치 정보 관련 API는 누구나 접근 가능
                 .requestMatchers("/api/tourtrans/**").permitAll() // 관광 정보 관련 API는 누구나 접근 가능
                 .anyRequest().permitAll()) // 그 외의 경로는 모두 접근 가능하도록 설정
@@ -43,12 +45,12 @@ public class SecurityConfig {
             .oauth2Login(oauth2 -> oauth2.successHandler(successHandler)) // OAuth2 로그인 성공 핸들러 설정
             .addFilterBefore(new JWTAuthorizationFilter(memberRepository), UsernamePasswordAuthenticationFilter.class);  // JWT 필터 추가
 
-		return http.build();
-	}
+        return http.build();
+    }
 
-	@Bean
-	AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-		// 기본 인증 제공자를 사용하여 AuthenticationManager 설정
-		return http.getSharedObject(AuthenticationManagerBuilder.class).build();
-	}
+    @Bean
+    AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        // 기본 인증 제공자를 사용하여 AuthenticationManager 설정
+        return http.getSharedObject(AuthenticationManagerBuilder.class).build();
+    }
 }

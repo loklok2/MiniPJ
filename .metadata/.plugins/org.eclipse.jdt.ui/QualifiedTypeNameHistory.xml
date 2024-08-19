@@ -35,7 +35,6 @@
     <fullyQualifiedTypeName name="jakarta.persistence.CascadeType"/>
     <fullyQualifiedTypeName name="jakarta.persistence.Lob"/>
     <fullyQualifiedTypeName name="com.sbs.board.domain.Image"/>
-    <fullyQualifiedTypeName name="org.springframework.security.access.annotation.Secured"/>
     <fullyQualifiedTypeName name="org.springframework.beans.factory.annotation.Autowired"/>
     <fullyQualifiedTypeName name="com.sbs.board.repository.BoardRepository"/>
     <fullyQualifiedTypeName name="java.util.List"/>
@@ -52,4 +51,5 @@
     <fullyQualifiedTypeName name="org.springframework.http.ResponseEntity"/>
     <fullyQualifiedTypeName name="org.springframework.http.HttpStatusCode"/>
     <fullyQualifiedTypeName name="org.springframework.http.HttpStatus"/>
+    <fullyQualifiedTypeName name="org.springframework.security.access.annotation.Secured"/>
 </qualifiedTypeNameHistroy>

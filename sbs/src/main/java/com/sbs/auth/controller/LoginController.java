@@ -41,7 +41,7 @@ public class LoginController {
             
             // 사용자 정보 가져오기
             Member member = memberService.findByUsername(memberDTO.getUsername());
-
+            
             // 인증 성공 시 JWT 토큰을 생성하여 반환합니다.
             String token = JWTUtil.getJWT(memberDTO.getUsername());
             memberDTO.setToken(token);
