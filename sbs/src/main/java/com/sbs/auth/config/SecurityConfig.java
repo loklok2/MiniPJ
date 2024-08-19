@@ -35,8 +35,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/boards/{id}").permitAll() // 특정 게시글 조회는 누구나 접근 가능
                 .requestMatchers("/api/boards/**").authenticated() // 게시글 작성, 수정, 삭제는 인증된 사용자만 접근 가능
                 .requestMatchers("/api/images/**").permitAll() // 이미지 API는 누구나 접근 가능하게 설정
-                .requestMatchers("/api/comments/public/**").permitAll()
-                .requestMatchers("/api/comments/**").authenticated() // 댓글 작성, 수정, 삭제, 좋아요는 인증된 사용자만 접근 가능
+                .requestMatchers("/api/comments/public/**").permitAll() // 게시글의 댓글 조회는 누구나 접근 가능
+                .requestMatchers("/api/comments/create").authenticated() // 댓글 작성은 인증된 사용자만 접근 가능
+                .requestMatchers("/api/comments/{id}/**").authenticated() // 댓글 수정 및 삭제는 인증된 사용자만 접근 가능
                 .requestMatchers("/api/locations/**").permitAll() // 위치 정보 관련 API는 누구나 접근 가능
                 .requestMatchers("/api/tourtrans/**").permitAll() // 관광지 정보 관련 API는 누구나 접근 가능
                 .anyRequest().permitAll()) // 그 외의 경로는 모두 접근 가능하게 설정

@@ -2,15 +2,20 @@ import CommentForm from './CommentForm';
 import CommentList from './CommentList';
 import { useAuth } from '../hooks/useAuth'
 
-export default function CommentSection({ boardId, commentsUpdated, onCommentSubmit }) {
+export default function CommentSection({ boardId, comments, onCommentSubmit, handleUpdate, handleDelete, handleLikeComment }) {
     const { auth } = useAuth()
 
-    console.log('CommentSection 렌더링됨. commentsUpdated:', commentsUpdated)
+
 
     return (
         <div className="mt-6">
             <h2 className="text-2xl mb-4">댓글</h2>
-            <CommentList boardId={boardId} />
+            <CommentList 
+                    comments={comments} 
+                    handleUpdate={handleUpdate} 
+                    handleDelete={handleDelete} 
+                    handleLikeComment={handleLikeComment} // LikeButton에 좋아요 핸들러 전달
+            />
 
             {auth.isLoggedIn ? (
                 <CommentForm boardId={boardId} onCommentSubmit={onCommentSubmit} />

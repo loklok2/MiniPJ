@@ -4,8 +4,6 @@ import { useNavigate } from 'react-router-dom';
 
 export default function CommentForm({ boardId, onCommentSubmit }) {
     const [content, setContent] = useState('');
-    const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(null);
     const [token] = useAuthToken();
     const navigate = useNavigate()
 
@@ -20,11 +18,9 @@ export default function CommentForm({ boardId, onCommentSubmit }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(null);
-        setSuccess(null);
 
         if (!content.trim()) {
-            setError("댓글 내용을 입력하세요.");
+            alert("댓글 내용을 입력하세요.");
             return;
         }
 
@@ -44,20 +40,26 @@ export default function CommentForm({ boardId, onCommentSubmit }) {
 
             const newComment = await response.json();
             setContent('');
-            setSuccess('댓글이 작성되었습니다.');
             console.log('댓글이 성공적으로 작성되었습니다:', newComment)
             onCommentSubmit(newComment); // 새 댓글을 상위 컴포넌트로 전달하여 추가
         } catch (error) {
-            setError(error.message);
             console.error('댓글 작성 중 오류 발생:', error)
         }
     };
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault()
+            handleSubmit(e) // Enter 키를 누를 때 댓글 작성
+        }
+    }
 
     return (
         <form onSubmit={handleSubmit} className="mb-4">
             <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
+                onKeyDown={handleKeyDown}   // Enter 키 이벤트 처리기 추가
                 placeholder="댓글을 입력하세요"
                 required
                 className="w-full mt-1 block border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
@@ -68,8 +70,6 @@ export default function CommentForm({ boardId, onCommentSubmit }) {
             >
                 댓글 작성
             </button>
-            {error && <p className="text-red-500 mt-2">{error}</p>}
-            {success && <p className="text-green-500 mt-2">{success}</p>}
         </form>
     );
 }

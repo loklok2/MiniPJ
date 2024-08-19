@@ -1,6 +1,7 @@
 package com.sbs.board.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -77,11 +78,15 @@ public class CommentController {
 
     // 댓글 수정
     @PutMapping("/{id}")
-    public ResponseEntity<CommentDTO> updateComment(@PathVariable Long id, @RequestBody String newContent, Authentication authentication) {
+    public ResponseEntity<CommentDTO> updateComment(@PathVariable Long id, @RequestBody Map<String, String> requestBody, Authentication authentication) {
         String username = authentication.getName();
+        String newContent = requestBody.get("content");
+        
         Comment updatedComment = commentService.updateComment(id, newContent, username);
 
         if (updatedComment != null) {
+            System.out.println("Updated Comment isEdited: " + updatedComment.isEdited()); // 로그 추가
+            System.out.println("Updated Comment editedDate: " + updatedComment.getEditedDate()); // 로그 추가
             return new ResponseEntity<>(CommentDTO.fromEntity(updatedComment), HttpStatus.OK);
         }
 

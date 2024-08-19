@@ -1,12 +1,34 @@
-import { useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 export default function LoginForm({ onLogin }) {
     const emailRef = useRef();
     const passwordRef = useRef();
+    const [oauth2Url, setOauth2Url] = useState({})
     const [error, setError] = useState();
     const { login } = useAuth();    // useAuth 훅을 사용하여 login 함수를 가져옴
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        // 서버로부터 OAuth2 공급자 URL을 가져옴
+        const fetchOAuth2Urls = async () => {
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/oauth2-urls')
+
+                if (response.ok) {
+                    const data = await response.json()
+                    setOauth2Url(data)
+                } else {
+                    setError("OAuth2 공급자 URL을 가져오는 중 오류가 발생했습니다.")
+                }
+            } catch (error) {
+                setError("네트워크 오류가 발생했습니다. 인터넷 연결을 확인하세요.")
+            }
+        }
+
+        fetchOAuth2Urls()
+    }, [])
 
     const handleSignIn = async (e) => {
         e.preventDefault();
@@ -60,11 +82,20 @@ export default function LoginForm({ onLogin }) {
                     token: data.token,
                 });   // login 함수를 호출하여 상태를 업데이트하고 localStorage에 저장
                 onLogin(data)   // 상위 컴포넌트에 로그인 정보 전달
+                navigate('/');   // 로그인 후 홈으로 리디렉션
             } else {
                 setError('로그인 실패. 이메일과 비밀번호를 확인하세요.');
             }
         } catch (err) {
             setError('네트워크 오류가 발생했습니다. 인터넷 연결을 확인하거나 나중에 다시 시도하세요.');
+        }
+    }
+
+    const handleOAuth2Login = (provider) => {
+        if (oauth2Url[provider]) {
+            window.location.href = oauth2Url[provider]  // 해당 OAuth2 공급자 URL로 리디렉션
+        } else {
+            setError(`${provider} 로그인 URL을 불러오지 못 했습니다.`)
         }
     }
 
@@ -106,7 +137,6 @@ export default function LoginForm({ onLogin }) {
                 </form>
 
                 <div className="mt-6 space-y-4">
-
                     <Link to="/signup">
                         <button
                             className="w-full py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
@@ -131,10 +161,7 @@ export default function LoginForm({ onLogin }) {
                             </button>
                         </Link>
                     </div>
-
                 </div>
-
-
 
                 <div className="flex items-center my-4">
                     <hr className="flex-grow border-gray-300" />
@@ -143,25 +170,25 @@ export default function LoginForm({ onLogin }) {
                 </div>
 
                 <button
-                    className="w-full py-2 px-4 mb-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
-                    onClick={() => alert('Google OAuth2 로그인')}
+                    className="w-full py-2 px-4 mb-2 bg-red-500 text-white 
+                               rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
+                    onClick={() => handleOAuth2Login('google')}
                 >
-                    <i className="fab fa-google mx-2"></i>
-                    Google 로그인
+                    <i className="fab fa-google mx-2"></i>Google 로그인
                 </button>
                 <button
-                    className="w-full py-2 px-4 mb-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-                    onClick={() => alert('Naver OAuth2 로그인')}
+                    className="w-full py-2 px-4 mb-2 bg-green-500 text-white 
+                               rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+                    onClick={() => handleOAuth2Login('naver')}
                 >
-                    <i className="fab fa-nav mx-2"></i>
-                    Naver 로그인
+                    <i className="fab fa-nav mx-2"></i>Naver 로그인
                 </button>
                 <button
-                    className="w-full py-2 px-4 mb-4 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50"
-                    onClick={() => alert('Kakao OAuth2 로그인')}
+                    className="w-full py-2 px-4 mb-4 bg-yellow-500 text-white 
+                               rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50"
+                    onClick={() => handleOAuth2Login('kakao')}
                 >
-                    <i className="fab fa-kakao mx-2"></i>
-                    Kakao 로그인
+                    <i className="fab fa-kakao mx-2"></i>Kakao 로그인
                 </button>
             </div>
         </div>

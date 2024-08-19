@@ -90,7 +90,7 @@ export default function SignUpForm({ onSignUp }) {
               id="nickname"
               type="text"
               ref={nicknameRef}
-              placeholder="nickname"
+              placeholder="닉네임을 입력하세요"
               required
               className="w-full mt-1 block border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
             />
