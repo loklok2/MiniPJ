@@ -20,8 +20,8 @@ import lombok.RequiredArgsConstructor;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final OAuth2SuccessHandler successHandler;
-    private final MemberRepository memberRepository;
+	private final OAuth2SuccessHandler successHandler;
+	private final MemberRepository memberRepository;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -32,7 +32,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/login").permitAll() // 로그인 API는 누구나 접근 가능
                 .requestMatchers("/api/mypage/**").authenticated() // 마이페이지 관련 API는 인증된 사용자만 접근 가능
                 .requestMatchers("/api/boards/public/**").permitAll() // 게시글 조회는 누구나 접근 가능
+                .requestMatchers("/api/boards/{id}").permitAll() // 특정 게시글 조회는 누구나 접근 가능
                 .requestMatchers("/api/boards/**").authenticated() // 게시글 작성, 수정, 삭제는 인증된 사용자만 접근 가능
+                .requestMatchers("/api/images/**").permitAll() // 이미지 API는 누구나 접근 가능하게 설정
                 .requestMatchers("/api/comments/**").authenticated() // 댓글 작성, 수정, 삭제, 좋아요는 인증된 사용자만 접근 가능
                 .requestMatchers("/api/locations/**").permitAll() // 위치 정보 관련 API는 누구나 접근 가능
                 .requestMatchers("/api/tourtrans/**").permitAll() // 관광지 정보 관련 API는 누구나 접근 가능
@@ -41,13 +43,12 @@ public class SecurityConfig {
             .oauth2Login(oauth2 -> oauth2.successHandler(successHandler)) // OAuth2 로그인 성공 핸들러 설정
             .addFilterBefore(new JWTAuthorizationFilter(memberRepository), UsernamePasswordAuthenticationFilter.class);  // JWT 필터 추가
 
-        return http.build();
-    }
+		return http.build();
+	}
 
-    @Bean
-    AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        // 기본 인증 제공자를 사용하여 AuthenticationManager 설정
-        return http.getSharedObject(AuthenticationManagerBuilder.class)
-                .build();
-    }
+	@Bean
+	AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+		// 기본 인증 제공자를 사용하여 AuthenticationManager 설정
+		return http.getSharedObject(AuthenticationManagerBuilder.class).build();
+	}
 }

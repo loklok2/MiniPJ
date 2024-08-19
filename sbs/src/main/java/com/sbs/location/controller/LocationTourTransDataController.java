@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sbs.location.domain.LocationInfoDataDTO;
 import com.sbs.location.domain.LocationTourTransDTO;
 import com.sbs.location.service.LocationTourTransDataService;
 

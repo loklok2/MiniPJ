@@ -1,12 +1,10 @@
 package com.sbs.location.domain;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import jakarta.persistence.Column;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Id;
 import lombok.Data;
 
 @Entity
@@ -56,5 +54,7 @@ public class LocationInfoData {
     @Column(name = "CORE_KWRD_CN")
     private String coreKwrdCn;  // `CORE_KWRD_CN`: 핵심 키워드 내용
 
-
+    @Column(name = "IMAGE_URL", length = 512)
+    private String imageUrl;  // `IMAGE_URL`: 이미지 URL
+    
 }

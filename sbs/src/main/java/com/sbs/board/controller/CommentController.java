@@ -1,10 +1,13 @@
 package com.sbs.board.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -36,6 +39,29 @@ public class CommentController {
 
     @Autowired
     private MemberRepository memberRepository;
+    
+    
+    //게시글에 대한 모든 댓글 조회
+    @GetMapping
+    public ResponseEntity<List<Comment>> getCommentByBoard(@PathVariable Long baordId) {
+    	List<Comment> comments = commentService.getCommnetByBoard(baordId);
+    	if(comments != null & !comments.isEmpty()) {
+    		return new ResponseEntity<>(comments, HttpStatus.OK);    
+    	}
+    	return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+    
+    //특정 댓글 상세조회
+    @GetMapping
+    public ResponseEntity<Comment> getCommentById(@PathVariable Long id){
+    	Comment comment = commentService.getCommentById(id);
+    	if(comment != null) {
+    		return new ResponseEntity<>(comment, HttpStatus.OK);
+    	}
+    	return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+    
+    
 
     // 댓글 작성
     @PostMapping("/create")

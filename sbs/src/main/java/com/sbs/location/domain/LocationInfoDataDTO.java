@@ -18,4 +18,5 @@ public class LocationInfoDataDTO {
     private String trrsrtStrySumryCn;
     private String trrsrtStryUrl;
     private String coreKwrdCn;
+    private String imageUrl;
 }

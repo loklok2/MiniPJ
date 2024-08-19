@@ -1,7 +1,5 @@
 package com.sbs.location.repository;
 
-import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.sbs.location.domain.LocationInfoData;

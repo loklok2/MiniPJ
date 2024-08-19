@@ -32,11 +32,9 @@ public class AuthController {
     public ResponseEntity<String> veifyEmail(@RequestParam("token") String token){
         boolean isVerified = memberService.verifyEmail(token);
 
-        if(isVerified) {
-            return new ResponseEntity<>("Email verified successfully", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Invalid or expired verification token", HttpStatus.BAD_REQUEST);
-        }
+        return isVerified ?
+                new ResponseEntity<>("Email verified successfully", HttpStatus.OK) :
+                new ResponseEntity<>("Invalid or expired verification token", HttpStatus.BAD_REQUEST);
     }
     
     @PostMapping("/find-usernickname")

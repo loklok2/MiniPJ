@@ -1,6 +1,7 @@
 package com.sbs.board.domain;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,5 +22,7 @@ public class BoardDTO {
     private LocalDateTime updateDate;
     private int viewCount;
     private int likeCount;
+    
+    private List<ImageDTO> images; // 이미지 데이터를 저장할 리스트
     
 }

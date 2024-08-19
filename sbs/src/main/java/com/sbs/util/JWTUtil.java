@@ -33,12 +33,20 @@ public class JWTUtil {
     // 주어진 토큰에서 사용자 이름 클레임을 추출하는 메서드
     public static String getClaim(String token) {
         String tok = getJWTSource(token);
-        return JWT.require(Algorithm.HMAC256(JWT_KEY)).build().verify(tok).getClaim(CLAIM_NAME).asString();
+        return JWT.require(Algorithm.HMAC256(JWT_KEY))
+                .build()
+                .verify(tok)
+                .getClaim(CLAIM_NAME)
+                .asString();
     }
 
     // 주어진 토큰이 만료되었는지 확인하는 메서드
     public static boolean isExpired(String token) {
         String tok = getJWTSource(token);
-        return JWT.require(Algorithm.HMAC256(JWT_KEY)).build().verify(tok).getExpiresAt().before(new Date());
+        return JWT.require(Algorithm.HMAC256(JWT_KEY))
+                .build()
+                .verify(tok)
+                .getExpiresAt()
+                .before(new Date());
     }
 }
