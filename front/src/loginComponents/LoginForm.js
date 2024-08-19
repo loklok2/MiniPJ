@@ -73,6 +73,7 @@ export default function LoginForm({ onLogin }) {
             <div className="w-full max-w-lg p-8 bg-white rounded-lg shadow-lg">
                 <h1 className="text-2xl font-bold text-center mb-6">로그인</h1>
                 {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4 border border-red-300">{error}</div>}
+
                 <form onSubmit={handleSignIn}>
                     <div className="mb-4">
                         <label htmlFor="email" className="block text-sm font-medium text-gray-700">이메일</label>
@@ -103,22 +104,37 @@ export default function LoginForm({ onLogin }) {
                         로그인
                     </button>
                 </form>
-                <div className='flex justify-start mt-4 space-x-2'>
+
+                <div className="mt-6 space-y-4">
+
                     <Link to="/signup">
                         <button
-                            className="w-full py-2 px-4 mt-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                            className="w-full py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
                         >
                             회원가입
                         </button>
                     </Link>
-                    <Link to="/passwordfind">
-                        <button
-                            className="w-full py-2 px-4 mt-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-                        >
-                            비밀번호찾기
-                        </button>
-                    </Link>
+
+                    <div className="flex justify-between space-x-4">
+                        <Link to="/emailfind" className="w-full">
+                            <button
+                                className="w-full py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                            >
+                                아이디 찾기
+                            </button>
+                        </Link>
+                        <Link to="/passwordfind" className="w-full">
+                            <button
+                                className="w-full py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                            >
+                                비밀번호 찾기
+                            </button>
+                        </Link>
+                    </div>
+
                 </div>
+
+
 
                 <div className="flex items-center my-4">
                     <hr className="flex-grow border-gray-300" />

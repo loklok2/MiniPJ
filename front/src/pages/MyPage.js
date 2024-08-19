@@ -8,7 +8,9 @@ export default function MyPage() {
     const [error, setError] = useState(null)    // 에러 상태 추가
 
     useEffect(() => {
+        console.log('useEffect가 트리거되었습니다.');
         console.log('JWT Token:', auth.token);  // useRecoilValue(authState)를 통해 가져온 auth.token이 실제로 값이 있는지 확인
+        console.log('사용자 로그인됨:', auth.isLoggedIn);
 
         const fetchUserInfo = async () => {
             try {
@@ -48,7 +50,7 @@ export default function MyPage() {
             setLoading(false)
         }
 
-    }, [auth.token, auth.isLoggedIn, logout]);
+    }, [auth.isLoggedIn]);
 
     if (loading) {
         return <div>로딩 중...</div>

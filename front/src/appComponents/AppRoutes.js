@@ -7,6 +7,7 @@ import Map from '../mapComponents/Map';
 import Login from '../loginComponents/Login';
 import MyPage from '../pages/MyPage';
 import SignUp from '../loginComponents/SignUp';
+import EmailFind from '../loginComponents/EmailFind';
 import PasswordFind from '../loginComponents/PasswordFind';
 import PasswordReset from '../loginComponents/PasswordReset';
 import BoardList from '../pages/BoardList';
@@ -27,6 +28,7 @@ export default function AppRoutes() {
             <Route path="/login" element={auth.isLoggedIn ? <Navigate to="/mypage" /> : <Login />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/mypage" element={auth.isLoggedIn ? <MyPage /> : <Navigate to="/login" />} />
+            <Route path="/emailfind" element={<EmailFind />} />
             <Route path="/passwordfind" element={<PasswordFind />} />
             <Route path="/reset-password" element={<PasswordReset />} />
             <Route path="*" element={<BoardList />} />
