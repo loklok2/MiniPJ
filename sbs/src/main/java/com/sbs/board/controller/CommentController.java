@@ -42,7 +42,7 @@ public class CommentController {
     
     
     //게시글에 대한 모든 댓글 조회
-    @GetMapping
+    @GetMapping("/board/{boardId}")
     public ResponseEntity<List<Comment>> getCommentByBoard(@PathVariable Long baordId) {
     	List<Comment> comments = commentService.getCommnetByBoard(baordId);
     	if(comments != null & !comments.isEmpty()) {
@@ -52,7 +52,7 @@ public class CommentController {
     }
     
     //특정 댓글 상세조회
-    @GetMapping
+    @GetMapping("{id}")
     public ResponseEntity<Comment> getCommentById(@PathVariable Long id){
     	Comment comment = commentService.getCommentById(id);
     	if(comment != null) {
