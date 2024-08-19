@@ -17,18 +17,27 @@ export default function BoardList() {
     useEffect(() => {
         const fetchBoards = async () => {
             setLoading(true);
+            console.log('게시판 목록 요청 시작');
+
             try {
                 const response = await fetch('http://localhost:8080/api/boards/public');
+                console.log('응답 상태 코드:', response.status);
+
                 if (!response.ok) {
                     throw new Error('게시판 목록을 가져오는 중 오류가 발생했습니다.');
                 }
+
                 const data = await response.json();
+                console.log('응답 데이터:', data);
+
                 setBoards(data);
                 setFilteredBoards(data);
             } catch (error) {
+                console.error('요청 오류:', error);
                 setError(error.message);
             } finally {
                 setLoading(false);
+                console.log('게시판 목록 요청 종료');
             }
         };
 

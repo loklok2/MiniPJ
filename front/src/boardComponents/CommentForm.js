@@ -1,13 +1,22 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuthToken } from '../hooks/useAuthToken';
+import { useNavigate } from 'react-router-dom';
 
 export default function CommentForm({ boardId, onCommentSubmit }) {
     const [content, setContent] = useState('');
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
     const [token] = useAuthToken();
+    const navigate = useNavigate()
 
     console.log('JWT Token:', token);
+
+    useEffect(() => {
+        if (!token) {
+            console.log('로그인되지 않은 사용자, 로그인 페이지로 리디렉션합니다.')
+            navigate('/login')  // 로그인 페이지로 리디렉션
+        }
+    }, [token, navigate])
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -30,15 +39,17 @@ export default function CommentForm({ boardId, onCommentSubmit }) {
             });
 
             if (!response.ok) {
-                throw new Error('댓글 작성에 실패했습니다.');
+                throw new Error('댓글 작성에 실패했습니다. 로그인 상태를 확인해 주세요');
             }
 
             const newComment = await response.json();
             setContent('');
             setSuccess('댓글이 작성되었습니다.');
-            onCommentSubmit(newComment); // 댓글 작성 후 목록을 새로 고침
+            console.log('댓글이 성공적으로 작성되었습니다:', newComment)
+            onCommentSubmit(newComment); // 새 댓글을 상위 컴포넌트로 전달하여 추가
         } catch (error) {
             setError(error.message);
+            console.error('댓글 작성 중 오류 발생:', error)
         }
     };
 

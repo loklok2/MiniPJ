@@ -1,4 +1,4 @@
-import React from 'react'
+import { useEffect } from 'react';
 
 // TouristSpotCard 컴포넌트는 개별 관광지 정보를 카드 형태로 보여줌
 // spot: 관광지 정보 객체로, 이름, 이미지 URL, 스토리 요약 등을 포함
@@ -14,6 +14,21 @@ export default function TouristSpotCard({ spot, isExpanded, onToggleExpand, onVi
 
     // 서버에서 제공하는 이미지 URL 생성
     const imageSrc = `http://localhost:8080/api/locations/image/${spot.dataNo}`;
+
+    useEffect(() => {
+        console.log('TouristSpotCard 렌더링:', spot);
+        console.log('이미지 URL:', imageSrc);
+    }, [spot, imageSrc]);
+
+    const handleToggleExpand = () => {
+        console.log('스토리 확장/축소 전환:', spot.areaClturTrrsrtNm, 'isExpanded:', !isExpanded);
+        onToggleExpand();
+    };
+
+    const handleViewMap = () => {
+        console.log('지도에서 보기 클릭:', spot.areaClturTrrsrtNm);
+        onViewMap();
+    };
 
     return (
         <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col justify-between">

@@ -32,7 +32,7 @@ public class CommentController {
     private MemberRepository memberRepository;
     
     // 게시글에 대한 모든 댓글 조회
-    @GetMapping("/board/{boardId}")
+    @GetMapping("/public/{boardId}")
     public ResponseEntity<List<CommentDTO>> getCommentByBoard(@PathVariable Long boardId) {
         List<Comment> comments = commentService.getCommnetByBoard(boardId);
         if (comments != null && !comments.isEmpty()) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import LikeButton from '../components/LikeButton';
 import CommentSection from './CommentSection'
@@ -6,13 +6,14 @@ import { formatDate } from '../utils/dateUtils';
 import { useAuth } from '../hooks/useAuth';
 
 export default function BoardDetail() {
-    const { id } = useParams();
-    const location = useLocation();
-    const navigate = useNavigate();
-    const { auth } = useAuth();
     const [board, setBoard] = useState(location.state?.board || null);
+    const [comments, setComments] = useState([])    // 댓글 리스트 상태 추가
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
+    const { id } = useParams();
+    const { auth } = useAuth();
+    const location = useLocation();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchBoard = async () => {
@@ -37,6 +38,29 @@ export default function BoardDetail() {
         fetchBoard();
     }, [id]);
 
+    // 댓글 리스트 데이터 로드
+    useEffect(() => {
+        const fetchComments = async () => {
+            try {
+                const response = await fetch(`http://localhost:8080/api/comments/public/${id}`, {
+                    method: 'GET',
+                })
+
+                if (!response.ok) {
+                    console.log('댓글 리스트 응답:', response)
+                    throw new Error('댓글을 불러오는 중 오류가 발생했습니다.')
+                }
+
+                const data = await response.json()
+                setComments(data)
+            } catch (error) {
+                setError(error.message)
+            }
+        }
+
+        fetchComments()
+    }, [id])
+
     useEffect(() => {
         if (board && auth.user) {
             console.log("Logged-in user ID:", auth.user.id); // 이 값이 제대로 출력되는지 확인합니다.
@@ -44,15 +68,12 @@ export default function BoardDetail() {
         }
     }, [board, auth.user]);
     
-
-    if (loading) {
-        return <p>Loading...</p>;
+    // 댓글이 추가되었을 때 호출되는 함수
+    const handleCommentAdded = (newComment) => {
+        setComments(prevComments => [...prevComments, newComment])  // 새 댓글을 리스트에 추가
     }
 
-    if (error) {
-        return <p>{error}</p>;
-    }
-
+    // 게시판 삭제 핸들러
     const handleDelete = async () => {
         if (window.confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
             try {
@@ -74,7 +95,37 @@ export default function BoardDetail() {
                 alert('게시글 삭제 중 오류가 발생했습니다.');
             }
         }
-    };
+    }
+
+    // 댓글 삭제 핸들러
+    const handleDeleteComment = async (commentId) => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/comments/${commentId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${auth.token}`,
+                },
+            })
+
+            if (response.ok) {
+                setComments(prevComments => prevComments.filter(comment => comment.id !== commentId))
+                console.log('댓글이 삭제되었습니다:', commentId)
+            } else {
+                throw new Error('댓글 삭제에 실패했습니다.')
+            }
+        } catch (error) {
+            console.error('댓글 삭제 중 오류 발생', error)
+        }
+    }
+
+    if (loading) {
+        return <p>Loading...</p>;
+    }
+
+    if (error) {
+        return <p>{error}</p>;
+    }
+
 
     const handleLikeUpdate = (updatedBoard) => {
         setBoard(updatedBoard);
@@ -98,7 +149,7 @@ export default function BoardDetail() {
                         />
                     ))
                 ) : (
-                    <p>No images available</p>
+                    <p>사용 가능한 이미지가 없습니다.</p>
                 )}
             </div>
 
@@ -138,7 +189,9 @@ export default function BoardDetail() {
             </div>
 
             {/* 댓글 섹션 */}
-            <CommentSection boardId={board.id} />
+            <CommentSection boardId={board.id} 
+                            comments={comments} 
+                            onCommentSubmit={handleCommentAdded} />
 
             <div className="flex justify-center mt-6">
                 <Link to="/boards" className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-300">

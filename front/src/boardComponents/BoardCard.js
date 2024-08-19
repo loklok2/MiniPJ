@@ -13,7 +13,12 @@ export default function BoardCard({ board, onLike }) {
 
     useEffect(() => {
         if (board.images && board.images.length > 0) {
-            console.log("이미지 URL 요청 중:", board.images[0].url);  // 로그 출력
+            console.log("이미지 목록 확인:", board.images);  // 전체 이미지 배열 확인
+            board.images.forEach((image, index) => {
+                console.log(`이미지 ${index + 1}:`, image.url);  // 각 이미지 URL 확인
+            });
+        } else {
+            console.log("이미지가 없습니다:", board.id);  // 이미지가 없는 경우 확인
         }
     }, [board.images]);
 
@@ -33,6 +38,7 @@ export default function BoardCard({ board, onLike }) {
                             alt={image.filename}
                             className="w-24 h-24 object-cover rounded-md"
                             style={{ flex: '1 1 0px' }}  // 이미지가 일정한 크기를 유지하게 함
+                            onError={() => console.error(`이미지 로드 오류: ${image.url}`)}  // 이미지 로드 오류 확인
                         />
                     ))
                 ) : (
@@ -70,4 +76,5 @@ export default function BoardCard({ board, onLike }) {
             </div>
         </div>
     );
+    
 }

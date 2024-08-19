@@ -48,7 +48,7 @@ export default function TouristSpots() {
         }
 
         fetchTouristSpots() // 데이터 가져오기 함수 호출
-    }, [selectedPhoto, searchQuery]) // selectedPhoto 또는 searchQuery가 변경될 때마다 실행
+    }, []) // selectedPhoto 또는 searchQuery가 변경될 때마다 실행
 
     // 페이지 변경 시 로컬 스토리지에 현재 페이지 번호 저장
     useEffect(() => {
