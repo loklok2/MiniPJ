@@ -1,10 +1,6 @@
 package com.sbs.location.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
@@ -27,8 +23,8 @@ public class LocationInfoData {
     @Column(name = "EMD_NM")
     private String emdNm;  // `EMD_NM`: 읍/면/동 이름
     
-    @Column(name = "area_cltur_trrsrt_nm")
-    private String areaClturTrrsrtNm;  // `area_cltur_trrsrt_nm`: 문화 관광지 이름
+    @Column(name = "AREA_CLTUR_TRRSRT_NM")
+    private String areaClturTrrsrtNm;  // `AREA_CLTUR_TRRSRT_NM`: 문화 관광지 이름
     
     @Column(name = "ADDR")
     private String addr;  // `ADDR`: 주소
@@ -45,7 +41,7 @@ public class LocationInfoData {
     @Column(name = "TRRSRT_STRY_NM")
     private String trrsrtStryNm;  // `TRRSRT_STRY_NM`: 관광지 스토리 이름
     
-    @Column(name = "trrsrt_stry_sumry_cn", columnDefinition = "TEXT")
+    @Column(name = "TRRSRT_STRY_SUMRY_CN", columnDefinition = "TEXT")
     private String trrsrtStrySumryCn; // `TRRSRT_STRY_SUMRY_CN`: 관광지 스토리 요약 내용
     
     @Column(name = "TRRSRT_STRY_URL")
@@ -57,4 +53,7 @@ public class LocationInfoData {
     @Column(name = "IMAGE_URL", length = 512)
     private String imageUrl;  // `IMAGE_URL`: 이미지 URL
     
+    @Lob
+    @Column(name = "IMAGE_DATA")
+    private byte[] imageData;  // `IMAGE_DATA`: 이미지 데이터 (BLOB 형식)
 }

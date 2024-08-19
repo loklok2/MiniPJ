@@ -35,6 +35,7 @@ public class LocationInfoDataService {
                 dto.setTrrsrtStryUrl(location.getTrrsrtStryUrl());
                 dto.setCoreKwrdCn(location.getCoreKwrdCn());
                 dto.setImageUrl(location.getImageUrl());
+                dto.setImageData(location.getImageData()); // 이미지 데이터 추가
                 return dto;
             }).collect(Collectors.toList());
     }
