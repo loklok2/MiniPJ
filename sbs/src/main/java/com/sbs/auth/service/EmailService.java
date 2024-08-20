@@ -1,37 +1,5 @@
 package com.sbs.auth.service;
 
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.mail.SimpleMailMessage;
-//import org.springframework.mail.javamail.JavaMailSender;
-//import org.springframework.stereotype.Service;
-//
-//@Service
-//public class EmailService {
-//
-//    @Autowired
-//    private JavaMailSender javamailSender;
-//
-//    public void sendVerificationEmail(String toEmail, String verificationLink) {
-//        SimpleMailMessage message = new SimpleMailMessage();
-//        message.setTo(toEmail);
-//        message.setSubject("Please verify your email");
-//        message.setText("Click the link to verify your email: " + verificationLink);
-//        message.setFrom("your-email@gmail.com");
-//
-//        javamailSender.send(message);
-//    }
-//
-//    public void sendPasswordResetMail(String toEmail, String resetLink) {
-//        SimpleMailMessage message = new SimpleMailMessage();
-//        message.setTo(toEmail);
-//        message.setSubject("비밀번호 재설정 안내");
-//        message.setText("비밀번호를 재설정하려면 다음 링크를 클릭하세요: " + resetLink);
-//        message.setFrom("your-email@gmail.com");
-//
-//        javamailSender.send(message);        
-//    }
-//}
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -46,26 +14,29 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
+    // 이메일 인증 메일 전송
     public void sendVerificationEmail(String toEmail, String verificationLink) {
-        String subject = "Please verify your email";
-        String content = "<p>Click the link to verify your email:</p>"
-                       + "<a href=\"" + verificationLink + "\">Verify</a>";
+        String subject = "이메일 인증을 진행해 주세요";
+        String content = "<p>아래 링크를 클릭하여 이메일 인증을 완료하세요:</p>"
+                       + "<a href=\"" + verificationLink + "\">이메일 인증</a>";
         sendEmail(toEmail, subject, content);
     }
 
+    // 비밀번호 재설정 메일 전송
     public void sendPasswordResetMail(String toEmail, String resetLink) {
         String subject = "비밀번호 재설정 안내";
-        String content = "<p>비밀번호를 재설정하려면 다음 링크를 클릭하세요:</p>"
+        String content = "<p>비밀번호를 재설정하려면 아래 링크를 클릭하세요:</p>"
                        + "<a href=\"" + resetLink + "\">비밀번호 재설정</a>";
         sendEmail(toEmail, subject, content);
     }
 
+    // 이메일 전송 메소드
     private void sendEmail(String toEmail, String subject, String content) {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper;
         try {
             helper = new MimeMessageHelper(mimeMessage, "utf-8");
-            helper.setText(content, true); // true indicates the text is HTML
+            helper.setText(content, true); // true는 HTML 형식의 텍스트임을 나타냄
             helper.setTo(toEmail);
             helper.setSubject(subject);
             helper.setFrom("your-email@gmail.com");
@@ -75,4 +46,3 @@ public class EmailService {
         }
     }
 }
-

@@ -35,39 +35,43 @@ public class MyPageController {
     @Autowired
     private CommentRepository commentRepository;
     
-    // ���� �α��ε� ������� ������ ��ȯ�մϴ�.
+    // 로그인된 사용자의 정보 반환
     @GetMapping("/info")
     public ResponseEntity<UserInfo> getMyInfo(Authentication authentication) {
-        String username = authentication.getName();
-        UserInfo userInfo = memberService.getUserInfo(username);
-        return new ResponseEntity<>(userInfo, HttpStatus.OK);
+        String username = authentication.getName();  // 인증 객체에서 사용자 이름 가져오기
+        UserInfo userInfo = memberService.getUserInfo(username);  // 사용자 이름으로 UserInfo 객체 생성
+        return new ResponseEntity<>(userInfo, HttpStatus.OK);  // 사용자 정보와 함께 OK 응답 반환
     }
     
-    // ���� �α��ε� ����ڰ� �ۼ��� �Խñ� ��� ��ȯ
+    // 로그인된 사용자가 작성한 게시글 반환
     @GetMapping("/my-boards")
     public ResponseEntity<List<Board>> getMyBoards(Authentication authentication) {
-        String username = authentication.getName();
-        Member member = memberRepository.findByUsername(username).orElse(null);
+        String username = authentication.getName();  // 인증 객체에서 사용자 이름 가져오기
+        Member member = memberRepository.findByUsername(username).orElse(null);  // 사용자 이름으로 Member 객체 조회
 
+        // 사용자 정보가 없으면 UNAUTHORIZED 응답 반환
         if (member == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
+        // 사용자가 작성한 게시글 목록 조회
         List<Board> boards = boardRepository.findByAuthor(member);
-        return new ResponseEntity<>(boards, HttpStatus.OK);
+        return new ResponseEntity<>(boards, HttpStatus.OK);  // 게시글 목록과 함께 OK 응답 반환
     }
     
-    // ���� �α��ε� ����ڰ� �ۼ��� ��� ��� ��ȯ
+    // 로그인된 사용자가 작성한 댓글 반환
     @GetMapping("/my-comments")
     public ResponseEntity<List<Comment>> getMyComments(Authentication authentication) {
-        String username = authentication.getName();
-        Member member = memberRepository.findByUsername(username).orElse(null);
+        String username = authentication.getName();  // 인증 객체에서 사용자 이름 가져오기
+        Member member = memberRepository.findByUsername(username).orElse(null);  // 사용자 이름으로 Member 객체 조회
 
+        // 사용자 정보가 없으면 UNAUTHORIZED 응답 반환
         if (member == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
+        // 사용자가 작성한 댓글 목록 조회
         List<Comment> comments = commentRepository.findByAuthor(member);
-        return new ResponseEntity<>(comments, HttpStatus.OK);
+        return new ResponseEntity<>(comments, HttpStatus.OK);  // 댓글 목록과 함께 OK 응답 반환
     }
 }

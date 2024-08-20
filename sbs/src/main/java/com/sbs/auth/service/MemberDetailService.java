@@ -21,10 +21,10 @@ public class MemberDetailService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         // 사용자의 인증 정보를 로드합니다.
         Member member = memberRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Not Found"));
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다"));
 
         if (!member.isEnabled()) {
-            throw new DisabledException("Email is not verified");
+            throw new DisabledException("이메일 인증이 완료되지 않았습다.");
         }
 
         return new User(
