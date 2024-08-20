@@ -6,7 +6,7 @@ export default function LoginForm({ onLogin }) {
     const emailRef = useRef();
     const passwordRef = useRef();
     const [oauth2Url, setOauth2Url] = useState({})
-    const [error, setError] = useState();
+    const [error, setError] = useState(null);
     const { login } = useAuth();    // useAuth 훅을 사용하여 login 함수를 가져옴
     const navigate = useNavigate()
 
@@ -18,7 +18,8 @@ export default function LoginForm({ onLogin }) {
 
                 if (response.ok) {
                     const data = await response.json()
-                    setOauth2Url(data)
+                    console.log("Fetched OAuth2 URLs: ", data); // 추가된 로그
+                    setOauth2Url(data)  // 서버로부터 받은 OAuth2 URL을 상태에 저장
                 } else {
                     setError("OAuth2 공급자 URL을 가져오는 중 오류가 발생했습니다.")
                 }
@@ -92,7 +93,17 @@ export default function LoginForm({ onLogin }) {
     }
 
     const handleOAuth2Login = (provider) => {
+        const oauth2Url = {
+            Google: 'http://localhost:8080/oauth2/authorization/google',
+            Naver: 'http://localhost:8080/oauth2/authorization/naver',
+            Kakao: 'http://localhost:8080/oauth2/authorization/kakao',
+        };
+
+        console.log("Provider: ", provider); // provider 값을 로그로 출력하여 확인
+        console.log("OAuth2 URLs: ", oauth2Url); // oauth2Url 객체를 로그로 출력하여 확인
+
         if (oauth2Url[provider]) {
+            console.log(`URL for ${provider}: `, oauth2Url[provider]); // 선택된 공급자의 URL을 출력
             window.location.href = oauth2Url[provider]  // 해당 OAuth2 공급자 URL로 리디렉션
         } else {
             setError(`${provider} 로그인 URL을 불러오지 못 했습니다.`)
@@ -172,23 +183,23 @@ export default function LoginForm({ onLogin }) {
                 <button
                     className="w-full py-2 px-4 mb-2 bg-red-500 text-white 
                                rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
-                    onClick={() => handleOAuth2Login('google')}
+                    onClick={() => handleOAuth2Login('Google')}
                 >
-                    <i className="fab fa-google mx-2"></i>Google 로그인
+                    Google 로그인
                 </button>
                 <button
                     className="w-full py-2 px-4 mb-2 bg-green-500 text-white 
                                rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
-                    onClick={() => handleOAuth2Login('naver')}
+                    onClick={() => handleOAuth2Login('Naver')}
                 >
-                    <i className="fab fa-nav mx-2"></i>Naver 로그인
+                    Naver 로그인
                 </button>
                 <button
                     className="w-full py-2 px-4 mb-4 bg-yellow-500 text-white 
                                rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50"
-                    onClick={() => handleOAuth2Login('kakao')}
+                    onClick={() => handleOAuth2Login('Kakao')}
                 >
-                    <i className="fab fa-kakao mx-2"></i>Kakao 로그인
+                    Kakao 로그인
                 </button>
             </div>
         </div>

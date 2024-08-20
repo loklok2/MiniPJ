@@ -41,7 +41,7 @@ export default function BoardDetail() {
     useEffect(() => {
         const fetchComments = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/api/comments/public/${id}`, {
+                const response = await fetch(`http://localhost:8080/api/comments/public/board/${id}`, {
                     method: 'GET',
                 })
 
