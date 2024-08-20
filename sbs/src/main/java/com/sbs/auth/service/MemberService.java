@@ -20,121 +20,146 @@ import com.sbs.auth.repository.TokenRepository;
 @Service
 public class MemberService {
 
-    @Autowired
-    private MemberRepository memberRepository;
+	@Autowired
+	private MemberRepository memberRepository;
 
-    @Autowired
-    private TokenRepository tokenRepository;
+	@Autowired
+	private TokenRepository tokenRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private EmailService emailService;
+	@Autowired
+	private EmailService emailService;
 
-    public Member registerUser(MemberDTO memberDTO) {
-        if (memberRepository.existsByUsername(memberDTO.getUsername())) {
-            throw new RuntimeException("Username is already taken");
-        }
+	// 사용자 등록 메서드
+	public Member registerUser(MemberDTO memberDTO) {
+		if (memberRepository.existsByUsername(memberDTO.getUsername())) {
+			throw new RuntimeException("이미 사용 중인 사용자 이름입니다.");
+		}
 
-        Member member = new Member();
-        member.setUsername(memberDTO.getUsername());
-        member.setPassword(passwordEncoder.encode(memberDTO.getPassword()));
-        member.setNickname(memberDTO.getNickname());
-        member.setEnabled(false); // 초기 상태는 비활성화
-        member.setRole(Role.ROLE_MEMBER);
+		// 새로운 사용자 생성
+		Member member = new Member();
+		member.setUsername(memberDTO.getUsername());
+		member.setPassword(passwordEncoder.encode(memberDTO.getPassword())); // 비밀번호 암호화
+		member.setNickname(memberDTO.getNickname());
+		member.setEnabled(false); // 초기 상태는 비활성화
+		member.setRole(Role.ROLE_MEMBER); // 기본 역할 설정
 
-        memberRepository.save(member);
-        createVerificationToken(member);
+		memberRepository.save(member); // 사용자 저장
+		createVerificationToken(member); // 이메일 인증 토큰 생성 및 전송
 
-        return member;
-    }
+		return member;
+	}
 
-    public boolean createVerificationToken(Member member) {
-        String tokenValue = UUID.randomUUID().toString();
-        Token token = new Token();
-        token.setTokenType(TokenType.VERIFICATION);
-        token.setTokenValue(tokenValue);
-        token.setExpiryDate(LocalDateTime.now().plusDays(1));
-        token.setMember(member);
-        tokenRepository.save(token);
+	// 이메일 인증 토큰 생성 메서드
+	public boolean createVerificationToken(Member member) {
+		String tokenValue = UUID.randomUUID().toString(); // 랜덤 토큰 생성
+		Token token = new Token();
+		token.setTokenType(TokenType.VERIFICATION); // 인증 토큰 타입 설정
+		token.setTokenValue(tokenValue);
+		token.setExpiryDate(LocalDateTime.now().plusDays(1)); // 토큰 만료 시간 설정
+		token.setMember(member);
+		tokenRepository.save(token); // 토큰 저장
 
-        String verificationLink = "http://localhost:8080/api/auth/verify?token=" + tokenValue;
-        emailService.sendVerificationEmail(member.getUsername(), verificationLink);
-        return true;
-    }
+		String verificationLink = "http://localhost:8080/api/auth/verify?token=" + tokenValue;
+		emailService.sendVerificationEmail(member.getUsername(), verificationLink); // 이메일 전송
+		return true;
+	}
 
-    public boolean verifyEmail(String tokenValue) {
-        Token token = tokenRepository.findByTokenValue(tokenValue)
-                .orElseThrow(() -> new RuntimeException("Invalid verification token"));
+	// 이메일 인증 처리 메서드
+	public boolean verifyEmail(String tokenValue) {
+		Token token = tokenRepository.findByTokenValue(tokenValue)
+				.orElseThrow(() -> new RuntimeException("유효하지 않은 인증 토큰입니다."));
 
-        if (token.getTokenType() != TokenType.VERIFICATION || token.getExpiryDate().isBefore(LocalDateTime.now())) {
-            return false;
-        }
+		if (token.getTokenType() != TokenType.VERIFICATION || token.getExpiryDate().isBefore(LocalDateTime.now())) {
+			return false;
+		}
 
-        Member member = token.getMember();
-        member.setEnabled(true);
-        tokenRepository.delete(token); // 사용된 토큰 삭제
-        memberRepository.save(member);
-        return true;
-    }
+		Member member = token.getMember();
+		member.setEnabled(true); // 계정 활성화
+		tokenRepository.delete(token); // 사용된 토큰 삭제
+		memberRepository.save(member); // 변경된 사용자 정보 저장
+		return true;
+	}
 
-    public boolean createPasswordResetToken(String username) {
-        Optional<Member> memberOpt = memberRepository.findByUsername(username);
+	// 비밀번호 재설정 토큰 생성 메서드
+	public boolean createPasswordResetToken(String username) {
+		Optional<Member> memberOpt = memberRepository.findByUsername(username);
 
-        if (memberOpt.isPresent()) {
-            Member member = memberOpt.get();
-            String tokenValue = UUID.randomUUID().toString();
-            Token token = new Token();
-            token.setTokenType(TokenType.RESET_PASSWORD);
-            token.setTokenValue(tokenValue);
-            token.setExpiryDate(LocalDateTime.now().plusMinutes(30)); // 30분 유효한 토큰
-            token.setMember(member);
-            tokenRepository.save(token);
+		if (memberOpt.isPresent()) {
+			Member member = memberOpt.get();
+			String tokenValue = UUID.randomUUID().toString(); // 랜덤 토큰 생성
+			Token token = new Token();
+			token.setTokenType(TokenType.RESET_PASSWORD); // 비밀번호 재설정 토큰 타입 설정
+			token.setTokenValue(tokenValue);
+			token.setExpiryDate(LocalDateTime.now().plusMinutes(30)); // 30분 유효한 토큰
+			token.setMember(member);
+			tokenRepository.save(token); // 토큰 저장
 
-            String resetLink = "http://localhost:3000/reset-password?token=" + tokenValue; // React 앱에서 처리
-            emailService.sendPasswordResetMail(username, resetLink);
-            return true;
-        }
-        return false;
-    }
+			String resetLink = "http://localhost:3000/reset-password?token=" + tokenValue; // 비밀번호 재설정 링크
+			emailService.sendPasswordResetMail(username, resetLink); // 이메일 전송
+			return true;
+		}
+		return false;
+	}
 
-    public boolean resetPassword(String tokenValue, String newPassword) {
-        Optional<Token> tokenOpt = tokenRepository.findByTokenValue(tokenValue);
+	// 비밀번호 재설정 처리 메서드
+	public boolean resetPassword(String tokenValue, String newPassword) {
+		Optional<Token> tokenOpt = tokenRepository.findByTokenValue(tokenValue);
 
-        if (tokenOpt.isPresent()) {
-            Token token = tokenOpt.get();
-            if (token.getTokenType() == TokenType.RESET_PASSWORD && token.getExpiryDate().isAfter(LocalDateTime.now())) {
-                Member member = token.getMember();
-                member.setPassword(passwordEncoder.encode(newPassword));
-                memberRepository.save(member);
-                tokenRepository.delete(token); // 사용된 토큰 삭제
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    public Member findByUsername(String username) {
-        return memberRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-    }
+		if (tokenOpt.isPresent()) {
+			Token token = tokenOpt.get();
+			if (token.getTokenType() == TokenType.RESET_PASSWORD
+					&& token.getExpiryDate().isAfter(LocalDateTime.now())) {
+				Member member = token.getMember();
+				member.setPassword(passwordEncoder.encode(newPassword)); // 새 비밀번호 암호화
+				memberRepository.save(member); // 변경된 비밀번호 저장
+				tokenRepository.delete(token); // 사용된 토큰 삭제
+				return true;
+			}
+		}
+		return false;
+	}
 
-    public String findUsernameByNickname(String nickname) {
-        Optional<Member> member = memberRepository.findByNickname(nickname);
-        return member.map(Member::getUsername).orElse(null);
-    }
+	// 사용자 이름으로 사용자 정보 찾기 메서드
+	public Member findByUsername(String username) {
+		return memberRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+	}
 
-    public boolean isEmailVerified(String username) {
-        Member member = memberRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Member not found"));
-        return member.isEnabled();
-    }
+	// 닉네임으로 사용자 이름 찾기 메서드
+	public String findUsernameByNickname(String nickname) {
+		Optional<Member> member = memberRepository.findByNickname(nickname);
+		return member.map(Member::getUsername).orElse(null);
+	}
 
-    public UserInfo getUserInfo(String username) {
-        Member member = memberRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+	// 이메일 인증 여부 확인 메서드
+	public boolean isEmailVerified(String username) {
+		Member member = memberRepository.findByUsername(username)
+				.orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+		return member.isEnabled();
+	}
 
-        return new UserInfo(member.getUsername(), member.getNickname());
-    }
+	// 사용자 정보 가져오기 메서드
+	public UserInfo getUserInfo(String username) {
+		Member member = memberRepository.findByUsername(username)
+				.orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+		return new UserInfo(member.getUsername(), member.getNickname());
+	}
+
+	// 소셜 로그인 후 추가 정보(닉네임 등) 업데이트 메서드
+//    public Member updateAdditionalInfo(MemberDTO memberDTO) {
+//        Optional<Member> memberOpt = memberRepository.findByUsername(memberDTO.getUsername());
+//
+//        if (memberOpt.isPresent()) {
+//            Member member = memberOpt.get();
+//            member.setNickname(memberDTO.getNickname()); // 닉네임 업데이트
+//            member.setEnabled(true); // 계정을 활성화
+//            memberRepository.save(member); // 변경된 사용자 정보 저장
+//            return member;
+//        }
+//
+//        return null;
+//    }
 }

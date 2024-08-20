@@ -36,38 +36,42 @@ export default function BoardDetail() {
 
         fetchBoard();
     }, [id]);
-
+    
     // 댓글 리스트 데이터 로드
     useEffect(() => {
         const fetchComments = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/api/comments/public/${id}`, {
+                const response = await fetch(`http://localhost:8080/api/comments/public/board/${id}`, {
                     method: 'GET',
                 })
 
                 if (!response.ok) {
                     console.log('댓글 리스트 응답:', response)
-                    throw new Error('댓글을 불러오는 중 오류가 발생했습니다.')
+                    if (response.status === 404) {
+                        setComments([]) // 404일 경우 빈 배열로 처리
+                    } else {
+                        throw new Error('댓글을 불러오는 중 오류가 발생했습니다.')
+                    }
+                } else {
+                    const data = await response.json()
+                    setComments(data)
                 }
-
-                const data = await response.json()
-                setComments(data)
             } catch (error) {
                 setError(error.message)
+                setComments([]) // 오류가 발생한 경우에도 빈 배열로 설정
             }
         }
-
+        
         fetchComments()
     }, [id])
-
+    
     useEffect(() => {
         if (board && auth.user) {
             console.log("Logged-in user ID:", auth.user.id); // 이 값이 제대로 출력되는지 확인합니다.
             console.log("Board author ID:", board.authorId);
         }
     }, [board, auth.user]);
-
-
+    
     // 게시판 삭제 핸들러
     const handleDelete = async () => {
         if (window.confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
@@ -91,17 +95,17 @@ export default function BoardDetail() {
             }
         }
     }
-
+    
     // 댓글이 추가되었을 때 호출되는 함수
     const handleCommentAdded = (newComment) => {
         setComments(prevComments => [...prevComments, newComment])  // 새 댓글을 리스트에 추가
     }
-
+    
     // 댓글 수정 핸들러
     const handleUpdateComment = async (commentId) => {
         const newContent = prompt('새로운 댓글 내용을 입력하세요:')
         if (!newContent) return
-
+        
         try {
             const response = await fetch(`http://localhost:8080/api/comments/${commentId}`, {
                 method: 'PUT',

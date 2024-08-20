@@ -1,0 +1,144 @@
+CommentService 클래스 
+
+getCommentByBoard() 메서드: DB에 해당하는 게시글 ID에 대한 댓글이 없어도, 빈 댓글 리스트를 반환
+
+    //게시글에 대한 전체 댓글 조회
+    public List<Comment> getCommnetByBoard(Long boardId) {
+    	Board board = boardRepo.findById(boardId).orElse(null);
+    	if(board != null) {
+    		List<Comment> comments = commentRepo.findByBoard(board);
+    		return comments.isEmpty() ? new ArrayList<>() : comments;
+    	}
+    	return new ArrayList<>(); // board가 null인 경우에도 빈 리스트 반환
+    }
+
+--------------------------------------------------------------------------------------------------------------------------------------
+
+CommentController 클래스
+
+getCommentByBoard() 메서드: 댓글 리스트가 없더라도 200 응답과 함께 빈 배열을 반환하도록 수정
+
+    // 게시글에 대한 모든 댓글 조회
+    @GetMapping("/public/{boardId}")
+    public ResponseEntity<List<CommentDTO>> getCommentByBoard(@PathVariable Long boardId) {
+        List<Comment> comments = commentService.getCommnetByBoard(boardId);
+        List<CommentDTO> commentDTOs = comments.stream()
+        									   .map(CommentDTO::fromEntity)
+        									   .toList();
+        return new ResponseEntity<>(commentDTOs, HttpStatus.OK);	// 200 OK와 함께 빈 리스트 반환
+    }
+
+--------------------------------------------------------------------------------------------------------------------------------------
+
+BoardDTO 클래스
+
+fromEntity() 메서드 추가:
+
+package com.sbs.board.domain;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class BoardDTO {
+    private Long id;
+    private String title;
+    private String content;
+    private String authorNickname;
+    private Long authorId;
+    private LocalDateTime createDate;
+    private LocalDateTime updateDate;
+    private int viewCount;
+    private int likeCount;
+    private List<ImageDTO> images;
+
+    // 엔티티로부터 DTO로 변환하는 메서드
+    public static BoardDTO fromEntity(Board board) {
+        return BoardDTO.builder()
+                .id(board.getId())
+                .title(board.getTitle())
+                .content(board.getContent())
+                .authorNickname(board.getAuthorNickname())
+                .authorId(board.getAuthor().getId())
+                .createDate(board.getCreateDate())
+                .updateDate(board.getUpdateDate())
+                .viewCount(board.getViewCount())
+                .likeCount(board.getLikeCount())
+                .images(board.getImages().stream().map(ImageDTO::fromEntity).collect(Collectors.toList()))
+                .build();
+    }
+}
+
+--------------------------------------------------------------------------------------------------------------------------------------
+
+ImageDTO 클래스
+
+fromEntity 메서드 추가:
+
+package com.sbs.board.domain;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class ImageDTO {
+    private Long id;
+    private String filename;
+    private String mimeType;
+    private String url;
+
+    // 엔티티로부터 DTO로 변환하는 메서드
+    public static ImageDTO fromEntity(Image image) {
+        return ImageDTO.builder()
+                .id(image.getId())
+                .filename(image.getFilename())
+                .mimeType(image.getMimeType())
+                .url(image.getUrl())
+                .build();
+    }
+}
+
+--------------------------------------------------------------------------------------------------------------------------------------
+***OAuth2 사용자 정보 매핑***
+
+Member 클래스: OAuth2 사용자 정보 매핑, 
+
+// Member 엔티티
+package com.sbs.auth.domain;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.Data;
+
+@Entity
+@Data
+public class Member {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String username; // OAuth2 username 또는 이메일
+    private String nickname; // 사용자 닉네임
+    private String oauth2Provider; // OAuth2 제공자 (예: google, github 등)
+
+    // 추가 필드들
+}
+
+--------------------------------------------------------------------------------------------------------------------------------------
+

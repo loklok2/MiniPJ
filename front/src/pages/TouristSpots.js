@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import SearchBar from '../utils/SearchBar'
 import Pagination from '../utils/Pagination'
-import TouristSpotCard from '../TouristComponents/TouristSpotCard'
+import TouristSpotCard from '../touristComponents/TouristSpotCard'
 
 export default function TouristSpots() {
     // 상태 변수들

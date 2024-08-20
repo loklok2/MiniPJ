@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sbs.auth.domain.Member;
 
 import jakarta.persistence.CascadeType;
@@ -19,12 +22,14 @@ import lombok.Data;
 
 @Entity
 @Data
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Comment {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;  // 댓글의 고유 ID
     
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "board_id", nullable = false)
     private Board board;  // 댓글이 달린 게시글
@@ -39,6 +44,7 @@ public class Comment {
     @JoinColumn(name = "parent_comment_id")
     private Comment parentComment; //부모 댓글
     
+    @JsonManagedReference
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> childComments = new ArrayList<>();  // 자식 댓글 리스트
 

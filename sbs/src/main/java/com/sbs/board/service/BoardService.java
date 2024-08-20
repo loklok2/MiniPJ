@@ -54,7 +54,7 @@ public class BoardService {
         Board board = new Board();
         board.setTitle(boardDTO.getTitle());
         board.setContent(boardDTO.getContent());
-        board.setAuthor(member);
+        board.setAuthor(member);	// 작성자 저장
         board.setAuthorNickname(member.getNickname());
         board.setCreateDate(LocalDateTime.now());
         board.setUpdateDate(LocalDateTime.now());

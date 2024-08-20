@@ -10,12 +10,18 @@ export default function CommentSection({ boardId, comments, onCommentSubmit, han
     return (
         <div className="mt-6">
             <h2 className="text-2xl mb-4">댓글</h2>
-            <CommentList 
-                    comments={comments} 
-                    handleUpdate={handleUpdate} 
-                    handleDelete={handleDelete} 
-                    handleLikeComment={handleLikeComment} // LikeButton에 좋아요 핸들러 전달
-            />
+            {comments.length > 0 ? (
+                <CommentList 
+                        comments={comments} 
+                        handleUpdate={handleUpdate} 
+                        handleDelete={handleDelete} 
+                        handleLikeComment={handleLikeComment} // LikeButton에 좋아요 핸들러 전달
+                />
+            ) : (
+                <div className='text-center text-gray-500'>
+                    댓글이 없습니다.
+                </div>
+            )}
 
             {auth.isLoggedIn ? (
                 <CommentForm boardId={boardId} onCommentSubmit={onCommentSubmit} />

@@ -1,24 +1,20 @@
 export default function MyComments({ comments }) {
+    if (!comments || comments.length === 0) {
+        return <p>No comments available</p>;
+    }
+
     return (
-        <div className="bg-white p-4 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold mb-4">내가 작성한 댓글</h2>
-            {comments.length > 0 ? (
-                <ul className="list-disc pl-5">
-                    {comments.map(comment => (
-                        <li key={comment.id}
-                            className="mb-2"
-                        >
-                            <a href={`/boards/${comment.board.id}`}
-                                className="text-blue-600 hover:underline"
-                            >
-                                관련 게시글 보기
-                            </a>
-                        </li>
-                    ))}
-                </ul>
-            ) : (
-                <p>작성한 댓글이 없습니다.</p>
-            )}
+        <div>
+            {comments.map(comment => (
+                comment && comment.id ? (
+                    <div key={comment.id}>
+                        <p>{comment.content}</p>
+                        <small>By {comment.authorNickname}</small>
+                    </div>
+                ) : (
+                    console.error('Invalid comment data:', comment)
+                )
+            ))}
         </div>
-    )
+    );
 }

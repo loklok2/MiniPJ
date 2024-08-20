@@ -2,6 +2,7 @@ package com.sbs.board.domain;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,4 +26,19 @@ public class BoardDTO {
     
     private List<ImageDTO> images; // 이미지 데이터를 저장할 리스트
     
+    // 엔티티로부터 DTO로 변환하는 메서드
+    public static BoardDTO fromEntity(Board board) {
+        return BoardDTO.builder()
+                .id(board.getId())
+                .title(board.getTitle())
+                .content(board.getContent())
+                .authorNickname(board.getAuthorNickname())
+                .authorId(board.getAuthor().getId())
+                .createDate(board.getCreateDate())
+                .updateDate(board.getUpdateDate())
+                .viewCount(board.getViewCount())
+                .likeCount(board.getLikeCount())
+                .images(board.getImages().stream().map(ImageDTO::fromEntity).collect(Collectors.toList()))
+                .build();
+    }
 }

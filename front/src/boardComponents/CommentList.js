@@ -27,6 +27,9 @@ export default function CommentList({ comments, handleDelete, handleUpdate, hand
         console.log('현재 로그인 사용자 ID:', auth.user?.id)
     }, [comments, auth])
 
+    if (comments.length === 0) {
+        return <p className='text-center text-gray-500'>댓글이 없습니다.</p>
+    }
 
     return (
         <>

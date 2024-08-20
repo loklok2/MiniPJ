@@ -33,16 +33,13 @@ public class CommentController {
     private MemberRepository memberRepository;
     
     // 게시글에 대한 모든 댓글 조회
-    @GetMapping("/public/{boardId}")
+    @GetMapping("/public/board/{boardId}")
     public ResponseEntity<List<CommentDTO>> getCommentByBoard(@PathVariable Long boardId) {
         List<Comment> comments = commentService.getCommnetByBoard(boardId);
-        if (comments != null && !comments.isEmpty()) {
-            List<CommentDTO> commentDTOs = comments.stream()
-                    .map(CommentDTO::fromEntity)
-                    .toList();
-            return new ResponseEntity<>(commentDTOs, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        List<CommentDTO> commentDTOs = comments.stream()
+        									   .map(CommentDTO::fromEntity)
+        									   .toList();
+        return new ResponseEntity<>(commentDTOs, HttpStatus.OK);	// 200 OK와 함께 빈 리스트 반환
     }
     
     // 특정 댓글 상세 조회

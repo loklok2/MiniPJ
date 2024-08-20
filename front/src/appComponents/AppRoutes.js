@@ -33,7 +33,6 @@ export default function AppRoutes() {
             <Route path="/emailfind" element={<EmailFind />} />
             <Route path="/passwordfind" element={<PasswordFind />} />
             <Route path="/reset-password" element={<PasswordReset />} />
-            <Route path="*" element={<BoardList />} />
             <Route path="/boards" element={<BoardList />} />
             <Route path="/boards/:id" element={<BoardDetail />} />
             <Route path="/boards/create" element={auth.isLoggedIn ? <BoardForm /> : <Navigate to="/login" />} />

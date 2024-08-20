@@ -1,6 +1,7 @@
 package com.sbs.board.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,9 +34,10 @@ public class CommentService {
     public List<Comment> getCommnetByBoard(Long boardId) {
     	Board board = boardRepo.findById(boardId).orElse(null);
     	if(board != null) {
-    		return commentRepo.findByBoard(board);
+    		List<Comment> comments = commentRepo.findByBoard(board);
+    		return comments.isEmpty() ? new ArrayList<>() : comments;
     	}
-    	return null;
+    	return new ArrayList<>(); // board가 null인 경우에도 빈 리스트 반환
     }
     
     // 특정 댓글의 상세 조회
