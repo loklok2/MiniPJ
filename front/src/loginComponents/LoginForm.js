@@ -5,36 +5,13 @@ import { useAuth } from '../hooks/useAuth';
 export default function LoginForm({ onLogin }) {
     const emailRef = useRef();
     const passwordRef = useRef();
-    const [oauth2Url, setOauth2Url] = useState({})
     const [error, setError] = useState(null);
     const { login } = useAuth();    // useAuth 훅을 사용하여 login 함수를 가져옴
     const navigate = useNavigate()
 
-    useEffect(() => {
-        // 서버로부터 OAuth2 공급자 URL을 가져옴
-        const fetchOAuth2Urls = async () => {
-            try {
-                const response = await fetch('http://localhost:8080/api/auth/oauth2-urls')
-
-                if (response.ok) {
-                    const data = await response.json()
-                    console.log("Fetched OAuth2 URLs: ", data); // 추가된 로그
-                    setOauth2Url(data)  // 서버로부터 받은 OAuth2 URL을 상태에 저장
-                } else {
-                    setError("OAuth2 공급자 URL을 가져오는 중 오류가 발생했습니다.")
-                }
-            } catch (error) {
-                setError("네트워크 오류가 발생했습니다. 인터넷 연결을 확인하세요.")
-            }
-        }
-
-        fetchOAuth2Urls()
-    }, [])
-
     const handleSignIn = async (e) => {
         e.preventDefault();
 
-        // Clear previous errors
         setError();
 
         const email = emailRef.current.value;
@@ -73,15 +50,15 @@ export default function LoginForm({ onLogin }) {
             }
 
             const data = await response.json();
+            console.log("Received data:", data); // 응답 데이터를 로그로 출력
 
             if (data.token) {
-                // 로그인 성공
                 login({
-                    id: data.id, // 서버에서 전달된 사용자 ID
-                    username: data.username,
-                    nickname: data.nickname,
+                    id: data.user?.id || "", // 유연하게 처리: ID가 없으면 빈 문자열
+                    username: data.user?.username || email, // 유연하게 처리: username이 없으면 이메일 사용
+                    nickname: data.user?.nickname || "", // 유연하게 처리: nickname이 없으면 빈 문자열
                     token: data.token,
-                });   // login 함수를 호출하여 상태를 업데이트하고 localStorage에 저장
+                });
                 onLogin(data)   // 상위 컴포넌트에 로그인 정보 전달
                 navigate('/');   // 로그인 후 홈으로 리디렉션
             } else {
@@ -103,10 +80,9 @@ export default function LoginForm({ onLogin }) {
         console.log("OAuth2 URLs: ", oauth2Url); // oauth2Url 객체를 로그로 출력하여 확인
 
         if (oauth2Url[provider]) {
-            console.log(`URL for ${provider}: `, oauth2Url[provider]); // 선택된 공급자의 URL을 출력
-            window.location.href = oauth2Url[provider]  // 해당 OAuth2 공급자 URL로 리디렉션
+            window.location.href = oauth2Url[provider];  // OAuth2 제공자 URL로 리디렉션
         } else {
-            setError(`${provider} 로그인 URL을 불러오지 못 했습니다.`)
+            setError(`${provider} 로그인 URL을 불러오지 못 했습니다.`);
         }
     }
 

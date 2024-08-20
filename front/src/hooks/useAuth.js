@@ -26,9 +26,9 @@ export const useAuth = () => {
             isLoggedIn: true,
             token: user.token,
             user: {
-                id: user.id, // 로그인 시 받은 사용자 ID를 포함합니다.
-                username: user.username,
-                nickname: user.nickname,
+                id: user.id || "", // 유연하게 처리: ID가 없으면 빈 문자열
+                username: user.username || "", // 유연하게 처리: username이 없으면 빈 문자열
+                nickname: user.nickname || "", // 유연하게 처리: nickname이 없으면 빈 문자열
             },
         }
         setAuth(newAuthState)   // 전체 상태를 업데이트

@@ -5,6 +5,7 @@ import Home from '../pages/Home';
 import TouristSpots from '../pages/TouristSpots';
 import Map from '../mapComponents/Map';
 import Login from '../loginComponents/Login';
+import OAuth2RedirectHandler from '../loginComponents/OAuth2RedirectHandler';
 import MyPage from '../pages/MyPage';
 import SignUp from '../loginComponents/SignUp';
 import EmailFind from '../loginComponents/EmailFind';
@@ -26,6 +27,7 @@ export default function AppRoutes() {
             <Route path="/tourlist" element={<TouristSpots />} />
             <Route path="/map" element={<Map />} />
             <Route path="/login" element={auth.isLoggedIn ? <Navigate to="/mypage" /> : <Login />} />
+            <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/mypage" element={auth.isLoggedIn ? <MyPage /> : <Navigate to="/login" />} />
             <Route path="/emailfind" element={<EmailFind />} />

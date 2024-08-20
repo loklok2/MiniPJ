@@ -23,3 +23,6 @@ MemberService에서 사용자의 이메일 인증 여부를 확인하고, 비밀
 OAuth2 로그인 및 JWT 인증 기능이 제대로 작동하는지 테스트해야 합니다. 실제 OAuth2 공급자(Google, Facebook 등)와의 통합 테스트를 통해 로그인 흐름이 정상적으로 작동하는지 확인이 필요합니다.
 결론
 OAuth2 로그인 기능은 기본적으로 설정되어 있지만, OAuth2SuccessHandler의 구현, OAuth2User 처리, JWT 토큰 발급 및 관리 등의 세부 사항을 더 완성해야 합니다. 이 부분들을 추가로 구현하고 테스트를 통해 확인함으로써 완전한 OAuth2 인증 기능을 갖출 수 있을 것입니다.
+
+
+OAuth2 공급자 콘솔(예: Google Cloud Console, Naver Developers, Kakao Developers)에서 리디렉션 URI가 서버의 설정과

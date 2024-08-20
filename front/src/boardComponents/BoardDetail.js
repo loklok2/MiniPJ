@@ -41,7 +41,7 @@ export default function BoardDetail() {
     useEffect(() => {
         const fetchComments = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/api/comments/public/board/${id}`, {
+                const response = await fetch(`http://localhost:8080/api/comments/public/${id}`, {
                     method: 'GET',
                 })
 
@@ -166,7 +166,7 @@ export default function BoardDetail() {
                 console.error('댓글 삭제 실패:', errorText);
                 throw new Error('댓글 삭제에 실패했습니다.');
             }
-            
+
         } catch (error) {
             console.error('댓글 삭제 중 오류 발생', error)
         }
