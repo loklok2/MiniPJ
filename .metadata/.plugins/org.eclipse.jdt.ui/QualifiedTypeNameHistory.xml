@@ -15,7 +15,6 @@
     <fullyQualifiedTypeName name="com.sbs.location.service.LocationTourTransDataService"/>
     <fullyQualifiedTypeName name="java.lang.Integer"/>
     <fullyQualifiedTypeName name="jakarta.persistence.FetchType"/>
-    <fullyQualifiedTypeName name="java.time.LocalDateTime"/>
     <fullyQualifiedTypeName name="java.util.Optional"/>
     <fullyQualifiedTypeName name="com.sbs.auth.repository.MemberRepository"/>
     <fullyQualifiedTypeName name="com.sbs.board.repository.CommentRepository"/>
@@ -56,4 +55,5 @@
     <fullyQualifiedTypeName name="org.springframework.security.authentication.AuthenticationManager"/>
     <fullyQualifiedTypeName name="org.springframework.beans.factory.annotation.Autowired"/>
     <fullyQualifiedTypeName name="com.sbs.auth.service.MemberService"/>
+    <fullyQualifiedTypeName name="java.time.LocalDateTime"/>
 </qualifiedTypeNameHistroy>

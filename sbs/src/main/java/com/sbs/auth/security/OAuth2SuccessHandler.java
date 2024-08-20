@@ -1,6 +1,7 @@
 package com.sbs.auth.security;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -51,16 +52,14 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                         .enabled(true) // 계정 활성화
                         .nickname(username) // 닉네임을 사용자 이름으로 설정
                         .role(Role.ROLE_MEMBER) // 기본 역할 설정
+                        .joinDate(LocalDateTime.now())
                         .build();
                 return memberRepo.save(newMember);
             });
 
         // JWT 토큰 생성
         String jwtToken = JWTUtil.getJWT(username);
-
-        // JWT 토큰을 JSON 응답으로 반환
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write("{\"token\": \"" + jwtToken + "\"}");
+        String redirectUrl = "http://localhost:3000/oauth2/redirect?token=" + jwtToken + "&id=" + "&username=" + member.getUsername() + "&nickname=" + member.getNickname();
+        response.sendRedirect(redirectUrl);
     }
 }

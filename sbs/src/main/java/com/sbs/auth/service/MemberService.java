@@ -148,19 +148,19 @@ public class MemberService {
     }
 
     // 소셜 로그인 후 추가 정보(닉네임 등) 업데이트 메서드
-    public Member updateAdditionalInfo(MemberDTO memberDTO) {
-        Optional<Member> memberOpt = memberRepository.findByUsername(memberDTO.getUsername());
-
-        if (memberOpt.isPresent()) {
-            Member member = memberOpt.get();
-            member.setNickname(memberDTO.getNickname()); // 닉네임 업데이트
-            member.setEnabled(true); // 계정을 활성화
-            memberRepository.save(member); // 변경된 사용자 정보 저장
-            return member;
-        }
-
-        return null;
-    }
+//    public Member updateAdditionalInfo(MemberDTO memberDTO) {
+//        Optional<Member> memberOpt = memberRepository.findByUsername(memberDTO.getUsername());
+//
+//        if (memberOpt.isPresent()) {
+//            Member member = memberOpt.get();
+//            member.setNickname(memberDTO.getNickname()); // 닉네임 업데이트
+//            member.setEnabled(true); // 계정을 활성화
+//            memberRepository.save(member); // 변경된 사용자 정보 저장
+//            return member;
+//        }
+//
+//        return null;
+//    }
 }
 
 

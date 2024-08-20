@@ -32,7 +32,7 @@ public class AuthController {
     
     // 이메일 인증 처리 메서드
     @GetMapping("/verify")
-    public ResponseEntity<String> veifyEmail(@RequestParam("token") String token){
+    public ResponseEntity<String> verifyEmail(@RequestParam("token") String token){
         // 이메일 인증 토큰을 검증하고 인증 상태를 업데이트
         boolean isVerified = memberService.verifyEmail(token);
 
