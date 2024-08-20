@@ -42,39 +42,29 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String username = CustomMyUtil.getUsernameFromOAuth2User(user);
 
         if (username == null) {
-            log.error("onAuthenticationSuccess: OAuth2 사용자로부터 사용자 이름을 생성할 수 없습니다!!");
+            log.error("onAuthenticationSuccess: OAuth2 사용자로부터 사용자 이름을 생성할 수 없습니다!");
             throw new ServletException("OAuth2 사용자로부터 사용자 이름을 생성할 수 없습니다!");
         }
         log.info("onAuthenticationSuccess: 사용자 이름 " + username);
 
-        // 데이터베이스에서 사용자 조회
-        Optional<Member> existingMember = memberRepo.findByUsername(username);
-
-        if (existingMember.isPresent()) {
-            Member member = existingMember.get();
-            if (member.getNickname() == null) {
-                // 닉네임이 없는 경우 회원가입 페이지로 리다이렉트
-                response.sendRedirect("/signup?oauth2=true&username=" + username);
-                return;
-            }
-        } else {
-            // 새로운 사용자 생성 로직
-            Member newMember = Member.builder()
-                    .username(username)
-                    .password(encoder.encode("1a2s3d4f")) // 임시 비밀번호 설정
-                    .enabled(false) // 닉네임 입력 전까지 계정 비활성화
-                    .role(Role.ROLE_MEMBER) // 기본 역할 설정
-                    .build();
-            
-            memberRepo.save(newMember); // 새로운 사용자 저장
-
-            // 회원가입 페이지로 리다이렉트
-            response.sendRedirect("/signup?oauth2=true&username=" + username);
-            return;
-        }
+        // 데이터베이스에서 사용자 조회 또는 신규 사용자 생성
+        Member member = memberRepo.findByUsername(username)
+            .orElseGet(() -> {
+                Member newMember = Member.builder()
+                        .username(username)
+                        .password(encoder.encode("1a2s3d4f")) // 임시 비밀번호 설정
+                        .enabled(true) // 계정 활성화
+                        .nickname(username) // 닉네임을 사용자 이름으로 설정
+                        .role(Role.ROLE_MEMBER) // 기본 역할 설정
+                        .build();
+                return memberRepo.save(newMember);
+            });
 
         // JWT 토큰 생성 및 응답 헤더에 추가
         String jwtToken = JWTUtil.getJWT(username);
-        response.addHeader(HttpHeaders.AUTHORIZATION, jwtToken); 
+        response.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + jwtToken); 
+
+        // 로그인 성공 후 홈 페이지로 리다이렉트
+        response.sendRedirect("http://localhost:3000/");
     }
 }

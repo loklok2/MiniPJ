@@ -27,7 +27,7 @@ public class LocationInfoDataController {
 
     // 이미지 제공을 위한 엔드포인트 추가
     @GetMapping(value = "/image/{id}", produces = MediaType.IMAGE_PNG_VALUE)
-    public ResponseEntity<byte[]> getImage(@PathVariable int id) {
+    public ResponseEntity<byte[]> getImage(@PathVariable("id") int id) {
         byte[] imageData = locationService.getImageDataById(id);
         if (imageData != null) {
             return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(imageData);
