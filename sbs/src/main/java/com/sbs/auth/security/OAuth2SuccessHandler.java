@@ -1,9 +1,7 @@
 package com.sbs.auth.security;
 
 import java.io.IOException;
-import java.util.Optional;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -34,10 +32,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     public void onAuthenticationSuccess(HttpServletRequest request, 
                                          HttpServletResponse response, 
                                          Authentication authentication) throws IOException, ServletException {
-        // OAuth2 로그인 성공 후 사용자 처리
         log.info("OAuth2SuccessHandler: 인증 성공 후 처리");
 
-        // OAuth2User 객체에서 사용자 이름을 생성
         OAuth2User user = (OAuth2User) authentication.getPrincipal();
         String username = CustomMyUtil.getUsernameFromOAuth2User(user);
 
@@ -47,7 +43,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         }
         log.info("onAuthenticationSuccess: 사용자 이름 " + username);
 
-        // 데이터베이스에서 사용자 조회 또는 신규 사용자 생성
         Member member = memberRepo.findByUsername(username)
             .orElseGet(() -> {
                 Member newMember = Member.builder()
@@ -60,11 +55,12 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 return memberRepo.save(newMember);
             });
 
-        // JWT 토큰 생성 및 응답 헤더에 추가
+        // JWT 토큰 생성
         String jwtToken = JWTUtil.getJWT(username);
-        response.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + jwtToken); 
 
-        // 로그인 성공 후 홈 페이지로 리다이렉트
-        response.sendRedirect("http://localhost:3000/");
+        // JWT 토큰을 JSON 응답으로 반환
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write("{\"token\": \"" + jwtToken + "\"}");
     }
 }
