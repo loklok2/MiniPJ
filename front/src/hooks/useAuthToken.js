@@ -8,20 +8,21 @@ JWT 토큰을 독립적으로 관리:
 export function useAuthToken() {
     const [auth, setAuth] = useRecoilState(authState);
 
-    // JWT 토큰을 설정하는 커스텀 훅
+    // JWT 토큰을 설정하는 함수
     const setAuthToken = (newToken) => {
         const updatedAuthState = { ...auth, token: newToken }
-        setAuth(updatedAuthState)
-        localStorage.setItem('authState', JSON.stringify(updatedAuthState))
+        setAuth(updatedAuthState)   // Recoil 상태 업데이트
+        localStorage.setItem('authState', JSON.stringify(updatedAuthState)) // 로컬 스토리지에 저장
     };
 
-    // JWT 토큰을 초기화하는 훅
+    // JWT 토큰을 초기화하는 함수
     const clearAuthToken = () => {
         const updatedAuthState = { ...auth, token: null }
-        setAuth(updatedAuthState)
-        localStorage.setItem('authState', JSON.stringify(updatedAuthState))
+        setAuth(updatedAuthState)   // Recoil 상태 업데이트
+        localStorage.setItem('authState', JSON.stringify(updatedAuthState)) // 로컬 스토리지에 저장
     };
 
+    // 현재 토큰과 토큰 설정/초기화 함수를 반환
     return [auth.token, setAuthToken, clearAuthToken];
 }
 

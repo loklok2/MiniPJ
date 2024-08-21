@@ -21,22 +21,25 @@ export default function AppRoutes() {
     // useAuth 훅을 사용하여 auth 상태를 가져옵니다.
     const { auth } = useAuth();
 
-    // auth 상태에서 로그인된 사용자 일 경우 mypage로, 아닐 경우 login 
     return (
         <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/tourlist" element={<TouristSpots />} />
             <Route path="/map" element={<Map />} />
+            {/* auth 상태에서 로그인된 사용자 일 경우 MyPage 페이지로, 아닐 경우 login 페이지로 이동 */}
             <Route path="/login" element={auth.isLoggedIn ? <Navigate to="/mypage" /> : <Login />} />
             <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
             <Route path="/signup" element={<SignUp />} />
+            {/* auth 상태에서 로그인된 사용자 일 경우 MyPage 페이지로, 아닐 경우 login 페이지로 이동 */}
             <Route path="/mypage" element={auth.isLoggedIn ? <MyPage /> : <Navigate to="/login" />} />
             <Route path="/emailfind" element={<EmailFind />} />
             <Route path="/passwordfind" element={<PasswordFind />} />
             <Route path="/reset-password" element={<PasswordReset />} />
             <Route path="/boards" element={<BoardList />} />
             <Route path="/boards/:id" element={<BoardDetail />} />
+            {/* auth 상태에서 로그인된 사용자 일 경우 BoardForm 페이지로, 아닐 경우 login 페이지로 이동 */}
             <Route path="/boards/create" element={auth.isLoggedIn ? <BoardForm /> : <Navigate to="/login" />} />
+            {/* auth 상태에서 로그인된 사용자 일 경우 BoardEdit 페이지로, 아닐 경우 login 페이지로 이동 */}
             <Route path="/boards/edit/:boardId" element={auth.isLoggedIn ? <BoardEdit /> : <Navigate to="/login" />} />
             {/* 추가적인 경로들 추가 */}
         </Routes>

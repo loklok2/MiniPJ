@@ -4,6 +4,11 @@ import SearchBar from '../utils/SearchBar'
 import Pagination from '../utils/Pagination'
 import TouristSpotCard from '../touristComponents/TouristSpotCard'
 
+// 환경 변수에서 API 기본 URL을 가져옴. 만약 설정되지 않았다면 기본값으로 'http://localhost:8080/api'를 사용
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080/api'
+console.log('API_BASE_URL:', API_BASE_URL)  // 현재 API_BASE_URL 값을 콘솔에 출력
+
+// TouristSpots 컴포넌트: 관광지 목록을 표시하고 검색 및 페이징 기능을 제공
 export default function TouristSpots() {
     // 상태 변수들
     const [spots, setSpots] = useState([]) // 모든 관광지 데이터를 저장하는 상태
@@ -24,7 +29,7 @@ export default function TouristSpots() {
     useEffect(() => {
         const fetchTouristSpots = async () => {
             try {
-                const response = await fetch('http://localhost:8080/api/locations/all') // 관광지 데이터를 가져오는 API 호출
+                const response = await fetch(`${API_BASE_URL}/locations/all`) // 관광지 데이터를 가져오는 API 호출
                 const data = await response.json() // 응답 데이터를 JSON 형식으로 파싱
                 setSpots(data) // 모든 관광지 데이터를 상태에 저장
 
