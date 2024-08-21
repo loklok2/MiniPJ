@@ -1,5 +1,6 @@
 package com.sbs.location.service;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,6 +39,9 @@ public class LocationInfoDataService {
                 dto.setTrrsrtStrySumryCn(location.getTrrsrtStrySumryCn());
                 dto.setTrrsrtStryUrl(location.getTrrsrtStryUrl());
                 dto.setCoreKwrdCn(location.getCoreKwrdCn());
+                dto.setImageData(location.getImageData());
+
+
                 
                 // 이미지 URL 설정
                 if (location.getImageData() != null) {
@@ -54,4 +58,6 @@ public class LocationInfoDataService {
         Optional<LocationInfoData> locationOpt = locationRepo.findById(id);
         return locationOpt.map(LocationInfoData::getImageData).orElse(null);
     }
+    
+
 }
