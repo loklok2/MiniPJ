@@ -3,6 +3,7 @@ package com.sbs.auth.security;
 import java.io.IOException;
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,6 +30,10 @@ import lombok.extern.slf4j.Slf4j;
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     
     private final AuthenticationManager authenticationManager;
+    
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+    
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -53,7 +58,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String token = JWT.create()
                           .withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000)) //30분
                           .withClaim("username", user.getUsername())
-                          .sign(Algorithm.HMAC256("edu.pnu.jwtkey"));
+                          .sign(Algorithm.HMAC256(jwtSecret));
         response.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
         response.setStatus(HttpStatus.OK.value());
     }
