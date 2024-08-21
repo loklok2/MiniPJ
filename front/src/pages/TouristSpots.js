@@ -64,6 +64,10 @@ export default function TouristSpots() {
         setCurrentPage(1) // 새로운 검색 시 페이지를 1로 리셋
     }
 
+    const handleViewMap = (spot) => {
+        navigate('/map', { state: { selectedSpot: spot } });
+    };
+
     // 현재 페이지에 표시할 관광지 데이터를 계산하는 변수들
     const indexOfLastSpot = currentPage * itemsPerPage // 현재 페이지에서의 마지막 항목 인덱스
     const indexOfFirstSpot = indexOfLastSpot - itemsPerPage // 현재 페이지에서의 첫 항목 인덱스
@@ -109,7 +113,7 @@ export default function TouristSpots() {
                                 spot={spot}
                                 isExpanded={isExpanded}
                                 onToggleExpand={() => setExpandedSpots(prev => ({ ...prev, [spot.dataNo]: !isExpanded }))}
-                                onViewMap={() => navigate('/map', { state: { selectedSpot: spot } })}
+                                onViewMap={handleViewMap}  // TouristSpotCard에서 onViewMap 호출 시 사용
                             />
                         )
                     })

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 
-import LoginForm from './LoginForm'
-import SignUpForm from './SignUpForm'
-import MyPage from '../pages/MyPage'
+import LoginForm from '../loginComponents/LoginForm'
+import SignUpForm from '../loginComponents/SignUpForm'
+import MyPage from './MyPage'
 
 export default function Login({ onLogin }) {
   const { auth, login } = useAuth()  // useAuth 훅 사용

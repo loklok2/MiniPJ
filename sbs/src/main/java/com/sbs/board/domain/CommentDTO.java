@@ -32,9 +32,8 @@ public class CommentDTO {
 				.boardId(comment.getBoard() != null ? comment.getBoard().getId() : null)
 				.authorId(comment.getAuthor() != null ? comment.getAuthor().getId() : null)
 				.authorNickname(comment.getAuthor() != null ? comment.getAuthor().getNickname() : null)
-				.parentCommentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null)
 				.content(comment.getContent()).createDate(comment.getCreateDate()).editedDate(comment.getEditedDate())
-				.isEdited(comment.isEdited()).isChild(comment.isChild()).likeCount(comment.getLikeCount()).build();
+				.isEdited(comment.isEdited()).likeCount(comment.getLikeCount()).build();
 	}
 
 	// DTO를 엔티티로 변환하는 메서드 추가
@@ -44,12 +43,12 @@ public class CommentDTO {
 		comment.setBoard(board);
 		comment.setAuthor(author);
 		comment.setAuthorNickname(author.getNickname());
-		comment.setParentComment(parentComment);
+
 		comment.setContent(this.content);
 		comment.setCreateDate(this.createDate != null ? this.createDate : LocalDateTime.now());
 		comment.setEdited(this.isEdited);
 		comment.setEditedDate(this.editedDate);
-		comment.setChild(this.isChild);
+
 		comment.setLikeCount(this.likeCount);
 		return comment;
 	}

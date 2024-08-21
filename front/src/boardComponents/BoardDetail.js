@@ -36,7 +36,7 @@ export default function BoardDetail() {
 
         fetchBoard();
     }, [id]);
-    
+
     // 댓글 리스트 데이터 로드
     useEffect(() => {
         const fetchComments = async () => {
@@ -61,17 +61,18 @@ export default function BoardDetail() {
                 setComments([]) // 오류가 발생한 경우에도 빈 배열로 설정
             }
         }
-        
+
         fetchComments()
     }, [id])
-    
+
     useEffect(() => {
         if (board && auth.user) {
             console.log("Logged-in user ID:", auth.user.id); // 이 값이 제대로 출력되는지 확인합니다.
             console.log("Board author ID:", board.authorId);
         }
     }, [board, auth.user]);
-    
+
+
     // 게시판 삭제 핸들러
     const handleDelete = async () => {
         if (window.confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
@@ -95,17 +96,17 @@ export default function BoardDetail() {
             }
         }
     }
-    
+
     // 댓글이 추가되었을 때 호출되는 함수
     const handleCommentAdded = (newComment) => {
         setComments(prevComments => [...prevComments, newComment])  // 새 댓글을 리스트에 추가
     }
-    
+
     // 댓글 수정 핸들러
     const handleUpdateComment = async (commentId) => {
         const newContent = prompt('새로운 댓글 내용을 입력하세요:')
         if (!newContent) return
-        
+
         try {
             const response = await fetch(`http://localhost:8080/api/comments/${commentId}`, {
                 method: 'PUT',
@@ -188,12 +189,20 @@ export default function BoardDetail() {
         )
     }
 
+    // isAuthor 변수를 board가 null이 아닌 경우에만 설정
+    const isAuthor = auth.isLoggedIn && board && String(board.authorId) === String(auth.user?.id);
+
+    // 게시물 또는 사용자 정보가 없을 때 렌더링 방지
     if (loading) {
         return <p>Loading...</p>;
     }
 
     if (error) {
         return <p>{error}</p>;
+    }
+
+    if (!board) {
+        return <p>게시글을 찾을 수 없습니다.</p>;
     }
 
     return (
@@ -225,7 +234,7 @@ export default function BoardDetail() {
             </div>
 
             {/* 권한 확인 후 수정, 삭제 버튼 표시 */}
-            {auth.isLoggedIn && auth.user && auth.user.id === board.authorId && (
+            {isAuthor && (
                 <div className="flex justify-end space-x-4 mb-6">
                     <button
                         onClick={() => navigate(`/boards/edit/${id}`, { state: { board } })}

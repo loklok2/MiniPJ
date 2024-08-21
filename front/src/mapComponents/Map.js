@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import TransportInfo from './TransportInfo'
 
 // 마커 아이콘 이미지 파일 임포트
-import defaultMarker from '../images/defaultMarker.png'
-import selectedMarker from '../images/selectedMarker.png'
-import busMarker from '../images/busMarker.png'
-import subwayMarker1 from '../images/subwayMarker1.png'
-import subwayMarker2 from '../images/subwayMarker2.png'
-import subwayMarker3 from '../images/subwayMarker3.png'
-import donghaeLineMarker from '../images/donghaeLineMarker.png'
-import trainMarker from '../images/trainMarker.png'
-import transMarker from '../images/transMarker.png'
+import defaultMarker from '../assets/images/defaultMarker.png'
+import selectedMarker from '../assets/images/selectedMarker.png'
+import busMarker from '../assets/images/busMarker.png'
+import subwayMarker1 from '../assets/images/subwayMarker1.png'
+import subwayMarker2 from '../assets/images/subwayMarker2.png'
+import subwayMarker3 from '../assets/images/subwayMarker3.png'
+import donghaeLineMarker from '../assets/images/donghaeLineMarker.png'
+import trainMarker from '../assets/images/trainMarker.png'
+import transMarker from '../assets/images/transMarker.png'
 
 // 네이버 지도 API 클라이언트 ID 상수
 const NAVER_MAPS_CLIENT_ID = '8zmr5qp493'
@@ -27,6 +28,9 @@ export default function Map() {
     const [error, setError] = useState(null) // 오류 메시지를 저장하는 상태
     const [resetMap, setResetMap] = useState(false) // 지도를 초기화할지 여부를 추적하는 상태
     const [transportInfo, setTransportInfo] = useState([]) // 대중교통 정보를 저장하는 상태
+
+    const location = useLocation();
+    const { selectedSpot } = location.state || {}; // 전달된 상태 확인
 
     // 네이버 지도 API 로드를 담당하는 useEffect 훅
     useEffect(() => {
@@ -54,6 +58,22 @@ export default function Map() {
             fetchAndDisplayTransportMarkers(selectedLocation)
         }
     }, [selectedLocation])
+
+    useEffect(() => {
+        if (selectedLocation) {
+            fetchAndDisplayTransportMarkers(selectedLocation);
+        }
+    }, [locations]); // locations이 설정된 후 동작
+
+
+    // 네이버 지도 API 로드를 담당하는 useEffect 훅
+    useEffect(() => {
+        if (naverMap && selectedSpot) {
+            setSelectedLocation(selectedSpot);
+            fetchAndDisplayTransportMarkers(selectedSpot); // 선택된 장소에 대해 교통 마커 표시
+        }
+    }, [naverMap, selectedSpot]);
+
 
     // 선택된 마커의 아이콘을 변경하는 useEffect 훅
     useEffect(() => {
@@ -123,6 +143,14 @@ export default function Map() {
                 content: `<div style="padding: 10px; font-size: 12px;">${location.areaClturTrrsrtNm}</div>`, // 정보창에 표시될 내용
                 disableAutoPan: true, // 정보창이 열릴 때 자동으로 지도 중심이 이동하지 않도록 설정
             })
+
+            // 선택된 관광지와 현재 위치가 일치할 경우 마커 선택
+            if (selectedLocation && selectedLocation.keyId === location.keyId) {
+                setActiveMarker(marker);
+                setActiveInfoWindow(infoWindow);
+                updateMarkerIcon(marker, selectedMarker);
+                infoWindow.open(naverMap, marker);
+            }
 
             // 마커 클릭 이벤트 추가
             marker.addListener('click', () => handleLocationClick(location, marker, infoWindow))
@@ -269,9 +297,20 @@ export default function Map() {
 
     // 지도의 경계를 대중교통 마커에 맞추는 함수
     const fitMapBounds = (markers, location) => {
+        if (!naverMap) {
+            console.error("네이버 지도 객체(naverMap)가 초기화되지 않았습니다.");
+            return;
+        }
+
         const bounds = new window.naver.maps.LatLngBounds() // 지도 경계를 나타내는 객체 생성
         bounds.extend(new window.naver.maps.LatLng(location.trrsrtLa, location.trrsrtLo)) // 관광지 위치를 경계에 포함
-        markers.forEach((marker) => bounds.extend(marker.getPosition())) // 모든 대중교통 마커를 경계에 포함
+
+        markers.forEach((marker) => {
+            if (marker.getPosition()) {
+                bounds.extend(marker.getPosition());
+            }
+        }) // 모든 대중교통 마커를 경계에 포함
+
         naverMap.fitBounds(bounds) // 지도의 경계를 설정된 경계에 맞춤
     }
 

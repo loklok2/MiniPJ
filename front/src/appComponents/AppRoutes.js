@@ -1,10 +1,10 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth'; // useAuth 훅을 가져옵니다.
+import { useAuth } from '../hooks/useAuth'; // 사용자 인증 상태를 확인하기 위한 커스텀 훅
 
 import Home from '../pages/Home';
 import TouristSpots from '../pages/TouristSpots';
 import Map from '../mapComponents/Map';
-import Login from '../loginComponents/Login';
+import Login from '../pages/Login'
 import OAuth2RedirectHandler from '../loginComponents/OAuth2RedirectHandler';
 import MyPage from '../pages/MyPage';
 import SignUp from '../loginComponents/SignUp';
@@ -21,6 +21,7 @@ export default function AppRoutes() {
     // useAuth 훅을 사용하여 auth 상태를 가져옵니다.
     const { auth } = useAuth();
 
+    // auth 상태에서 로그인된 사용자 일 경우 mypage로, 아닐 경우 login 
     return (
         <Routes>
             <Route path="/" element={<Home />} />

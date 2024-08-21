@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // TouristSpotCard 컴포넌트는 개별 관광지 정보를 카드 형태로 보여줌
 // spot: 관광지 정보 객체로, 이름, 이미지 URL, 스토리 요약 등을 포함
@@ -7,6 +8,8 @@ import { useEffect } from 'react';
 // onViewMap: '지도에서 보기' 버튼 클릭 시 호출되는 함수
 
 export default function TouristSpotCard({ spot, isExpanded, onToggleExpand, onViewMap }) {
+    const navigate = useNavigate()
+
     // 관광지 스토리 요약을 40자까지만 보여주고, 그 이상일 경우 ...으로 표시
     const truncatedInfo = spot.trrsrtStrySumryCn.length > 40
         ? `${spot.trrsrtStrySumryCn.substring(0, 40)}...`
@@ -20,14 +23,10 @@ export default function TouristSpotCard({ spot, isExpanded, onToggleExpand, onVi
         console.log('이미지 URL:', imageSrc);
     }, [spot, imageSrc]);
 
-    const handleToggleExpand = () => {
-        console.log('스토리 확장/축소 전환:', spot.areaClturTrrsrtNm, 'isExpanded:', !isExpanded);
-        onToggleExpand();
-    };
-
     const handleViewMap = () => {
         console.log('지도에서 보기 클릭:', spot.areaClturTrrsrtNm);
-        onViewMap();
+        onViewMap(spot);
+        navigate('/map', { state: { selectedSpot: spot } }); // selectedSpot 데이터를 함께 전달
     };
 
     return (
@@ -68,7 +67,7 @@ export default function TouristSpotCard({ spot, isExpanded, onToggleExpand, onVi
                 </p>
                 {/* '지도에서 보기' 버튼 */}
                 <button
-                    onClick={onViewMap}  // 클릭 시 onViewMap 함수 호출
+                    onClick={handleViewMap}  // 클릭 시 onViewMap 함수 호출
                     className="mt-auto py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
                 >
                     지도에서 보기
