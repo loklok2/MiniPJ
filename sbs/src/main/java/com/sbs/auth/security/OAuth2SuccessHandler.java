@@ -59,7 +59,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         // JWT 토큰 생성
         String jwtToken = JWTUtil.getJWT(username);
-        String redirectUrl = "http://localhost:3000/oauth2/redirect?token=" + jwtToken + "&id=" + "&username=" + member.getUsername() + "&nickname=" + member.getNickname();
+        String redirectUrl = "http://localhost:3000/oauth2/redirect?token=" + jwtToken 
+        					+ "&id=" + member.getId()
+        					+ "&username=" + member.getUsername()
+        					+ "&nickname=" + member.getNickname();
         response.sendRedirect(redirectUrl);
     }
 }

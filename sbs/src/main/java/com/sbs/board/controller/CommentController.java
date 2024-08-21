@@ -35,25 +35,13 @@ public class CommentController {
 	// 게시글에 대한 모든 댓글 조회
 	@GetMapping("/public/board/{boardId}")
 	public ResponseEntity<List<CommentDTO>> getCommentByBoard(@PathVariable Long boardId) {
-		List<Comment> comments = commentService.getCommnetByBoard(boardId);
-		if (comments != null && !comments.isEmpty()) {
-			List<CommentDTO> commentDTOs = comments.stream()
-					.map(CommentDTO::fromEntity)
-					.toList();
-			return new ResponseEntity<>(commentDTOs, HttpStatus.OK);
-		}
-		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-	}
-
-//	// 특정 댓글 상세 조회
-//	@GetMapping("/public/{id}")
-//	public ResponseEntity<CommentDTO> getCommentById(@PathVariable Long id) {
-//		Comment comment = commentService.getCommentById(id);
-//		if (comment != null) {
-//			return new ResponseEntity<>(CommentDTO.fromEntity(comment), HttpStatus.OK);
-//		}
-//		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//	}
+        List<Comment> comments = commentService.getCommentsByBoard(boardId);
+        List<CommentDTO> commentDTOs = comments.stream()
+        									   .map(CommentDTO::fromEntity)
+        									   .toList();
+        return new ResponseEntity<>(commentDTOs, HttpStatus.OK);	// 200 OK와 함께 빈 리스트 반환
+    }
+	
 
 	// 댓글 작성
 	@PostMapping("/create")
@@ -78,7 +66,7 @@ public class CommentController {
 
 	// 댓글 수정
 	@PutMapping("/{id}")
-	public ResponseEntity<CommentDTO> updateComment(@PathVariable Long id, @RequestBody Map<String, String> requestBody, Authentication authentication) {
+	public ResponseEntity<CommentDTO> updateComment(@PathVariable("id") Long id, @RequestBody Map<String, String> requestBody, Authentication authentication) {
 		String username = authentication.getName();
 		String newContent = requestBody.get("content");
 
@@ -95,7 +83,7 @@ public class CommentController {
 
 	// 댓글 삭제
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deleteComment(@PathVariable Long id, Authentication authentication) {
+	public ResponseEntity<Void> deleteComment(@PathVariable("id") Long id, Authentication authentication) {
 		String username = authentication.getName();
 		if (commentService.deleteComment(id, username)) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);

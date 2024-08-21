@@ -1,11 +1,12 @@
 package com.sbs.location.service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.sbs.location.domain.LocationInfoData;
 import com.sbs.location.domain.LocationInfoDataDTO;
@@ -50,7 +51,8 @@ public class LocationInfoDataService {
     }
     
     public byte[] getImageDataById(int id) {
-        Optional<LocationInfoData> locationOpt = locationRepo.findById(id);
-        return locationOpt.map(LocationInfoData::getImageData).orElse(null);
+        LocationInfoData location = locationRepo.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이미지를 찾을 수 없습니다."));
+        return location.getImageData();
     }
 }

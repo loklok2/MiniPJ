@@ -5,11 +5,12 @@ import com.sbs.board.domain.Image;
 import com.sbs.board.domain.ImageDTO;
 import com.sbs.board.repository.ImageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -55,16 +56,14 @@ public class ImageService {
 
     // 개별 이미지 조회
     public ResponseEntity<byte[]> getImageById(Long id) {
-        Image image = imageRepo.findById(id).orElse(null);
+        Image image = imageRepo.findById(id)
+                // 이미지를 찾을 수 없을 때 404 Not Found 상태 코드 반환
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이미지를 찾을 수 없습니다."));
 
-        if (image != null) {
-            HttpHeaders headers = new HttpHeaders();
-            MediaType mediaType = MediaType.parseMediaType(image.getMimeType());
-            headers.setContentType(mediaType);
-            return new ResponseEntity<>(image.getData(), headers, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        HttpHeaders headers = new HttpHeaders();
+        MediaType mediaType = MediaType.parseMediaType(image.getMimeType());
+        headers.setContentType(mediaType);
+        return new ResponseEntity<>(image.getData(), headers, HttpStatus.OK);
     }
 
     // Image 엔티티를 ImageDTO로 변환하는 메서드

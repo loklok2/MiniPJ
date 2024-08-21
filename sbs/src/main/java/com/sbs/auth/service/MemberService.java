@@ -5,8 +5,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.sbs.auth.domain.Member;
 import com.sbs.auth.domain.MemberDTO;
@@ -35,7 +37,7 @@ public class MemberService {
     // 사용자 등록 메서드
     public Member registerUser(MemberDTO memberDTO) {
         if (memberRepository.existsByUsername(memberDTO.getUsername())) {
-            throw new RuntimeException("이미 사용 중인 사용자 이름입니다.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT,"이미 사용 중인 사용자 이름입니다.");
         }
 
         // 새로운 사용자 생성
@@ -70,7 +72,7 @@ public class MemberService {
     // 이메일 인증 처리 메서드
     public boolean verifyEmail(String tokenValue) {
         Token token = tokenRepository.findByTokenValue(tokenValue)
-                .orElseThrow(() -> new RuntimeException("유효하지 않은 인증 토큰입니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,"유효하지 않은 인증 토큰입니다."));
 
         if (token.getTokenType() != TokenType.VERIFICATION || token.getExpiryDate().isBefore(LocalDateTime.now())) {
             return false;
@@ -123,7 +125,7 @@ public class MemberService {
     // 사용자 이름으로 사용자 정보 찾기 메서드
     public Member findByUsername(String username) {
         return memberRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"사용자를 찾을 수 없습니다."));
     }
 
     // 닉네임으로 사용자 이름 찾기 메서드
@@ -135,32 +137,17 @@ public class MemberService {
     // 이메일 인증 여부 확인 메서드
     public boolean isEmailVerified(String username) {
         Member member = memberRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"사용자를 찾을 수 없습니다."));
         return member.isEnabled();
     }
 
     // 사용자 정보 가져오기 메서드
     public UserInfo getUserInfo(String username) {
         Member member = memberRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"사용자를 찾을 수 없습니다."));
 
         return new UserInfo(member.getUsername(), member.getNickname());
     }
 
-    // 소셜 로그인 후 추가 정보(닉네임 등) 업데이트 메서드
-//    public Member updateAdditionalInfo(MemberDTO memberDTO) {
-//        Optional<Member> memberOpt = memberRepository.findByUsername(memberDTO.getUsername());
-//
-//        if (memberOpt.isPresent()) {
-//            Member member = memberOpt.get();
-//            member.setNickname(memberDTO.getNickname()); // 닉네임 업데이트
-//            member.setEnabled(true); // 계정을 활성화
-//            memberRepository.save(member); // 변경된 사용자 정보 저장
-//            return member;
-//        }
-//
-//        return null;
-//    }
+
 }
-
-

@@ -42,7 +42,7 @@ public class BoardController {
 
 	// 특정 게시글을 ID로 조회하고 조회수를 증가시키는 엔드포인트
 	@GetMapping("/{id}")
-	public ResponseEntity<BoardDTO> getBoardById(@PathVariable Long id) {
+	public ResponseEntity<BoardDTO> getBoardById(@PathVariable("id") Long id) {
 		BoardDTO boardDTO = boardService.getBoardById(id);
 		if (boardDTO != null) {
 			return new ResponseEntity<>(boardDTO, HttpStatus.OK);
@@ -69,7 +69,7 @@ public class BoardController {
 
 	// 게시글을 수정하는 엔드포인트. 작성자만 수정 가능
 	@PutMapping("/{id}")
-	public ResponseEntity<BoardDTO> updateBoard(@PathVariable Long id, 
+	public ResponseEntity<BoardDTO> updateBoard(@PathVariable("id") Long id, 
 												@RequestPart("board") String boardJson,
 												@RequestPart(value = "images", required = false) List<MultipartFile> images,
 												Authentication authentication) throws JsonProcessingException {
@@ -88,7 +88,7 @@ public class BoardController {
 
 	// 게시글을 삭제하는 엔드포인트. 작성자만 삭제 가능
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deleteBoard(@PathVariable Long id, Authentication authentication) {
+	public ResponseEntity<Void> deleteBoard(@PathVariable("id") Long id, Authentication authentication) {
 		String currentUsername = authentication.getName();
 		if (boardService.deleteBoard(id, currentUsername)) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -98,7 +98,7 @@ public class BoardController {
 
 	// 게시글 좋아요 수를 증가시키는 엔드포인트
 	@PostMapping("/{id}/like")
-	public ResponseEntity<BoardDTO> likeBoard(@PathVariable Long id) {
+	public ResponseEntity<BoardDTO> likeBoard(@PathVariable("id") Long id) {
 		BoardDTO likedBoardDTO = boardService.likeBoard(id);
 		if (likedBoardDTO != null) {
 			return new ResponseEntity<>(likedBoardDTO, HttpStatus.OK);

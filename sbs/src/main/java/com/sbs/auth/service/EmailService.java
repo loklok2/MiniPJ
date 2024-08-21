@@ -1,9 +1,11 @@
 package com.sbs.auth.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -42,7 +44,8 @@ public class EmailService {
             helper.setFrom("your-email@gmail.com");
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {
-            throw new RuntimeException("이메일 전송 중 오류가 발생했습니다.", e);
+            // 이메일 전송 중 오류 발생 시 500 Internal Server Error 상태 코드 반환
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "이메일 전송 중 오류가 발생했습니다.", e);
         }
     }
 }
