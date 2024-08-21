@@ -18,12 +18,7 @@ public class LocationTourTransDataController {
 	@Autowired
 	private LocationTourTransDataService locationTourTransDataService;
 	
-//	@GetMapping("/all")
-//    public List<LocationTourTransDTO> getLocationInfo(){
-//        // 모든 위치 정보를 DTO로 반환합니다.
-//        return locationTourTransDataService.getAllLocationInfo();
-//    }
-	
+
 	@GetMapping("/{keyId}")
 	// 특정 관광지의 접근 대중교통 위치 정보를 반환합니다.
 	public List<LocationTourTransDTO> getTourTransByLocation(@PathVariable Integer keyId) {

@@ -30,10 +30,9 @@ import lombok.extern.slf4j.Slf4j;
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     
     private final AuthenticationManager authenticationManager;
-    
+
     @Value("${jwt.secret}")
-    private String jwtSecret;
-    
+    private String jwtSecret;  // application.properties 파일에서 주입된 JWT 서명 키
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -56,9 +55,9 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         // 인증 성공 후 JWT 토큰을 생성하고 응답 헤더에 추가합니다.
         User user = (User)authResult.getPrincipal();
         String token = JWT.create()
-                          .withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000)) //30분
+                          .withExpiresAt(new Date(System.currentTimeMillis() + 60 * 60 * 1000)) //30분
                           .withClaim("username", user.getUsername())
-                          .sign(Algorithm.HMAC256(jwtSecret));
+                          .sign(Algorithm.HMAC256(jwtSecret)); // 외부에서 주입된 서명 키 사용
         response.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
         response.setStatus(HttpStatus.OK.value());
     }

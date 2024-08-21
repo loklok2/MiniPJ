@@ -13,10 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ImageController {
 
     @Autowired
-    private ImageService imageService;
+    private ImageService imageService; 
 
     @GetMapping("/{id}")
     public ResponseEntity<byte[]> getImageById(@PathVariable Long id) {
+        // 이미지 ID로 이미지를 조회하고, ResponseEntity에 담아 반환
         return imageService.getImageById(id);
     }
 }

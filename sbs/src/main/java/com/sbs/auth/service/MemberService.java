@@ -23,21 +23,22 @@ import com.sbs.auth.repository.TokenRepository;
 public class MemberService {
 
     @Autowired
-    private MemberRepository memberRepository;
+    private MemberRepository memberRepository; 
 
     @Autowired
-    private TokenRepository tokenRepository;
+    private TokenRepository tokenRepository; 
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder; 
 
     @Autowired
-    private EmailService emailService;
+    private EmailService emailService; 
 
     // 사용자 등록 메서드
     public Member registerUser(MemberDTO memberDTO) {
         if (memberRepository.existsByUsername(memberDTO.getUsername())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,"이미 사용 중인 사용자 이름입니다.");
+            // 이미 존재하는 사용자 이름인 경우 예외 발생
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 사용 중인 사용자 이름입니다.");
         }
 
         // 새로운 사용자 생성
@@ -72,8 +73,9 @@ public class MemberService {
     // 이메일 인증 처리 메서드
     public boolean verifyEmail(String tokenValue) {
         Token token = tokenRepository.findByTokenValue(tokenValue)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,"유효하지 않은 인증 토큰입니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유효하지 않은 인증 토큰입니다."));
 
+        // 토큰 유형이 인증 토큰인지 확인하고 만료 여부 검사
         if (token.getTokenType() != TokenType.VERIFICATION || token.getExpiryDate().isBefore(LocalDateTime.now())) {
             return false;
         }
@@ -99,18 +101,20 @@ public class MemberService {
             token.setMember(member);
             tokenRepository.save(token); // 토큰 저장
 
-            String resetLink = "http://localhost:3000/reset-password?token=" + tokenValue; // 비밀번호 재설정 링크
+            String resetLink = "http://localhost:3000/reset-password?token=" + tokenValue; // 비밀번호 재설정 링크 생성
             emailService.sendPasswordResetMail(username, resetLink); // 이메일 전송
             return true;
         }
         return false;
     }
+
     // 비밀번호 재설정 처리 메서드
     public boolean resetPassword(String tokenValue, String newPassword) {
         Optional<Token> tokenOpt = tokenRepository.findByTokenValue(tokenValue);
 
         if (tokenOpt.isPresent()) {
             Token token = tokenOpt.get();
+            // 토큰 유형이 비밀번호 재설정 토큰인지 확인하고 만료 여부 검사
             if (token.getTokenType() == TokenType.RESET_PASSWORD && token.getExpiryDate().isAfter(LocalDateTime.now())) {
                 Member member = token.getMember();
                 member.setPassword(passwordEncoder.encode(newPassword)); // 새 비밀번호 암호화
@@ -125,7 +129,7 @@ public class MemberService {
     // 사용자 이름으로 사용자 정보 찾기 메서드
     public Member findByUsername(String username) {
         return memberRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
     }
 
     // 닉네임으로 사용자 이름 찾기 메서드
@@ -137,17 +141,15 @@ public class MemberService {
     // 이메일 인증 여부 확인 메서드
     public boolean isEmailVerified(String username) {
         Member member = memberRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
         return member.isEnabled();
     }
 
     // 사용자 정보 가져오기 메서드
     public UserInfo getUserInfo(String username) {
         Member member = memberRepository.findByUsername(username)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"사용자를 찾을 수 없습니다."));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
         return new UserInfo(member.getUsername(), member.getNickname());
     }
-
-
 }

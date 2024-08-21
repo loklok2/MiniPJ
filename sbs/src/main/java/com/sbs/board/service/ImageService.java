@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class ImageService {
 
     @Autowired
-    private ImageRepository imageRepo;
+    private ImageRepository imageRepo; // ImageRepository 주입
 
     private final String baseUrl = "http://localhost:8080/api/images/";
 
@@ -29,29 +29,29 @@ public class ImageService {
         if (images != null && !images.isEmpty()) {
             for (MultipartFile imageFile : images) {
                 Image image = new Image();
-                image.setFilename(imageFile.getOriginalFilename());
+                image.setFilename(imageFile.getOriginalFilename()); // 파일 이름 설정
                 try {
-                    image.setData(imageFile.getBytes());
-                    image.setMimeType(imageFile.getContentType());
+                    image.setData(imageFile.getBytes()); // 이미지 데이터 설정
+                    image.setMimeType(imageFile.getContentType()); // MIME 타입 설정
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    e.printStackTrace(); // 예외 발생 시 스택 트레이스 출력
                 }
-                image.setBoard(board);
-                imageRepo.save(image);
+                image.setBoard(board); // 게시물 설정
+                imageRepo.save(image); // 이미지 저장
             }
         }
     }
 
     // 특정 게시물에 연결된 이미지를 삭제하는 메서드
     public void deleteImagesByBoard(Board board) {
-        imageRepo.deleteByBoard(board);
+        imageRepo.deleteByBoard(board); // 게시물에 속한 이미지 삭제
     }
 
     // 특정 게시물에 속한 이미지를 모두 조회하여 ImageDTO 리스트로 반환
     public List<ImageDTO> getImagesByBoardId(Long boardId) {
         return imageRepo.findByBoardId(boardId).stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()); // 이미지 엔티티를 DTO로 변환하여 리스트로 반환
     }
 
     // 개별 이미지 조회
@@ -61,9 +61,9 @@ public class ImageService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이미지를 찾을 수 없습니다."));
 
         HttpHeaders headers = new HttpHeaders();
-        MediaType mediaType = MediaType.parseMediaType(image.getMimeType());
+        MediaType mediaType = MediaType.parseMediaType(image.getMimeType()); // MIME 타입 설정
         headers.setContentType(mediaType);
-        return new ResponseEntity<>(image.getData(), headers, HttpStatus.OK);
+        return new ResponseEntity<>(image.getData(), headers, HttpStatus.OK); // 이미지 데이터와 헤더 반환
     }
 
     // Image 엔티티를 ImageDTO로 변환하는 메서드

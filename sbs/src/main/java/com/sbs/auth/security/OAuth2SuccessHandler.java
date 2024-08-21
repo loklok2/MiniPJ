@@ -26,8 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 @Component  
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private final MemberRepository memberRepo;  
-    private final PasswordEncoder encoder;  
+    private final MemberRepository memberRepo;  // MemberRepository 주입
+    private final PasswordEncoder encoder;  // PasswordEncoder 주입
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, 
@@ -35,8 +35,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                                          Authentication authentication) throws IOException, ServletException {
         log.info("OAuth2SuccessHandler: 인증 성공 후 처리");
 
+        // 인증된 사용자 정보 가져오기
         OAuth2User user = (OAuth2User) authentication.getPrincipal();
-        String username = CustomMyUtil.getUsernameFromOAuth2User(user);
+        String username = CustomMyUtil.getUsernameFromOAuth2User(user); // OAuth2 사용자로부터 사용자 이름 추출
 
         if (username == null) {
             log.error("onAuthenticationSuccess: OAuth2 사용자로부터 사용자 이름을 생성할 수 없습니다!");
@@ -44,25 +45,28 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         }
         log.info("onAuthenticationSuccess: 사용자 이름 " + username);
 
+        // 사용자 이름으로 기존 회원 찾기 또는 새 회원 생성
         Member member = memberRepo.findByUsername(username)
             .orElseGet(() -> {
+                // 새 회원 생성 및 저장
                 Member newMember = Member.builder()
-                        .username(username)
+                        .username(username) // 사용자 이름 설정
                         .password(encoder.encode("1a2s3d4f")) // 임시 비밀번호 설정
                         .enabled(true) // 계정 활성화
                         .nickname(username) // 닉네임을 사용자 이름으로 설정
                         .role(Role.ROLE_MEMBER) // 기본 역할 설정
-                        .joinDate(LocalDateTime.now())
+                        .joinDate(LocalDateTime.now()) // 가입일자 설정
                         .build();
-                return memberRepo.save(newMember);
+                return memberRepo.save(newMember); // 새 회원 저장
             });
 
         // JWT 토큰 생성
         String jwtToken = JWTUtil.getJWT(username);
+        // 리다이렉트 URL 생성
         String redirectUrl = "http://localhost:3000/oauth2/redirect?token=" + jwtToken 
         					+ "&id=" + member.getId()
         					+ "&username=" + member.getUsername()
         					+ "&nickname=" + member.getNickname();
-        response.sendRedirect(redirectUrl);
+        response.sendRedirect(redirectUrl); // 클라이언트를 리다이렉트
     }
 }

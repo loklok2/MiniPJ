@@ -3,7 +3,6 @@ package com.sbs.board.service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,13 +23,13 @@ import jakarta.transaction.Transactional;
 public class CommentService {
 
     @Autowired
-    private CommentRepository commentRepo;
+    private CommentRepository commentRepo; // CommentRepository 주입
 
     @Autowired
-    private BoardRepository boardRepo;
+    private BoardRepository boardRepo; // BoardRepository 주입
 
     @Autowired
-    private MemberRepository memberRepository;
+    private MemberRepository memberRepository; // MemberRepository 주입
 
     // 게시글에 대한 전체 댓글 조회
     public List<Comment> getCommentsByBoard(Long boardId) {
@@ -38,8 +37,8 @@ public class CommentService {
                 // 게시글을 찾을 수 없을 때 404 Not Found 상태 코드 반환
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."));
 
-        List<Comment> comments = commentRepo.findByBoard(board);
-        return comments.isEmpty() ? new ArrayList<>() : comments;
+        List<Comment> comments = commentRepo.findByBoard(board); // 게시글에 해당하는 댓글 조회
+        return comments.isEmpty() ? new ArrayList<>() : comments; // 댓글이 없으면 빈 리스트 반환
     }
 
     // 특정 댓글의 상세 조회
@@ -85,10 +84,10 @@ public class CommentService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "댓글을 수정할 권한이 없습니다.");
         }
 
-        comment.setContent(newContent);
+        comment.setContent(newContent); // 댓글 내용 수정
         comment.setEdited(true); // 수정 여부 설정
         comment.setEditedDate(LocalDateTime.now()); // 수정 시간 설정
-        return commentRepo.save(comment);
+        return commentRepo.save(comment); // 수정된 댓글 저장
     }
 
     // 댓글 삭제
@@ -103,7 +102,7 @@ public class CommentService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "댓글을 삭제할 권한이 없습니다.");
         }
 
-        commentRepo.delete(comment);
+        commentRepo.delete(comment); // 댓글 삭제
         return true;
     }
 
@@ -113,7 +112,7 @@ public class CommentService {
                 // 댓글을 찾을 수 없을 때 404 Not Found 상태 코드 반환
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."));
 
-        comment.setLikeCount(comment.getLikeCount() + 1);
-        return commentRepo.save(comment);
+        comment.setLikeCount(comment.getLikeCount() + 1); // 좋아요 수 증가
+        return commentRepo.save(comment); // 변경 사항 저장
     }
 }
