@@ -1,5 +1,6 @@
 export default function TransportInfo({ selectedLocation }) {
     // 선택된 위치 정보가 없거나 해당 위치에 'areaClturTrrsrtNm' 속성이 없을 경우 기본 메시지를 반환
+    // 'selectedLocation'이 null이거나 정의되지 않은 경우 또는 'areaClturTrrsrtNm' 속성이 없는 경우에만 기본 메시지를 반환합니다.
     if (!selectedLocation || !selectedLocation.areaClturTrrsrtNm) {
         return (
             <p className="text-gray-500 text-xl">
@@ -8,6 +9,7 @@ export default function TransportInfo({ selectedLocation }) {
         ) // 기본 메시지의 텍스트 크기를 크게 설정
     }
 
+    // 선택된 위치 정보가 유효한 경우, 위치 정보를 렌더링합니다.
     return (
         <div className="p-6 bg-white rounded-lg shadow-lg transition-shadow duration-300 ease-in-out hover:shadow-xl h-full overflow-auto">
             {/* p-6: 내부 여백을 1.5rem 설정

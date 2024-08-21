@@ -1,0 +1,91 @@
+
+
+
+### 코드 리뷰 상세 설명
+
+이 코드는 `TransportInfo` 컴포넌트를 사용하여 선택된 관광지의 상세 정보를 사용자에게 보여줍니다. 코드의 각 부분은 Tailwind CSS를 활용하여 스타일링되었으며, 사용자가 보기 쉽게 구체적인 정보가 구성되어 있습니다. 아래에서는 이 코드의 전반적인 구조, 주요 기능, 그리고 코드의 각 부분에 대해 자세히 설명하겠습니다.
+
+#### 1. **기능 및 동작 설명**
+- **선택된 관광지 정보 표시:** 사용자가 특정 관광지를 선택하면, 그 관광지에 대한 이름, 설명, 핵심 키워드, 주소 등의 정보를 화면에 보여줍니다.
+- **기본 메시지 제공:** 선택된 위치 정보가 없거나 유효하지 않을 경우, "선택된 위치 정보가 없습니다."라는 기본 메시지를 표시합니다.
+- **반응형 디자인:** Tailwind CSS를 활용하여 다양한 화면 크기에 적합한 레이아웃과 스타일을 제공합니다. 예를 들어, 큰 화면과 작은 화면에서의 텍스트 크기와 레이아웃이 자동으로 조정됩니다.
+
+#### 2. **구조 및 구성 설명**
+코드는 크게 두 부분으로 나눌 수 있습니다:
+- **조건부 렌더링:** `selectedLocation`이 없거나 `areaClturTrrsrtNm` 속성이 없을 경우 기본 메시지를 출력합니다.
+- **관광지 정보 렌더링:** 선택된 관광지의 세부 정보를 여러 섹션에 걸쳐 렌더링합니다. 각각의 섹션은 Tailwind CSS 클래스를 통해 스타일링됩니다.
+
+#### 3. **세부 코드 설명**
+- **선택된 위치 정보 검증 및 기본 메시지 출력**
+    ```javascript
+    if (!selectedLocation || !selectedLocation.areaClturTrrsrtNm) {
+        return (
+            <p className="text-gray-500 text-xl">
+                선택된 위치 정보가 없습니다.
+            </p>
+        )
+    }
+    ```
+    - `selectedLocation` 객체가 `null`이거나 해당 객체에 `areaClturTrrsrtNm` 속성이 없으면, 정보가 없다는 메시지를 표시합니다.
+    - `text-gray-500 text-xl` 클래스는 텍스트를 회색으로 설정하고, 크기를 크게 합니다.
+
+- **컨테이너 및 전반적인 스타일링**
+    ```javascript
+    <div className="p-6 bg-white rounded-lg shadow-lg transition-shadow duration-300 ease-in-out hover:shadow-xl h-full overflow-auto">
+        {/* ... */}
+    </div>
+    ```
+    - 이 컨테이너는 모든 관광지 정보를 포함하며, `p-6`은 여백, `bg-white`는 배경색, `rounded-lg`는 모서리를 둥글게, `shadow-lg`는 그림자를 설정하여 카드 모양을 제공합니다.
+    - `transition-shadow duration-300 ease-in-out`은 그림자 효과에 애니메이션을 추가하여, 마우스를 올릴 때 시각적으로 더 생동감 있게 만듭니다.
+    - `h-full overflow-auto`는 전체 높이를 부모 요소에 맞추고, 내용이 넘칠 경우 스크롤이 가능하도록 합니다.
+
+- **관광지 이름 및 설명**
+    ```javascript
+    <div className="bg-blue-50 p-6 rounded-lg mb-6 shadow-sm">
+        <h3 className="text-3xl text-blue-700 font-bold mb-4 sm:text-2xl">
+            {selectedLocation.areaClturTrrsrtNm}
+        </h3>
+        <p className="text-gray-800 text-lg leading-relaxed sm:text-base">
+            {selectedLocation.trrsrtStryNm}
+        </p>
+    </div>
+    ```
+    - `areaClturTrrsrtNm` 속성은 관광지의 이름을 나타내며, 크게 강조됩니다.
+    - `trrsrtStryNm` 속성은 관광지 설명으로, 적당한 크기와 간격을 두어 가독성을 높였습니다.
+
+- **핵심 키워드 표시**
+    ```javascript
+    <div className="mb-6">
+        <h4 className="inline-block bg-blue-100 text-blue-600 font-semibold text-lg py-2 px-4 rounded-full shadow-sm sm:text-base">
+            # {selectedLocation.coreKwrdCn}
+        </h4>
+    </div>
+    ```
+    - 핵심 키워드는 해시태그 스타일로 표시되며, `inline-block`, `rounded-full`, `shadow-sm` 등을 사용해 스타일링되었습니다.
+    - 텍스트 크기와 배경색, 텍스트 색상이 모두 Tailwind CSS 클래스로 쉽게 설정되었습니다.
+
+- **주소 정보 표시**
+    ```javascript
+    <div className="bg-gray-50 p-6 rounded-lg shadow-sm mb-6">
+        <h5 className="text-2xl text-gray-800 font-semibold mb-3 sm:text-xl">
+            주소
+        </h5>
+        <p className="text-gray-700 leading-relaxed text-lg sm:text-base">
+            {selectedLocation.addr}
+        </p>
+    </div>
+    ```
+    - 주소 정보는 `addr` 속성을 사용하여 표시됩니다.
+    - 배경색은 연한 회색으로 설정되고, 글자는 가독성이 좋도록 적당한 크기와 줄 간격을 유지합니다.
+
+#### 4. **Tailwind CSS 사용에 대한 평가**
+- **효율적인 스타일링:** Tailwind CSS를 사용하여 코드를 간결하게 유지하면서도 매우 직관적이고 읽기 쉬운 스타일링을 적용했습니다. 각 클래스는 디자인 의도를 명확히 나타내며, CSS 작성에 드는 시간을 절약합니다.
+- **반응형 디자인:** 다양한 화면 크기에서 적절한 사용자 경험을 제공하기 위해 반응형 디자인을 적용했습니다. 작은 화면에서는 텍스트 크기를 줄이는 등, 사용자 경험을 최적화했습니다.
+- **일관된 스타일링:** 각 요소에 일관된 스타일링이 적용되어, 전체적인 UI의 통일성을 유지하고 있습니다.
+
+#### 5. **제안 사항**
+- **에러 처리:** 컴포넌트에서 더 많은 예외 상황을 처리할 수 있는 로직을 추가하면 좋습니다. 예를 들어, 데이터가 누락되었거나 API 호출에 실패했을 때의 대처 방안을 고려할 수 있습니다.
+- **확장성:** 이 컴포넌트가 더 많은 정보나 다양한 데이터 타입을 지원해야 할 경우, 추가적인 레이아웃과 스타일링을 미리 준비해 두면 좋습니다.
+- **테스트:** 각 부분에 대한 단위 테스트를 작성하여 컴포넌트의 안정성을 보장하는 것도 좋은 방법입니다.
+
+이 코드 리뷰를 통해 이 코드의 목적, 구조, 스타일링 등에 대해 더 깊이 이해할 수 있었길 바랍니다. 필요하다면 더 구체적인 피드백이나 추가적인 설명도 제공해 드릴 수 있습니다.

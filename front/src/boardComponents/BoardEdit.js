@@ -1,86 +1,116 @@
-import { useState, useEffect, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
+import { useState, useEffect, useCallback } from "react"
+import { useParams, useNavigate } from "react-router-dom"
+import { useAuth } from "../hooks/useAuth"
+
+// API 기본 URL 설정: 환경 변수에서 가져오거나 기본값으로 로컬호스트 사용
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080/api'
 
 export default function BoardEdit() {
-  const { boardId } = useParams();
-  const [formData, setFormData] = useState({ title: '', content: '' });
-  const [images, setImages] = useState([]); // 이미지 파일을 저장하는 상태
-  const [imagePreviews, setImagePreviews] = useState([]); // 이미지 미리보기를 위한 상태
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
-  const navigate = useNavigate();
-  const { auth } = useAuth();
+  
+  // 게시물의 제목과 내용을 관리하는 상태
+  const [formData, setFormData] = useState({ title: '', content: '' })
+  
+  // 업로드된 이미지 파일들을 저장하는 상태
+  const [images, setImages] = useState([])
+  
+  // 이미지 미리보기를 위한 상태
+  const [imagePreviews, setImagePreviews] = useState([])
+  
+  // 오류 메시지를 저장하는 상태
+  const [error, setError] = useState(null)
+  
+  // 성공 메시지를 저장하는 상태
+  const [success, setSuccess] = useState(null)
+  
+  // useParams 훅을 사용하여 URL의 파라미터에서 boardId를 가져옴
+  const { boardId } = useParams()
+  
+  // useAuth 훅을 사용하여 인증 정보를 가져옴
+  const { auth } = useAuth()
 
-  // 게시물 데이터를 가져오는 함수
+  // 페이지 이동을 위한 useNavigate 훅
+  const navigate = useNavigate()
+
+  // 게시물 데이터를 서버로부터 가져오는 비동기 함수
   const fetchBoard = useCallback(async () => {
     try {
-      const response = await fetch(`http://localhost:8080/api/boards/${boardId}`);
+      // boardId에 해당하는 게시물 데이터를 가져옴
+      const response = await fetch(`${API_BASE_URL}/boards/${boardId}`)
 
+      // 응답이 성공적이지 않을 경우 오류를 발생시킴
       if (!response.ok) {
-        console.log('Response:', response);
-        throw new Error('게시물을 가져오는 중 오류가 발생했습니다.');
+        console.log('Response:', response)
+        throw new Error('게시물을 가져오는 중 오류가 발생했습니다.')
       }
 
-      const data = await response.json();
-      setFormData({ title: data.title, content: data.content });
-      setImagePreviews(data.images.map(image => image.url)); // 기존 이미지를 미리보기로 설정
+      // 응답 데이터를 JSON 형식으로 파싱하여 상태에 저장
+      const data = await response.json()
+      setFormData({ title: data.title, content: data.content })
+
+      // 기존 이미지를 미리보기로 설정
+      setImagePreviews(data.images.map(image => image.url))
     } catch (error) {
-      setError(error.message);
+      setError(error.message) // 오류가 발생하면 error 상태에 저장
     }
-  }, [boardId]);
+  }, [boardId])
 
+  // 컴포넌트가 마운트될 때 fetchBoard 함수를 호출하여 게시물 데이터를 로드
   useEffect(() => {
-    fetchBoard();
-  }, [fetchBoard]);
+    fetchBoard()
+  }, [fetchBoard])
 
-  // 입력 값 변경 시 상태 업데이트
+  // 입력 필드 값이 변경될 때 상태를 업데이트하는 함수
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
-  };
+    const { name, value } = e.target
+    setFormData((prevData) => ({ ...prevData, [name]: value }))
+  }
 
-  // 이미지 파일 변경 시 상태 업데이트 및 미리보기 생성
+  // 이미지 파일이 변경될 때 상태를 업데이트하고 미리보기를 생성하는 함수
   const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    setImages(files);
+    const files = Array.from(e.target.files)
+    setImages(files)
 
-    const previews = files.map(file => URL.createObjectURL(file));
-    setImagePreviews(previews);
-  };
+    // 업로드된 파일들의 미리보기를 생성하여 상태에 저장
+    const previews = files.map(file => URL.createObjectURL(file))
+    setImagePreviews(previews)
+  }
 
-  // 수정 요청 처리 함수
+  // 게시물 수정 요청을 처리하는 비동기 함수
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(null);
+    e.preventDefault()
+    setError(null)
+    setSuccess(null)
 
-    const formDataToSend = new FormData();
-    formDataToSend.append('board', JSON.stringify(formData)); // JSON 직렬화
+    // 폼 데이터를 전송하기 위한 FormData 객체 생성
+    const formDataToSend = new FormData()
+    formDataToSend.append('board', JSON.stringify(formData)) // JSON 형식으로 직렬화된 게시물 데이터를 추가
     images.forEach((image) => {
-      formDataToSend.append('images', image);
-    });
+      formDataToSend.append('images', image) // 이미지 파일들을 FormData에 추가
+    })
 
     try {
-      const response = await fetch(`http://localhost:8080/api/boards/${boardId}`, {
+      // PUT 요청으로 게시물 수정 요청을 전송
+      const response = await fetch(`${API_BASE_URL}/boards/${boardId}`, {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${auth.token}`,
+          'Authorization': `Bearer ${auth.token}`, // 인증 토큰을 헤더에 포함
         },
-        body: formDataToSend,
-      });
+        body: formDataToSend, // 폼 데이터를 요청 본문으로 전송
+      })
 
+      // 응답이 성공적이지 않을 경우 오류를 발생시킴
       if (!response.ok) {
-        const errorMessage = await response.text();
-        throw new Error(`게시물 수정에 실패했습니다: ${errorMessage}`);
+        const errorMessage = await response.text()
+        throw new Error(`게시물 수정에 실패했습니다: ${errorMessage}`)
       }
 
-      setSuccess('게시물이 성공적으로 수정되었습니다.');
-      setTimeout(() => navigate(`/boards/${boardId}`), 2000);
+      // 수정 성공 메시지를 상태에 저장하고, 2초 후에 해당 게시물 페이지로 이동
+      setSuccess('게시물이 성공적으로 수정되었습니다.')
+      setTimeout(() => navigate(`/boards/${boardId}`), 2000)
     } catch (error) {
-      setError(error.message);
+      setError(error.message) // 오류가 발생하면 error 상태에 저장
     }
-  };
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
@@ -134,5 +164,5 @@ export default function BoardEdit() {
         </form>
       </div>
     </div>
-  );
+  )
 }

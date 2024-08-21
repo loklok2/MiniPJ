@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth'; // 사용자 인증 상태를 확인
 
 import Home from '../pages/Home';
 import TouristSpots from '../pages/TouristSpots';
-import Map from '../mapComponents/Map';
+import Map from '../pages/Map';
 import Login from '../pages/Login'
 import OAuth2RedirectHandler from '../loginComponents/OAuth2RedirectHandler';
 import MyPage from '../pages/MyPage';

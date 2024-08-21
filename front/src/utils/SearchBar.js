@@ -21,14 +21,16 @@ export default function SearchBar({ searchText, onSearchTextChange, onSearch }) 
                     value={searchText}  // 입력 필드의 값은 searchText 상태로 관리
                     onChange={(e) => onSearchTextChange(e.target.value)}  // 입력 값이 변경될 때 onSearchTextChange 함수 호출
                     onKeyDown={handleKeyDown}  // 키를 누를 때 handleKeyDown 함수 호출
-                    className="w-full p-4 pl-12 pr-4 bg-white border border-gray-300 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full p-4 pl-12 pr-4 bg-white
+                               border border-gray-300 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     style={{ transition: 'box-shadow 0.3s ease-in-out' }}  // 스타일: 부드러운 그림자 전환 효과
                 />
                 
                 {/* 검색 버튼 */}
                 <button
                     onClick={onSearch}  // 버튼 클릭 시 onSearch 함수 호출
-                    className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-blue-500 text-white rounded-full p-3 hover:bg-blue-600 transition"
+                    className="absolute top-1/2 right-4 
+                               transform -translate-y-1/2 bg-blue-500 text-white rounded-full p-3 hover:bg-blue-600 transition"
                     style={{ boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}  // 버튼에 그림자 추가
                 >
                     {/* 검색 아이콘 (돋보기 모양) */}
