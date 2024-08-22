@@ -40,6 +40,7 @@ export default function TouristSpots() {
 
     // 다른 페이지로부터 전달받은 상태 추출
     const { selectedPhoto, searchQuery } = location.state || {}
+    // console.log('selectedPhoto', selectedPhoto)
 
     // 컴포넌트 마운트 시 및 dependencies 변경 시 관광지 데이터 fetch
     useEffect(() => {
@@ -94,7 +95,8 @@ export default function TouristSpots() {
     const filterSpotsByPhoto = (data, photo) => {
         const filtered = data.filter(spot => {
             const imageDataBase64 = `data:image/png;base64,${spot.imageData.trim()}`
-            return imageDataBase64 === photo.trim()
+            // console.log('imageDataBase64', imageDataBase64)
+            return imageDataBase64 == photo.trim()
         })
         setFilteredSpots(filtered)
     }

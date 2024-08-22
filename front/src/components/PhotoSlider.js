@@ -1,201 +1,187 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
-import { SlArrowLeft, SlArrowRight } from "react-icons/sl"
+import { SlArrowLeft, SlArrowRight } from 'react-icons/sl'
 
+// PhotoSlider 컴포넌트는 주어진 사진들을 무작위로 섞어서 슬라이드 쇼 형태로 보여줍니다.
+// 사용자는 이전/다음 버튼을 클릭하거나, 이미지를 클릭하여 해당 이미지를 선택할 수 있습니다.
 export default function PhotoSlider({ photos = [], onPhotoClick }) {
-    const [currentIndex, setCurrentIndex] = useState(0) // 현재 슬라이더의 인덱스를 관리
-    const [randomPhotos, setRandomPhotos] = useState([]) // 랜덤으로 선택된 사진들을 관리
-    const [isClickable, setIsClickable] = useState(true) // 사용자가 버튼을 클릭할 수 있는 상태인지 관리
-    const [isImagesLoaded, setIsImagesLoaded] = useState(false) // 이미지가 모두 로드되었는지 관리
-    const slideIntervalRef = useRef(null) // 자동 슬라이드의 인터벌을 관리하기 위한 ref
-    const location = useLocation()  // 현재 페이지의 위치를 가져오기 위한 훅
+    // 슬라이드에서 현재 보여주고 있는 이미지의 인덱스를 관리하는 상태입니다.
+    // 초기값은 0이며, 이는 첫 번째 이미지를 의미합니다.
+    const [currentIndex, setCurrentIndex] = useState(0)
+    
+    // 무작위로 섞인 사진들의 배열을 관리하는 상태입니다.
+    // 초기값은 빈 배열이며, `photos` 배열이 변경될 때마다 이 배열이 갱신됩니다.
+    const [randomPhotos, setRandomPhotos] = useState([])
+    
+    // 버튼이나 이미지가 클릭 가능한 상태인지 관리하는 상태입니다.
+    // `false`인 경우 사용자의 클릭을 무시하며, 슬라이드 전환 중이나 이미지 로드 중에 비활성화됩니다.
+    const [isClickable, setIsClickable] = useState(true)
+    
+    // 모든 이미지가 로드되었는지 여부를 관리하는 상태입니다.
+    // 초기값은 `false`이며, 이미지가 모두 로드된 후에 `true`로 설정됩니다.
+    const [isImagesLoaded, setIsImagesLoaded] = useState(false)
+    
+    // 자동 슬라이드 기능을 관리하기 위한 타이머의 참조를 저장합니다.
+    // `useRef`를 사용하여 타이머 ID를 저장하고, 컴포넌트가 언마운트되거나 상태가 변경될 때 타이머를 해제합니다.
+    const slideIntervalRef = useRef(null)
+    
+    // 현재 페이지의 URL 위치를 가져오기 위해 `useLocation` 훅을 사용합니다.
+    // 이는 페이지가 변경될 때마다 슬라이드 쇼를 초기화하는 데 사용됩니다.
+    const location = useLocation()
 
-    // 사진 목록에서 랜덤하게 세 개의 사진을 선택하는 함수
-    const selectRandomPhotos = (photos) => {
-        /* 
-        [...photos]는 전개 연산자(spread operator)를 사용, photos 배열을 직접 수정하지 않고, 원본 배열을 유지 새로운 배열을 생성
-        Array.prototype.sort(): 기본적으로 배열을 정렬하는 함수, 비교 함수(compare function)를 인수로 받을 수 있습니다.(비교 함수는 두 요소의 상대적인 순서를 결정하는 데 사용)
-        비교 함수 () => 0.5 - Math.random(): 무작위로 음수 또는 양수를 반환하기 때문에, 배열의 요소들이 무작위로 섞일 가능성이 높아지고, 비교 함수가 양수와 음수 모두를 반환하기 때문에, 요소들의 상대적 순서가 자주 바뀝니다.
-         */
-        const shuffled = [...photos].sort(() => 0.5 - Math.random())
-        return shuffled.slice(0, 3)
+    // 배열을 무작위로 섞는 셔플 함수입니다.
+    // Fisher-Yates 알고리즘을 사용하여 주어진 배열의 요소들을 무작위로 재배열합니다.
+    const shuffleArray = (array) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            // 현재 요소와 무작위로 선택된 요소의 위치를 교환합니다.
+            const j = Math.floor(Math.random() * (i + 1))
+            ;[array[i], array[j]] = [array[j], array[i]]
+        }
+        return array // 섞인 배열을 반환합니다.
     }
 
-    // 사진 목록이 변경되면 랜덤으로 세 장의 사진을 선택하여 상태를 업데이트
+    // `photos` 배열이 변경될 때마다 실행되는 `useEffect` 훅입니다.
+    // 이 훅은 `photos` 배열을 무작위로 셔플하여 `randomPhotos` 상태에 저장합니다.
     useEffect(() => {
-        if (photos.length > 0) {
-            const selectedPhotos = selectRandomPhotos(photos)
-            setRandomPhotos(selectedPhotos)
+        if (photos.length > 0) { // `photos` 배열에 요소가 있는지 확인합니다.
+            const shuffledPhotos = shuffleArray([...photos]) // 원본 배열을 복사한 후 셔플합니다.
+            setRandomPhotos(shuffledPhotos) // 셔플된 배열을 상태로 설정합니다.
+            console.log('Shuffled photos:', shuffledPhotos) // 셔플된 배열을 콘솔에 출력합니다.
         }
-    }, [photos])
+    }, [photos]) // `photos` 배열이 변경될 때마다 이 훅이 실행됩니다.
 
-    // 랜덤으로 선택된 사진과 이미지 로드 상태가 설정되면 자동 슬라이드 기능을 시작
+    // 슬라이드 쇼를 자동으로 진행하기 위한 `useEffect` 훅입니다.
+    // `randomPhotos` 배열이 준비되고 모든 이미지가 로드되면 이 훅이 실행됩니다.
     useEffect(() => {
-        // randomPhotos 배열에 요소가 있고, 모든 이미지가 로드된 상태라면 아래 코드 블록 실행
-        if (randomPhotos.length > 0 && isImagesLoaded) {
-            // setInterval을 사용하여 5초(5000ms)마다 슬라이드를 자동으로 전환하는 타이머 설정
+        if (randomPhotos.length > 0 && isImagesLoaded) { // 무작위 사진 배열과 이미지 로드 상태가 준비된 경우
+            console.log('Images loaded and photos available, starting slide show')
+            
+            // 5초마다 자동으로 다음 슬라이드로 이동하기 위한 타이머를 설정합니다.
             slideIntervalRef.current = setInterval(() => {
-                // 슬라이드가 전환될 때 클릭을 일시적으로 비활성화하여 중복 클릭을 방지
-                setIsClickable(false)
-
-                /*
-                currentIndex를 업데이트하여 다음 슬라이드로 전환
-                (현재 인덱스 + 1) % 슬라이드 개수 -> 마지막 슬라이드에서 첫 번째 슬라이드로 순환
-                */
-                setCurrentIndex((prevIndex) =>
-                    (prevIndex + 1) % randomPhotos.length
-                )
-
-                // 슬라이드 전환 후 1초(1000ms) 후에 클릭을 다시 활성화
+                console.log('Auto sliding to the next image')
+                setIsClickable(false) // 슬라이드가 전환될 때 클릭을 비활성화합니다.
+                setCurrentIndex((prevIndex) => {
+                    const nextIndex = (prevIndex + 1) % randomPhotos.length // 다음 인덱스를 계산합니다.
+                    console.log('Next index:', nextIndex)
+                    return nextIndex
+                })
+                
+                // 슬라이드 전환이 완료된 후 1초 후에 클릭을 다시 활성화합니다.
                 setTimeout(() => {
+                    console.log('Making slides clickable again')
                     setIsClickable(true)
                 }, 1000)
+            }, 5000) // 5초마다 슬라이드가 전환됩니다.
 
-            }, 5000)    // 이 타이머는 5초마다 실행됨
+            // 컴포넌트가 언마운트되거나 상태가 변경될 때 타이머를 해제합니다.
+            return () => {
+                console.log('Clearing slide interval')
+                clearInterval(slideIntervalRef.current)
+            }
         }
+    }, [randomPhotos, isImagesLoaded]) // `randomPhotos` 또는 `isImagesLoaded`가 변경될 때마다 실행됩니다.
 
-        /* 
-        useEffect의 클린업 함수: 
-        컴포넌트가 언마운트되거나, randomPhotos 또는 isImagesLoaded가 변경될 때
-        현재 설정된 인터벌 타이머를 해제하여 메모리 누수를 방지하고, 
-        불필요한 타이머 동작을 중지
-        */
-        return () => clearInterval(slideIntervalRef.current)
-    }, [randomPhotos, isImagesLoaded])  // randomPhotos 또는 isImagesLoaded가 변경될 때마다 이 useEffect가 재실행됨
-
-    /*
-    페이지가 변경되거나 컴포넌트가 언마운트될 때, 슬라이드 쇼와 관련된 상태를 초기화하고 
-    인터벌 타이머를 해제하는 등 정리 작업을 수행 
-    이를 통해 페이지 간 이동 시 슬라이드 쇼가 불필요하게 계속 동작하는 것을 방지, 
-    새로운 페이지로의 전환을 깔끔하게 처리
-     */
-    // 사용자가 뒤로 가기를 하거나 페이지를 떠날 때 슬라이드를 초기화
+    // 페이지 이동이나 컴포넌트 언마운트 시 슬라이더를 초기화하는 `useEffect` 훅입니다.
     useEffect(() => {
-        // useEffect의 반환 함수로, 정리 작업을 수행
         return () => {
-            // 현재 설정된 슬라이드 전환 타이머(인터벌)를 해제하여, 슬라이드 쇼가 중지되도록 함
-            clearInterval(slideIntervalRef.current)
-
-            // 슬라이드 쇼의 현재 인덱스를 0으로 초기화하여, 다음에 슬라이드 쇼가 시작될 때 첫 번째 슬라이드부터 시작하도록 설정
-            setCurrentIndex(0)
-
-            // 이미지가 로드되지 않은 상태로 초기화
-            setIsImagesLoaded(false)
-
-            // 슬라이드 쇼에서 사용자 인터랙션(클릭)을 가능하도록 클릭 상태를 true로 초기화
-            setIsClickable(true)
+            console.log('Location change detected, resetting slider')
+            clearInterval(slideIntervalRef.current) // 자동 슬라이드 타이머를 해제합니다.
+            setCurrentIndex(0) // 슬라이드 인덱스를 초기화합니다.
+            setIsImagesLoaded(false) // 이미지 로드 상태를 초기화합니다.
+            setIsClickable(true) // 클릭 가능 상태를 초기화합니다.
         }
-    }, [location])  // location이 변경될 때마다 이 useEffect 훅이 실행됨
+    }, [location]) // 페이지 위치가 변경될 때마다 이 훅이 실행됩니다.
 
-    /*
-    슬라이드 쇼에서 이전 버튼을 클릭했을 때 실행 
-    사용자가 버튼을 클릭하면 슬라이드 쇼의 현재 인덱스가 감소하여 이전 슬라이드로 이동
-    그러나 클릭 가능한 상태인지(isClickable) 여부를 확인한 후에만 동작하며, 
-    슬라이드의 순환(첫 번째 슬라이드에서 이전 슬라이드로 이동할 때 마지막 슬라이드로 이동)을 처리하는 논리를 포함
-     */
-    // 이전 버튼 클릭 시 슬라이더의 인덱스를 감소
+    // 이전 슬라이드로 이동하는 함수입니다.
+    // 사용자가 이전 버튼을 클릭했을 때 호출됩니다.
     const handlePrevClick = () => {
-        // 슬라이드가 클릭 가능한 상태인지 확인
-        if (isClickable) {
-            /* 
-            prevIndex - 1: 현재 인덱스를 하나 감소시켜 이전 슬라이드로 이동
-             + randomPhotos.length: 인덱스가 음수가 되는 것을 방지하기 위해 
-                                    슬라이드 전체   개수를 더함
-            % randomPhotos.length: 슬라이드 개수로 나눈 나머지를 계산하여, 
-                                   순환 방식으로 첫 번째 슬라이드에서 마지막 슬라이드로 돌아가게 함
-             */
-            setCurrentIndex((prevIndex) =>
-                (prevIndex - 1 + randomPhotos.length) % randomPhotos.length
-            )
+        if (isClickable) { // 클릭 가능한 상태인지 확인합니다.
+            console.log('Previous button clicked')
+            setCurrentIndex((prevIndex) => {
+                // 이전 인덱스를 계산하여 순환형 슬라이드를 구현합니다.
+                const nextIndex = (prevIndex - 1 + randomPhotos.length) % randomPhotos.length
+                console.log('Previous index:', nextIndex)
+                return nextIndex
+            })
         }
     }
 
-    /*
-    슬라이드 쇼에서 다음 버튼을 클릭했을 때 실행
-    사용자가 버튼을 클릭하면 슬라이드 쇼의 현재 인덱스가 증가하여 다음 슬라이드로 이동 
-    하지만 이 동작은 클릭이 가능한 상태(isClickable)인 경우에만 실행되며, 
-    슬라이드가 마지막에 도달했을 때 순환하여 처음으로 돌아가게 하는 논리가 포함
-    */
-    // 다음 버튼 클릭 시 슬라이더의 인덱스를 증가
+    // 다음 슬라이드로 이동하는 함수입니다.
+    // 사용자가 다음 버튼을 클릭했을 때 호출됩니다.
     const handleNextClick = () => {
-        // 슬라이드가 클릭 가능한 상태인지 확인
-        if (isClickable) {
-            /* 
-            prevIndex + 1: 현재 인덱스를 하나 증가시켜 다음 슬라이드로 이동
-            % randomPhotos.length: 슬라이드 개수로 나눈 나머지를 계산하여, 
-                                   마지막 슬라이드에서 첫 번째 슬라이드로 돌아가게 함
-            */
-            setCurrentIndex((prevIndex) =>
-                (prevIndex + 1) % randomPhotos.length
-            )
+        if (isClickable) { // 클릭 가능한 상태인지 확인합니다.
+            console.log('Next button clicked')
+            setCurrentIndex((prevIndex) => {
+                // 다음 인덱스를 계산하여 순환형 슬라이드를 구현합니다.
+                const nextIndex = (prevIndex + 1) % randomPhotos.length
+                console.log('Next index:', nextIndex)
+                return nextIndex
+            })
         }
     }
 
-    /*
-    사용자가 슬라이드 쇼에서 특정 이미지를 클릭했을 때 실행
-    이 함수는 이미지가 클릭 가능한 상태인지 확인하고, 
-    클릭이 가능할 경우 특정 동작을 수행
-    클릭 후에는 슬라이드 쇼의 자동 전환을 중지하고, 
-    클릭 후 추가적인 동작(예: 부모 컴포넌트에 이미지 클릭 정보를 전달)을 처리
-    */
-    // 사진을 클릭했을 때 해당 사진의 URL을 부모 컴포넌트로 전달
-    const handlePhotoClick = (photoUrl) => {
-        // 현재 슬라이드가 클릭 가능한 상태인지 확인
-        if (isClickable) {
-            // 슬라이드를 클릭한 후 추가적인 클릭이 발생하지 않도록 클릭 가능 상태를 false로 설정
-            setIsClickable(false)
-
-            // 슬라이드 쇼의 자동 전환을 중지하기 위해 설정된 인터벌 타이머를 해제
-            clearInterval(slideIntervalRef.current)
-
-            // 부모 컴포넌트에 클릭된 사진의 URL을 전달하여, 이후 동작을 처리할 수 있도록 함
-            onPhotoClick(photoUrl)
+    // 특정 이미지를 클릭했을 때 호출되는 함수입니다.
+    const handlePhotoClick = (photoUrl, index) => {
+        if (isClickable) { // 클릭 가능한 상태인지 확인합니다.
+            console.log('Image clicked:', index, photoUrl)
+            setIsClickable(false) // 클릭을 비활성화합니다.
+            clearInterval(slideIntervalRef.current) // 자동 슬라이드 타이머를 해제합니다.
+            onPhotoClick(photoUrl) // 클릭된 이미지의 URL을 부모 컴포넌트로 전달합니다.
+            
+            // 클릭 후 1초 후에 클릭 가능 상태로 변경합니다.
+            setTimeout(() => {
+                console.log('Making slides clickable again after click')
+                setIsClickable(true)
+            }, 1000)
         }
     }
 
-    // 모든 이미지가 로드된 후 호출되어 로드 상태를 true로 설정
+    // 모든 이미지가 로드되었을 때 호출되는 함수입니다.
+    // 이는 각 이미지에 `onLoad` 이벤트 핸들러로 연결됩니다.
     const handleImageLoad = () => {
-        setIsImagesLoaded(true)
+        console.log('Image loaded')
+        setIsImagesLoaded(true) // 이미지 로드 상태를 true로 설정합니다.
     }
 
-    // 사진이 없는 경우 컴포넌트가 렌더링되지 않도록 처리
+    // 만약 `randomPhotos` 배열이 비어 있으면 아무 것도 렌더링하지 않습니다.
     if (randomPhotos.length === 0) {
+        console.log('No photos available, rendering nothing')
         return null
     }
 
+    // 슬라이드 쇼 UI를 렌더링합니다.
     return (
         <div className="relative w-full h-[400px] overflow-hidden">
             {/* 이전 슬라이드로 이동하는 버튼 */}
             <button
-                className="absolute top-1/2 left-4 
-                           transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full z-10"
-                onClick={handlePrevClick} // 이전 슬라이드로 이동하는 함수 호출
-                disabled={!isClickable || !isImagesLoaded} // 클릭 가능한 상태와 이미지가 로드된 상태 확인
+                className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full z-10"
+                onClick={handlePrevClick}
+                disabled={!isClickable || !isImagesLoaded} // 클릭 가능 상태와 이미지 로드 상태를 확인합니다.
             >
-
-                <SlArrowLeft size={25} /> {/* 이전 방향 화살표 아이콘 */}
+                <SlArrowLeft size={25} />
             </button>
 
             {/* 다음 슬라이드로 이동하는 버튼 */}
             <button
-                className="absolute top-1/2 right-4 
-                           transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full z-10"
-                onClick={handleNextClick} // 다음 슬라이드로 이동하는 함수 호출
-                disabled={!isClickable || !isImagesLoaded} // 클릭 가능한 상태와 이미지가 로드된 상태 확인
+                className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full z-10"
+                onClick={handleNextClick}
+                disabled={!isClickable || !isImagesLoaded} // 클릭 가능 상태와 이미지 로드 상태를 확인합니다.
             >
-                <SlArrowRight size={25} /> {/* 다음 방향 화살표 아이콘 */}
+                <SlArrowRight size={25} />
             </button>
 
-            {/* 슬라이드 이미지 렌더링 */}
+            {/* 무작위로 셔플된 사진 배열을 렌더링합니다. */}
             {randomPhotos.map((photo, index) => (
                 <img
-                    key={index} // 각 이미지를 고유하게 식별하기 위한 키
-                    src={photo} // 이미지의 소스 URL
-                    alt={`Slide ${index + 1}`} // 이미지에 대한 대체 텍스트, 접근성 향상
-                    className={`absolute top-0 left-0 w-full h-full 
-                                object-cover transition-opacity duration-1000 ${index === currentIndex ? 'opacity-100' : 'opacity-0'}`}
-                    onLoad={handleImageLoad} // 이미지가 로드된 후 실행되는 함수
-                    onClick={() => handlePhotoClick(photo)} // 이미지를 클릭했을 때 실행되는 함수
+                    key={`Slide ${index + 1}`} // 고유한 키 값을 지정하여 React가 효율적으로 업데이트할 수 있도록 합니다.
+                    src={photo} // 이미지의 소스 URL을 지정합니다.
+                    alt={`Slide ${index + 1}`} // 대체 텍스트를 지정하여 접근성을 향상시킵니다.
+                    className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                        index === currentIndex ? 'opacity-100' : 'opacity-0'
+                    }`} // 현재 인덱스의 이미지만 보이도록 설정합니다.
+                    onLoad={handleImageLoad} // 이미지가 로드된 후 `handleImageLoad` 함수를 호출합니다.
+                    onClick={() => handlePhotoClick(photo, index)} // 이미지를 클릭했을 때 `handlePhotoClick` 함수를 호출합니다.
+                    style={{ pointerEvents: index === currentIndex ? 'auto' : 'none' }} // 현재 인덱스의 이미지만 클릭할 수 있도록 설정합니다.
                 />
             ))}
         </div>
