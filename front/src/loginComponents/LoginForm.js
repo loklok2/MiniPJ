@@ -52,6 +52,9 @@ export default function LoginForm({ onLogin }) {
             } else if (response.status === 401) {
                 setError('인증에 실패했습니다. 이메일과 비밀번호를 확인하세요.')
                 return
+            } else if (response.status === 409) {  // 이메일 중복 에러 처리
+                setError('이 이메일은 이미 사용 중입니다.')
+                return
             } else if (response.status === 500) {
                 setError('서버 오류가 발생했습니다. 잠시 후 다시 시도하세요.')
                 return
