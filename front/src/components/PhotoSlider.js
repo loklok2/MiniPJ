@@ -71,7 +71,7 @@ export default function PhotoSlider({ photos = [], onPhotoClick }) {
                     console.log('Making slides clickable again')
                     setIsClickable(true)
                 }, 1000)
-            }, 5000) // 5초마다 슬라이드가 전환됩니다.
+            }, 3000) // 5초마다 슬라이드가 전환됩니다.
 
             // 컴포넌트가 언마운트되거나 상태가 변경될 때 타이머를 해제합니다.
             return () => {
